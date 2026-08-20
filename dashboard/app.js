@@ -221,31 +221,158 @@
     }));
   }
 
-  function renderWeek() {
-    const start = startOfWeek(state.cursor);
-    const days = Array.from({length:7}, (_,i) => addDays(start,i));
-    const rows = filteredRows().filter(r => r.broadcast_date >= dateKey(days[0]) && r.broadcast_date <= dateKey(days[6]));
-    const byDayHour = groupBy(rows, r => `${r.broadcast_date}|${String(new Date(r.start_datetime).getHours()).padStart(2,"0")}`);
-    let html = `<div class="week-board"><div class="week-corner week-head"></div>`;
-    for (const d of days) html += `<div class="week-day-head week-head">${["일","월","화","수","목","금","토"][d.getDay()]}<small>${d.getMonth()+1}/${d.getDate()}</small></div>`;
-    for (let hour=0; hour<24; hour++) {
-      html += `<div class="week-hour">${String(hour).padStart(2,"0")}:00</div>`;
-      for (const d of days) {
-        const key = `${dateKey(d)}|${String(hour).padStart(2,"0")}`;
-        const slot = byDayHour[key] || [];
-        html += `<div class="week-slot">` + slot.map(r => {
-          const t = timeHHMM(r.start_datetime);
-          const interest = state.interests.has(interestKey(r));
-          return `<button class="event-chip ${isPastDate(r.broadcast_date) ? "past" : ""} ${interest ? "interest":""}" data-show-id="${escapeHtml(r.hsshow_id)}">
-            <strong>${escapeHtml(t)} ${escapeHtml(productName(r))}</strong><span>${escapeHtml(r.platform_name || "")}</span>
-          </button>`;
-        }).join("") + `</div>`;
-      }
-    }
-    html += `</div>`;
-    $("calendarRoot").innerHTML = html;
-    attachEventChips();
+function renderWeek() {
+  const start = startOfWeek(state.cursor);
+  const days = Array.from({ length: 7 }, (_, i) => addDays(start, i));
+
+  const rows = filteredRows().filter(
+    r => r.broadcast_date >= dateKey(days[0]) &&
+         r.broadcast_date <= dateKey(days[6])
+  );
+
+  const byDayHour = groupBy(rows, r =>
+    `${r.broadcast_date}|${String(new Date(r.start_datetime).getHours()).padStart(2, "0")}`
+  );
+
+  const todayKey = dateKey(todayKST());
+
+  let html = `<div class="week-board">`;
+  html += `<div class="week-corner week-head"></div>`;
+
+  for (const d of days) {
+    const dKey = dateKey(d);
+    const isToday = dKey === todayKey;
+
+    html += `
+      <div class="week-day-head week-head ${isToday ? "today" : ""}">
+        ${["일","월","화","수","목","금","토"][d.getDay()]}
+        <small>${d.getMonth() + 1}/${d.getDate()}</small>
+      </div>
+    `;
   }
+
+  for (let hour = 0; hour < 24; hour++) {
+    html += `
+      <div class="week-hour">
+        ${String(hour).padStart(2, "0")}:00
+      </div>
+    `;
+
+    for (const d of days) {
+      const dKey = dateKey(d);
+      const key = `${dKey}|${String(hour).padStart(2, "0")}`;
+
+      const slot = (byDayHour[key] || []).sort((a, b) =>
+        (a.start_datetime || "").localeCompare(b.start_datetime || "")
+      );
+
+      const visibleRows = slot.slice(0, 3);
+      const hiddenCount = Math.max(0, slot.length - visibleRows.length);
+      const isToday = dKey === todayKey;
+
+      html += `
+        <div class="week-slot ${isToday ? "today" : ""}">
+          ${visibleRows.map(r => {
+            const t = timeHHMM(r.start_datetime);
+            const interest = state.interests.has(interestKey(r));
+
+            return `
+              <button
+                class="event-chip ${isPastDate(r.broadcast_date) ? "past" : ""} ${interest ? "interest" : ""}"
+                data-show-id="${escapeHtml(r.hsshow_id)}"
+                title="${escapeHtml(productName(r))}"
+              >
+                <strong>
+                  ${escapeHtml(t)} ${escapeHtml(productName(r))}
+                </strong>
+                <span>${escapeHtml(r.platform_name || "")}</span>
+              </button>
+            `;
+          }).join("")}
+
+          ${
+            hiddenCount > 0
+              ? `
+                <button
+                  class="week-more-btn"
+                  data-week-more="${escapeHtml(key)}"
+                >
+                  + ${hiddenCount}개 더보기
+                </button>
+              `
+              : ""
+          }
+        </div>
+      `;
+    }
+  }
+
+  html += `</div>`;
+
+  $("#calendarRoot").innerHTML = html;
+
+  attachEventChips();
+
+  document.querySelectorAll("[data-week-more]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const key = btn.dataset.weekMore;
+      const slot = (byDayHour[key] || []).sort((a, b) =>
+        (a.start_datetime || "").localeCompare(b.start_datetime || "")
+      );
+
+      openWeekMoreModal(key, slot);
+    });
+  });
+}
+
+  function openWeekMoreModal(key, rows) {
+  document.querySelector(".week-modal-backdrop")?.remove();
+
+  const [day, hour] = key.split("|");
+
+  const backdrop = document.createElement("div");
+  backdrop.className = "week-modal-backdrop";
+
+  backdrop.innerHTML = `
+    <div class="week-modal">
+      <div class="week-modal-head">
+        <div>
+          <strong>${escapeHtml(day)} ${escapeHtml(hour)}시 방송</strong>
+          <span>${rows.length}개 방송</span>
+        </div>
+
+        <button class="week-modal-close" type="button">×</button>
+      </div>
+
+      <div class="week-modal-list">
+        ${rows.map(r => `
+          <div class="week-modal-item">
+            <div class="week-modal-time">
+              ${escapeHtml(timeHHMM(r.start_datetime))}
+            </div>
+
+            <div class="week-modal-info">
+              <strong>${escapeHtml(productName(r))}</strong>
+              <span>${escapeHtml(r.platform_name || "")}</span>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(backdrop);
+
+  backdrop.querySelector(".week-modal-close").addEventListener("click", () => {
+    backdrop.remove();
+  });
+
+  backdrop.addEventListener("click", e => {
+    if (e.target === backdrop) {
+      backdrop.remove();
+    }
+  });
+}
 
   function renderDay() {
     const key = dateKey(state.cursor);
