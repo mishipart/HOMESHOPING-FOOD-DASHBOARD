@@ -1612,6 +1612,38 @@
     renderKPIs(rows);
   }
 
+
+  function matchReviewOccurrences(item) {
+    const raw = norm(
+      item.raw_title ||
+      item.title ||
+      item.match_keyword ||
+      item.standard_product_name ||
+      ""
+    );
+
+    if (!raw) return [];
+
+    return state.rows
+      .filter(r => {
+        const candidates = [
+          r.raw_title,
+          r.normalized_title,
+          r.standard_product_name
+        ].map(norm);
+
+        return candidates.some(c =>
+          c === raw ||
+          (raw.length >= 6 && (c.includes(raw) || raw.includes(c)))
+        );
+      })
+      .sort((a, b) =>
+        String(b.start_datetime || "").localeCompare(
+          String(a.start_datetime || "")
+        )
+      );
+  }
+
   function reviewKey(item) {
     return String(item.hsshow_id || item.raw_title || item.match_keyword || item.standard_product_name || "").trim();
   }
