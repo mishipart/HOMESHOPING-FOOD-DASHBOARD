@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>홈쇼핑 식품 모니터 V2.7</title>
-  <link rel="stylesheet" href="./styles.css?v=2.7.0">
+  <title>홈쇼핑 식품 모니터 V2.8.1</title>
+  <link rel="stylesheet" href="./styles.css?v=2.8.1">
 </head>
 <body>
   <main class="shell">
@@ -156,7 +156,9 @@
         <div class="segmented review-state-filter">
           <button data-review-filter="pending" class="active">미확인</button>
           <button data-review-filter="confirmed">분류완료</button>
+          <button data-review-filter="dynamic">가변방송</button>
           <button data-review-filter="excluded">제외</button>
+          <button data-review-filter="audit">변경이력</button>
           <button data-review-filter="all">전체</button>
         </div>
       </div>
@@ -181,7 +183,7 @@
       <div id="watchResults"></div>
     </section>
 
-    <footer>홈쇼핑 식품 모니터 V2.7 · 관리자 영구 상품 마스터</footer>
+    <footer>홈쇼핑 식품 모니터 V2.8.1 · 관리자 영구 상품 마스터</footer>
   </main>
 
   <dialog id="adminDialog">
@@ -219,6 +221,7 @@
             <option value="create_new">신규 상품 등록</option>
             <option value="update_product">기존 분류 수정</option>
             <option value="merge_product">다른 상품과 합치기</option>
+            <option value="mark_dynamic_title">가변형 방송명 · 방송별 분류</option>
             <option value="exclude">모니터링 제외</option>
             <option value="restore">제외 복원</option>
           </select>
@@ -228,7 +231,12 @@
         </label>
       </div>
       <datalist id="masterProductNames"></datalist>
+      <div id="similarSuggestions" class="suggestion-box"></div>
       <div id="aliasPreview" class="alias-box"></div>
+      <div id="bulkAliasTools" class="bulk-tools hidden">
+        <input id="bulkAliasTarget" list="masterProductNames" placeholder="선택 원본명을 이동할 표준상품">
+        <button id="bulkAliasMoveBtn" type="button" class="btn">선택 원본명 이동</button>
+      </div>
       <div id="productSaveError" class="error-text"></div>
       <div class="dialog-actions">
         <button value="cancel" class="btn">취소</button>
@@ -237,7 +245,22 @@
     </form>
   </dialog>
 
-  <script src="./config.js?v=2.7.0"></script>
-  <script src="./app.js?v=2.7.0"></script>
+
+  <dialog id="historyDialog">
+    <div class="dialog-card history-dialog">
+      <div class="dialog-title-row">
+        <div>
+          <h3 id="historyDialogTitle">방송이력</h3>
+          <div id="historyDialogSub" class="muted"></div>
+        </div>
+        <button id="historyCloseBtn" type="button" class="icon-btn">✕</button>
+      </div>
+      <div id="historyDateList" class="history-date-list"></div>
+      <div id="historyOccurrenceList" class="history-occurrence-list hidden"></div>
+    </div>
+  </dialog>
+
+  <script src="./config.js?v=2.8.1"></script>
+  <script src="./app.js?v=2.8.1"></script>
 </body>
 </html>

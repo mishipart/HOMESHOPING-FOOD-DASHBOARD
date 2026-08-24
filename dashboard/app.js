@@ -9,6 +9,7 @@
     masterPublic: [],
     pending: [],
     adminMaster: null,
+    historyContext: null,
     adminPassword: sessionStorage.getItem("hsfm_admin_password") || "",
     activeTab: "calendar",
     view: "month",
@@ -125,7 +126,45 @@
     }) || null;
   }
 
+  function occurrenceRuleForRow(r){
+    const rules = state.adminMaster?.occurrence_rules || [];
+    const id = clean(r.hsshow_id);
+    return id ? rules.find(x => clean(x.hsshow_id) === id) : null;
+  }
+
+  function dynamicRuleForRow(r){
+    const rules = state.adminMaster?.dynamic_rules || [];
+    const raw = normalize(getRawTitle(r));
+    const platform = normalize(getPlatform(r));
+    return rules.find(x => {
+      const p = normalize(x.pattern || "");
+      const ch = normalize(x.platform || "");
+      return p && raw.includes(p) && (!ch || ch === platform);
+    }) || null;
+  }
+
   function overlayRow(r){
+    // Priority 1: one specific broadcast occurrence
+    const o = occurrenceRuleForRow(r);
+    if(o){
+      return {
+        ...r,
+        standard_product_name: o.standard_product_name || r.standard_product_name,
+        brand: o.brand || r.brand,
+        product_group: o.product_group || r.product_group,
+        main_ingredient: o.main_ingredient || r.main_ingredient,
+        review_status: o.review_status || "confirmed",
+        enabled: o.enabled || "Y",
+        occurrence_override: "Y"
+      };
+    }
+
+    // A variable title must not inherit a global title mapping.
+    if(dynamicRuleForRow(r)){
+      return {...r, dynamic_title: "Y"};
+    }
+
+    // Priority 2: admin/base master by title
     const m=findMasterForRow(r);
     if(!m) return {...r};
     return {
@@ -349,6 +388,19 @@
     return `<div class="accordion-item"><button class="accordion-head"><b>${esc(name)}</b><span>${rs.length}회</span><span class="money">${money(m.sales)}</span><span>평균 ${money(m.avg)}</span></button><div class="accordion-body">${rs.sort((a,b)=>clean(b.start_datetime).localeCompare(clean(a.start_datetime))).map(r=>`<div class="broadcast-mini"><span>${getDate(r)} ${getTime(r)}</span><span>${esc(getPlatform(r))}</span><span>${esc(getProductName(r))}</span><span>${cnt(salesCount(r))}</span><span class="money">${performanceOk(r)?money(sales(r)):"-"}</span></div>`).join("")}</div></div>`;
   }
 
+  function occurrenceInReviewRange(r){
+    const p=$("#reviewPlatform").value, s=$("#reviewStart").value, e=$("#reviewEnd").value;
+    const d=getDate(r);
+    if(p && getPlatform(r)!==p) return false;
+    if(s && d<s) return false;
+    if(e && d>e) return false;
+    return true;
+  }
+
+  function reviewOccurrences(rows){
+    return (rows || []).filter(occurrenceInReviewRange);
+  }
+
   function buildOccurrenceMap(){
     const map=new Map();
     for(const r of state.rows){
@@ -358,72 +410,239 @@
     return map;
   }
 
+  function masterRowsForReview(){
+    return state.adminMaster?.rows || state.masterPublic || [];
+  }
+
+  function masterProductGroups(){
+    const groups=new Map();
+    for(const m of masterRowsForReview()){
+      const std=clean(m.standard_product_name||m.match_keyword||"미분류");
+      const g=groups.get(std)||{standard_product_name:std,aliases:[],master:m};
+      g.aliases.push(m);
+      groups.set(std,g);
+    }
+    return groups;
+  }
+
+  function occurrencesForAliases(aliases){
+    const keys=(aliases||[]).map(a=>normalize(a.match_keyword)).filter(Boolean);
+    return state.rows.filter(r=>{
+      const raw=normalize(getRawTitle(r));
+      return keys.some(k=>raw===k || raw.includes(k) || k.includes(raw));
+    });
+  }
+
   function getReviewItems(filter){
-    const occurrence=buildOccurrenceMap(), out=[], adminRows=state.adminMaster?.rows||[], publicRows=state.masterPublic||[];
-    const masterRows=state.adminMaster ? adminRows : publicRows;
+    if(filter==="audit"){
+      return (state.adminMaster?.audit || []).map(x=>({kind:"audit",audit:x}));
+    }
+
+    const occurrence=buildOccurrenceMap(), out=[];
+    const groups=masterProductGroups();
+
     if(filter==="pending" || filter==="all"){
       for(const x of occurrence.values()){
-        const sample=x.rows.at(-1), m=findMasterForRow(sample), excluded=m&&isExcludedRow(m), confirmed=m&&(/confirmed/i.test(clean(m.review_status))||clean(m.standard_product_name));
-        if(!m || (!confirmed&&!excluded)){
+        const sample=x.rows.at(-1), m=findMasterForRow(sample);
+        const dynamic=!!dynamicRuleForRow(sample);
+        const excluded=m&&isExcludedRow(m);
+        const confirmed=m&&(/confirmed/i.test(clean(m.review_status))||clean(m.standard_product_name));
+        const overriddenCount=x.rows.filter(r=>occurrenceRuleForRow(r)).length;
+
+        // Dynamic titles remain reviewable until every occurrence in the selected range is overridden.
+        if(dynamic){
+          const inRange=reviewOccurrences(x.rows);
+          const unresolved=inRange.filter(r=>!occurrenceRuleForRow(r));
+          if(unresolved.length){
+            out.push({kind:"dynamic",raw_title:x.raw,standard_product_name:"",master:null,occurrences:x.rows});
+          }
+        } else if(!m || (!confirmed&&!excluded)){
           out.push({kind:"pending",raw_title:x.raw,standard_product_name:m?.standard_product_name||"",master:m||null,occurrences:x.rows});
         }
       }
     }
+
     if(filter==="confirmed" || filter==="excluded" || filter==="all"){
-      const groups=new Map();
-      for(const m of masterRows){
-        const std=clean(m.standard_product_name||m.match_keyword||"미분류");
-        const excluded=isExcludedRow(m);
+      for(const g of groups.values()){
+        const excluded=isExcludedRow(g.master);
         if(filter==="confirmed"&&excluded) continue;
         if(filter==="excluded"&&!excluded) continue;
-        if(filter==="all"||filter==="confirmed"||filter==="excluded"){
-          const g=groups.get(std)||{kind:excluded?"excluded":"confirmed",standard_product_name:std,aliases:[],master:m,occurrences:[]};
-          g.aliases.push(m); groups.set(std,g);
-        }
-      }
-      for(const g of groups.values()){
-        const aliasKeys=g.aliases.map(a=>normalize(a.match_keyword)).filter(Boolean);
-        g.occurrences=state.rows.filter(r=>aliasKeys.some(k=>normalize(getRawTitle(r)).includes(k)));
+        g.kind=excluded?"excluded":"confirmed";
+        g.occurrences=occurrencesForAliases(g.aliases);
         out.push(g);
       }
     }
+
+    if(filter==="dynamic"){
+      const dynRules=state.adminMaster?.dynamic_rules||[];
+      for(const dr of dynRules){
+        const occurrences=state.rows.filter(r=>{
+          const raw=normalize(getRawTitle(r)), p=normalize(dr.pattern), ch=normalize(dr.platform||"");
+          return p && raw.includes(p) && (!ch || normalize(getPlatform(r))===ch);
+        });
+        out.push({kind:"dynamic",raw_title:dr.pattern,standard_product_name:"",master:dr,occurrences});
+      }
+    }
+
     return out;
   }
 
   function reviewFilterMatch(item){
-    const q=normalize($("#reviewSearch").value), p=$("#reviewPlatform").value, s=$("#reviewStart").value, e=$("#reviewEnd").value;
+    if(item.kind==="audit"){
+      const q=normalize($("#reviewSearch").value);
+      if(!q) return true;
+      const a=item.audit||{};
+      return normalize(`${a.action||""} ${a.subject||""} ${a.detail||""}`).includes(q);
+    }
+
+    const q=normalize($("#reviewSearch").value);
     const hay=normalize(`${item.raw_title||""} ${item.standard_product_name||""} ${item.master?.brand||""} ${(item.aliases||[]).map(a=>a.match_keyword).join(" ")}`);
     if(q&&!hay.includes(q)) return false;
-    if(p&&!item.occurrences.some(r=>getPlatform(r)===p)) return false;
-    if(s&&!item.occurrences.some(r=>getDate(r)>=s)) return false;
-    if(e&&!item.occurrences.some(r=>getDate(r)<=e)) return false;
+
+    // IMPORTANT V2.8.1: date/platform filter is applied to the occurrences themselves.
+    const filtered=reviewOccurrences(item.occurrences);
+    const filterActive=!!($("#reviewPlatform").value||$("#reviewStart").value||$("#reviewEnd").value);
+    if(filterActive && !filtered.length) return false;
     return true;
   }
 
   function renderReview(){
     const all=getReviewItems(state.reviewFilter), items=all.filter(reviewFilterMatch);
-    const pending=getReviewItems("pending").length, confirmed=getReviewItems("confirmed").length, excluded=getReviewItems("excluded").length;
-    $("#reviewSummary").innerHTML=`<span class="summary-chip">미확인 ${pending}건</span><span class="summary-chip">분류완료 ${confirmed}개</span><span class="summary-chip">제외 ${excluded}개</span><span class="summary-chip">현재 표시 ${items.length}건</span>`;
-    $("#reviewList").innerHTML=items.slice(0,500).map(item=>{
-      const occ=[...item.occurrences].sort((a,b)=>clean(b.start_datetime).localeCompare(clean(a.start_datetime)));
-      const last=occ[0], aliasCount=item.aliases?.length||0;
+    const pending=getReviewItems("pending").filter(reviewFilterMatch).length;
+    const confirmed=getReviewItems("confirmed").filter(reviewFilterMatch).length;
+    const dynamic=getReviewItems("dynamic").filter(reviewFilterMatch).length;
+    const excluded=getReviewItems("excluded").filter(reviewFilterMatch).length;
+
+    $("#reviewSummary").innerHTML=`
+      <span class="summary-chip clickable ${state.reviewFilter==="pending"?"active":""}" data-summary-filter="pending">미확인 ${pending}건</span>
+      <span class="summary-chip clickable ${state.reviewFilter==="confirmed"?"active":""}" data-summary-filter="confirmed">분류완료 ${confirmed}개</span>
+      <span class="summary-chip clickable ${state.reviewFilter==="dynamic"?"active":""}" data-summary-filter="dynamic">가변방송 ${dynamic}개</span>
+      <span class="summary-chip clickable ${state.reviewFilter==="excluded"?"active":""}" data-summary-filter="excluded">제외 ${excluded}개</span>
+      <span class="summary-chip">현재 표시 ${items.length}건</span>`;
+
+    $$("[data-summary-filter]").forEach(b=>b.onclick=()=>setReviewFilter(b.dataset.summaryFilter));
+
+    if(state.reviewFilter==="audit"){
+      const audits=items.slice(0,500).map(x=>x.audit);
+      $("#reviewList").innerHTML=`<div class="audit-table">
+        <div class="audit-row head"><span>일시</span><span>작업</span><span>대상</span><span>내용</span></div>
+        ${audits.map(a=>`<div class="audit-row"><span>${esc(a.created_at||"")}</span><b>${esc(a.action||"")}</b><span>${esc(a.subject||"")}</span><span>${esc(a.detail||"")}</span></div>`).join("")}
+      </div>`;
+      return;
+    }
+
+    $("#reviewList").innerHTML=items.slice(0,700).map(item=>{
+      const allOcc=[...item.occurrences].sort((a,b)=>clean(b.start_datetime).localeCompare(clean(a.start_datetime)));
+      const occ=reviewOccurrences(allOcc);
+      const displayOcc=occ.length?occ:allOcc;
+      const last=displayOcc[0], aliasCount=item.aliases?.length||0;
+      const periodLabel=($("#reviewStart").value||$("#reviewEnd").value||$("#reviewPlatform").value)?"선택기간":"전체";
+      const badge=item.kind==="pending"?'<span class="badge warn">확인필요</span>':
+        item.kind==="dynamic"?'<span class="badge dynamic">가변방송</span>':
+        item.kind==="excluded"?'<span class="badge hot">제외</span>':'<span class="badge good">분류완료</span>';
+
       return `<div class="review-card"><div>
-        <h4>${item.kind==="pending"?'<span class="badge warn">확인필요</span>':item.kind==="excluded"?'<span class="badge hot">제외</span>':'<span class="badge good">분류완료</span>'}${esc(item.standard_product_name||item.raw_title)}</h4>
+        <h4>${badge}${esc(item.standard_product_name||item.raw_title)}</h4>
         ${item.raw_title&&item.standard_product_name?`<div class="small">원본: ${esc(item.raw_title)}</div>`:""}
-        <div class="review-meta">${last?`최근 방송 ${getDate(last)} ${getTime(last)} · ${esc(getPlatform(last))}`:"방송 이력 없음"}${occ.length?` · 방송 ${occ.length}회`:""}${aliasCount?` · 연결 원본명 ${aliasCount}개`:""}</div>
+        <div class="review-meta">${last?`${periodLabel} 최근 방송 ${getDate(last)} ${getTime(last)} · ${esc(getPlatform(last))}`:"방송 이력 없음"}${displayOcc.length?` · ${periodLabel} 방송 ${displayOcc.length}회`:""}${aliasCount?` · 연결 원본명 ${aliasCount}개`:""}</div>
+        ${item.kind==="dynamic"?'<div class="dynamic-note">이 제목은 방송마다 실제 상품이 달라질 수 있어 자동 대표상품으로 묶지 않습니다.</div>':""}
       </div><div class="review-actions">
-        ${occ.length?`<button class="btn" data-history="${esc(item.standard_product_name||item.raw_title)}">방송이력</button>`:""}
+        ${allOcc.length?`<button class="btn" data-history="${esc(item.standard_product_name||item.raw_title)}" data-kind="${item.kind}">방송이력</button>`:""}
         <button class="btn primary" data-edit-review="${esc(item.standard_product_name||item.raw_title)}" data-kind="${item.kind}">관리</button>
       </div></div>`;
     }).join("")||'<div class="card muted">조건에 맞는 상품이 없습니다.</div>';
+
     $$("[data-edit-review]").forEach(b=>b.onclick=()=>openProductDialog(b.dataset.editReview,b.dataset.kind));
-    $$("[data-history]").forEach(b=>b.onclick=()=>alertReviewHistory(b.dataset.history));
+    $$("[data-history]").forEach(b=>b.onclick=()=>openHistoryDialog(b.dataset.history,b.dataset.kind));
   }
 
-  function alertReviewHistory(name){
-    const item=[...getReviewItems("all")].find(x=>(x.standard_product_name||x.raw_title)===name); if(!item) return;
-    const txt=item.occurrences.sort((a,b)=>clean(b.start_datetime).localeCompare(clean(a.start_datetime))).slice(0,40).map(r=>`${getDate(r)} ${getTime(r)} | ${getPlatform(r)} | ${getRawTitle(r)}`).join("\n");
-    alert(txt||"방송 이력이 없습니다.");
+  function setReviewFilter(filter){
+    state.reviewFilter=filter;
+    $$(".review-state-filter button").forEach(x=>x.classList.toggle("active",x.dataset.reviewFilter===filter));
+    renderReview();
+  }
+
+  function findReviewItem(name,kind){
+    return getReviewItems(kind==="dynamic"?"dynamic":"all").find(x=>(x.standard_product_name||x.raw_title)===name) ||
+           getReviewItems("all").find(x=>(x.standard_product_name||x.raw_title)===name);
+  }
+
+  function openHistoryDialog(name,kind){
+    const item=findReviewItem(name,kind); if(!item) return;
+    state.historyContext={name,kind,item};
+    $("#historyDialogTitle").textContent=`방송이력 · ${name}`;
+    const filtered=reviewOccurrences(item.occurrences);
+    const rows=(filtered.length || $("#reviewStart").value || $("#reviewEnd").value || $("#reviewPlatform").value) ? filtered : item.occurrences;
+    const groups=new Map();
+    rows.forEach(r=>{const d=getDate(r);(groups.get(d)||groups.set(d,[]).get(d)).push(r);});
+    const dates=[...groups.keys()].sort((a,b)=>b.localeCompare(a));
+
+    $("#historyDialogSub").textContent=`${dates.length}개 일자 · ${rows.length}회 방송`;
+    $("#historyOccurrenceList").classList.add("hidden");
+    $("#historyDateList").classList.remove("hidden");
+    $("#historyDateList").innerHTML=dates.map(d=>{
+      const rs=groups.get(d).sort((a,b)=>clean(a.start_datetime).localeCompare(clean(b.start_datetime)));
+      const channels=[...new Set(rs.map(getPlatform))].join(", ");
+      return `<button type="button" class="history-date-row" data-history-date="${d}">
+        <b>${d}</b><span>${esc(channels)}</span><span>${rs.length}건</span><span>선택 ›</span>
+      </button>`;
+    }).join("")||'<div class="muted">선택기간 방송이력이 없습니다.</div>';
+
+    $$("[data-history-date]").forEach(b=>b.onclick=()=>renderHistoryDate(b.dataset.historyDate,groups.get(b.dataset.historyDate)));
+    $("#historyDialog").showModal();
+  }
+
+  function renderHistoryDate(date,rows){
+    $("#historyDateList").classList.add("hidden");
+    $("#historyOccurrenceList").classList.remove("hidden");
+    $("#historyOccurrenceList").innerHTML=`<button type="button" class="btn history-back" id="historyBackBtn">← 일자 목록</button>
+      <h4>${date}</h4>
+      ${rows.map(r=>{
+        const o=occurrenceRuleForRow(r);
+        return `<div class="history-occ-row">
+          <b>${esc(getTime(r))}</b>
+          <span>${esc(getPlatform(r))}</span>
+          <span>${esc(getRawTitle(r))}${o?`<div class="small">지정상품: ${esc(o.standard_product_name)}</div>`:""}</span>
+          <button type="button" class="btn ${o?"":"primary"}" data-occurrence-edit="${esc(r.hsshow_id||"")}">${o?"수정":"이 방송 분류"}</button>
+        </div>`;
+      }).join("")}`;
+    $("#historyBackBtn").onclick=()=>openHistoryDialog(state.historyContext.name,state.historyContext.kind);
+    $$("[data-occurrence-edit]").forEach(b=>b.onclick=()=>openOccurrenceEditor(b.dataset.occurrenceEdit));
+  }
+
+  function openOccurrenceEditor(id){
+    const r=state.rows.find(x=>clean(x.hsshow_id)===clean(id)); if(!r) return;
+    $("#historyDialog").close();
+    $("#productDialogTitle").textContent="가변방송 · 이 방송만 분류";
+    $("#editRawTitle").value=getRawTitle(r);
+    $("#editRawDisplay").value=getRawTitle(r);
+    $("#editSourceStandard").value="";
+    const o=occurrenceRuleForRow(r)||{};
+    $("#editStandardName").value=o.standard_product_name||"";
+    $("#editBrand").value=o.brand||""; $("#editGroup").value=o.product_group||""; $("#editIngredient").value=o.main_ingredient||"";
+    $("#editAction").value="save_occurrence";
+    $("#productForm").dataset.occurrenceId=clean(r.hsshow_id);
+    $("#editBroadcastInfo").textContent=`${getDate(r)} ${getTime(r)} · ${getPlatform(r)} · 이 방송 1건에만 적용`;
+    $("#aliasPreview").innerHTML="이 저장은 같은 제목의 다른 방송에는 영향을 주지 않습니다.";
+    $("#bulkAliasTools").classList.add("hidden");
+    renderSimilarSuggestions(getRawTitle(r));
+    toggleMergeTarget();
+    $("#productDialog").showModal();
+  }
+
+  function similarityScore(a,b){
+    const A=new Set(normalize(a).split(" ").filter(x=>x.length>1)), B=new Set(normalize(b).split(" ").filter(x=>x.length>1));
+    if(!A.size||!B.size) return 0;
+    let inter=0; A.forEach(x=>B.has(x)&&inter++);
+    return inter/Math.max(A.size,B.size);
+  }
+
+  function renderSimilarSuggestions(raw){
+    const products=state.adminMaster?.products||[];
+    const top=products.map(p=>({name:p.standard_product_name,score:similarityScore(raw,p.standard_product_name)}))
+      .filter(x=>x.score>0).sort((a,b)=>b.score-a.score).slice(0,5);
+    $("#similarSuggestions").innerHTML=top.length?`<div class="suggestion-title">유사 기존상품 추천</div><div class="suggestion-buttons">${top.map(x=>`<button type="button" class="suggestion-btn" data-suggest="${esc(x.name)}">${esc(x.name)}</button>`).join("")}</div>`:"";
+    $$("[data-suggest]").forEach(b=>b.onclick=()=>{$("#editStandardName").value=b.dataset.suggest;$("#editAction").value="link_existing";});
   }
 
   async function adminLogin(){
@@ -461,31 +680,57 @@
 
   function openProductDialog(name,kind){
     if(!state.adminPassword){ adminLogin(); return; }
-    const all=getReviewItems("all"), item=all.find(x=>(x.standard_product_name||x.raw_title)===name);
-    if(!item) return;
+    const item=findReviewItem(name,kind); if(!item) return;
     const last=[...item.occurrences].sort((a,b)=>clean(b.start_datetime).localeCompare(clean(a.start_datetime)))[0];
     const m=item.master||item.aliases?.[0]||{};
-    $("#productDialogTitle").textContent=kind==="pending"?"미확인 상품 분류":"기존 상품 관리";
+    delete $("#productForm").dataset.occurrenceId;
+
+    $("#productDialogTitle").textContent=kind==="pending"?"미확인 상품 분류":kind==="dynamic"?"가변형 방송명 관리":"기존 상품 관리";
     $("#editRawTitle").value=item.raw_title||m.match_keyword||"";
     $("#editRawDisplay").value=item.raw_title||m.match_keyword||"(표준 상품 전체)";
     $("#editSourceStandard").value=item.standard_product_name||m.standard_product_name||"";
     $("#editStandardName").value=item.standard_product_name||m.standard_product_name||"";
     $("#editBrand").value=m.brand||""; $("#editGroup").value=m.product_group||""; $("#editIngredient").value=m.main_ingredient||"";
-    $("#editAction").value=kind==="pending"?"link_existing":kind==="excluded"?"restore":"update_product";
-    $("#editBroadcastInfo").textContent=last?`최근 방송: ${getDate(last)} ${getTime(last)} · ${getPlatform(last)} · 총 ${item.occurrences.length}회`:"방송 이력 없음";
+    $("#editAction").value=kind==="pending"?"link_existing":kind==="dynamic"?"mark_dynamic_title":kind==="excluded"?"restore":"update_product";
+    $("#editBroadcastInfo").textContent=last?`최근 방송: ${getDate(last)} ${getTime(last)} · ${getPlatform(last)} · 전체 ${item.occurrences.length}회`:"방송 이력 없음";
+
     const aliases=item.aliases||[];
-    $("#aliasPreview").innerHTML=aliases.length?`<b>현재 연결된 원본명 ${aliases.length}개</b><br>${aliases.map(a=>esc(a.match_keyword)).join("<br>")}`:"기존 연결 원본명 없음";
+    $("#aliasPreview").innerHTML=aliases.length?`<b>현재 연결된 원본명 ${aliases.length}개</b>${aliases.map(a=>`<label class="alias-row"><input type="checkbox" class="alias-check" value="${esc(a.match_keyword||"")}"><span>${esc(a.match_keyword||"")}</span><span class="small">${esc(a.admin_action||"")}</span></label>`).join("")}`:"기존 연결 원본명 없음";
+    $("#bulkAliasTools").classList.toggle("hidden",aliases.length<1);
+    $("#bulkAliasTarget").value="";
+    renderSimilarSuggestions(item.raw_title||item.standard_product_name||"");
     $("#mergeTarget").value=""; toggleMergeTarget(); $("#productSaveError").textContent="";
     $("#productDialog").showModal();
   }
 
-  function toggleMergeTarget(){ $("#mergeTargetWrap").classList.toggle("hidden",$("#editAction").value!=="merge_product"); }
+  function toggleMergeTarget(){
+    const action=$("#editAction").value;
+    $("#mergeTargetWrap").classList.toggle("hidden",action!=="merge_product");
+    if(action==="mark_dynamic_title"){
+      $("#editStandardName").placeholder="가변형 제목은 대표 표준상품명을 지정하지 않습니다.";
+    }else{
+      $("#editStandardName").placeholder="실제 동일 제품의 대표 이름";
+    }
+  }
 
   async function saveProductAdmin(){
     const action=$("#editAction").value, raw=$("#editRawTitle").value, source=$("#editSourceStandard").value, standard=$("#editStandardName").value;
     const body={action,raw_title:raw,match_keyword:raw,standard_product_name:standard,source_standard_product_name:source,brand:$("#editBrand").value,product_group:$("#editGroup").value,main_ingredient:$("#editIngredient").value};
+
     if(action==="merge_product"){ body.source_standard_product_name=source; body.target_standard_product_name=$("#mergeTarget").value; }
     if(action==="exclude"){ body.scope=source&&!raw?"product":"alias"; }
+    if(action==="mark_dynamic_title"){ body.pattern=raw||source; body.platform=""; }
+    if(action==="save_occurrence"){
+      body.hsshow_id=$("#productForm").dataset.occurrenceId||"";
+      const r=state.rows.find(x=>clean(x.hsshow_id)===body.hsshow_id);
+      if(r){
+        body.broadcast_date=getDate(r);
+        body.start_datetime=clean(r.start_datetime);
+        body.platform_name=getPlatform(r);
+        body.raw_title=getRawTitle(r);
+      }
+    }
+
     $("#productSaveError").textContent="";
     try{
       const r=await fetch(`${API}/save`,{method:"POST",headers:{"Content-Type":"application/json","X-Admin-Password":state.adminPassword},body:JSON.stringify(body)});
@@ -494,7 +739,19 @@
       $("#productDialog").close();
       await loadAdminMaster();
       renderAll();
-      showStatus("관리자 상품 분류를 HOMESHOPING-MONITOR에 영구 저장했습니다.");
+      showStatus("관리자 결정이 HOMESHOPING-MONITOR에 영구 저장되었습니다.");
+    }catch(e){ $("#productSaveError").textContent=e.message; }
+  }
+
+  async function bulkMoveAliases(){
+    const aliases=$$(".alias-check:checked").map(x=>x.value).filter(Boolean);
+    const target=clean($("#bulkAliasTarget").value);
+    if(!aliases.length) return $("#productSaveError").textContent="이동할 원본명을 선택하세요.";
+    if(!target) return $("#productSaveError").textContent="이동 대상 표준상품을 입력하세요.";
+    try{
+      const r=await fetch(`${API}/save`,{method:"POST",headers:{"Content-Type":"application/json","X-Admin-Password":state.adminPassword},body:JSON.stringify({action:"bulk_move_aliases",aliases,target_standard_product_name:target})});
+      const data=await r.json(); if(!r.ok||!data.ok) throw new Error(data.error||`HTTP ${r.status}`);
+      $("#productDialog").close(); await loadAdminMaster(); renderAll(); showStatus(`${aliases.length}개 원본명을 '${target}' 상품으로 이동했습니다.`);
     }catch(e){ $("#productSaveError").textContent=e.message; }
   }
 
@@ -540,12 +797,14 @@
     $$(".quick-range button").forEach(b=>b.onclick=()=>setPerfRange(b.dataset.range));
     ["#perfStart","#perfEnd","#perfPlatform","#perfGroup","#perfSearch","#perfStatus","#perfHotOnly","#perfNewOnly"].forEach(s=>$(s).addEventListener("input",renderPerformance));
     $("#resetPerf").onclick=()=>setPerfRange("yesterday");
-    $$(".review-state-filter button").forEach(b=>b.onclick=()=>{state.reviewFilter=b.dataset.reviewFilter; $$(".review-state-filter button").forEach(x=>x.classList.toggle("active",x===b));renderReview();});
+    $$(".review-state-filter button").forEach(b=>b.onclick=()=>setReviewFilter(b.dataset.reviewFilter));
     ["#reviewSearch","#reviewPlatform","#reviewStart","#reviewEnd"].forEach(s=>$(s).addEventListener("input",renderReview));
     $("#adminBtn").onclick=()=>state.adminPassword?logoutAdmin():adminLogin();
     $("#adminLoginSubmit").onclick=async e=>{e.preventDefault();const pw=$("#adminPasswordInput").value;try{if(!await verifyAdmin(pw)) throw new Error("관리자 비밀번호가 올바르지 않습니다.");state.adminPassword=pw;sessionStorage.setItem("hsfm_admin_password",pw);await loadAdminMaster();$("#adminDialog").close();renderAll();showStatus("관리자 모드로 로그인했습니다.");}catch(err){$("#adminLoginError").textContent=err.message;}};
     $("#editAction").onchange=toggleMergeTarget;
     $("#productSaveBtn").onclick=e=>{e.preventDefault();saveProductAdmin();};
+    $("#bulkAliasMoveBtn").onclick=bulkMoveAliases;
+    $("#historyCloseBtn").onclick=()=>$("#historyDialog").close();
     $("#addWatchKeyword").onclick=()=>{const k=clean($("#watchKeyword").value);if(!k)return;if(!state.watchKeywords.includes(k))state.watchKeywords.push(k);$("#watchKeyword").value="";saveWatch();renderWatch();};
   }
 

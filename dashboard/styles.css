@@ -53,7 +53,20 @@ h1{font-size:34px;margin:4px 0 4px} h2{margin:4px 0 0;font-size:22px} h3{margin:
 .week-board{display:grid;grid-template-columns:70px repeat(7,minmax(145px,1fr));border-top:1px solid var(--line);border-left:1px solid var(--line);background:#fff;overflow-x:auto}
 .week-cell{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px;min-height:58px}.week-head{position:sticky;top:0;background:#f8fafc;z-index:1;font-weight:900;text-align:center}.week-hour{font-size:11px;color:var(--muted);text-align:center}
 .week-events{display:flex;flex-direction:column;gap:4px}.event-chip{border:0;border-left:3px solid var(--primary);background:var(--primary-soft);border-radius:6px;padding:5px 6px;text-align:left;font-size:10px;line-height:1.25;overflow:hidden}.event-chip .event-title{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:800}.event-chip .event-meta{display:block;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.more-chip{font-size:10px;color:var(--primary);padding:3px}
-.day-table{background:#fff;border:1px solid var(--line);border-radius:11px;overflow:hidden}.day-row{display:grid;grid-template-columns:45px 115px 1fr 85px 105px 90px;gap:8px;padding:9px;border-bottom:1px solid #edf0f5;align-items:center}.day-row.head{background:#f8fafc;font-weight:800;font-size:11px}.star{border:0;background:transparent;font-size:16px;color:#bbb}.star.on{color:#7658ff}
+.day-table{background:#fff;border:1px solid var(--line);border-radius:11px;overflow:hidden}
+.day-row{
+  display:grid;
+  grid-template-columns:42px 72px 120px minmax(420px,1fr) 80px 100px;
+  gap:10px;
+  padding:9px 10px;
+  border-bottom:1px solid #edf0f5;
+  align-items:center
+}
+.day-row.head{background:#f8fafc;font-weight:800;font-size:11px}
+.day-row>span:nth-child(3){white-space:nowrap}
+.day-row>span:nth-child(4){min-width:0;line-height:1.35;word-break:keep-all;overflow-wrap:anywhere}
+.day-row>span:nth-child(4) .small{margin-top:3px;line-height:1.3}
+.star{border:0;background:transparent;font-size:16px;color:#bbb}.star.on{color:#7658ff}
 .accordion-item{border-top:1px solid #edf0f5}.accordion-head{display:grid;grid-template-columns:1fr 80px 120px 100px;align-items:center;width:100%;border:0;background:#fff;padding:10px 4px;text-align:left}.accordion-body{display:none;background:#f9fbfd;border-radius:8px;padding:8px;margin-bottom:8px}.accordion-item.open .accordion-body{display:block}
 .broadcast-mini{display:grid;grid-template-columns:135px 110px 1fr 90px 100px;gap:8px;border-bottom:1px solid #e8edf4;padding:7px;font-size:11px}
 .review-card{background:#fff;border:1px solid var(--line);border-radius:11px;padding:12px;margin-bottom:8px;display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center}.review-card h4{margin:0 0 6px;font-size:14px}.review-meta{font-size:11px;color:var(--muted);line-height:1.6}.review-actions{display:flex;gap:6px}
@@ -66,4 +79,38 @@ dialog{border:0;background:transparent;padding:0;max-width:min(760px,92vw)}dialo
 .error-text{color:var(--danger);font-size:11px;margin-top:8px}.mini-info,.alias-box{background:#f7f9fc;border:1px solid var(--line);border-radius:8px;padding:9px;font-size:11px;color:var(--muted);margin-top:8px}.alias-box{max-height:120px;overflow:auto}
 .chips{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0}.chip{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--line);border-radius:99px;padding:7px 10px}.chip button{border:0;background:transparent;color:var(--danger)}
 footer{font-size:10px;color:var(--muted);margin-top:18px}
-@media(max-width:980px){.kpi-grid,.kpi-grid.compact{grid-template-columns:repeat(2,1fr)}.two-col{grid-template-columns:1fr}.topbar{flex-direction:column}.day-row{grid-template-columns:42px 90px 1fr 80px}.day-row>*:nth-child(5),.day-row>*:nth-child(6){display:none}}
+@media(max-width:980px){.kpi-grid,.kpi-grid.compact{grid-template-columns:repeat(2,1fr)}.two-col{grid-template-columns:1fr}.topbar{flex-direction:column}.day-row{grid-template-columns:38px 64px 105px minmax(260px,1fr)}.day-row>*:nth-child(5),.day-row>*:nth-child(6){display:none}}
+
+
+/* ===== V2.8 Product Master Admin ===== */
+.summary-chip.clickable{cursor:pointer;transition:.15s}
+.summary-chip.clickable:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-soft)}
+.summary-chip.active{background:var(--primary);border-color:var(--primary);color:#fff}
+.badge.dynamic{background:#f1ecff;color:#6843c2}
+.suggestion-box{margin-top:8px;padding:9px;border:1px dashed var(--line);border-radius:8px;background:#fbfcfe;font-size:11px}
+.suggestion-title{font-weight:800;margin-bottom:6px}
+.suggestion-buttons{display:flex;flex-wrap:wrap;gap:6px}
+.suggestion-btn{border:1px solid var(--line);background:white;border-radius:999px;padding:5px 8px;font-size:10px}
+.suggestion-btn:hover{border-color:var(--primary);color:var(--primary)}
+.alias-row{display:grid;grid-template-columns:24px 1fr auto;gap:8px;align-items:center;padding:5px 0;border-bottom:1px solid #edf0f5}
+.bulk-tools{display:flex;gap:8px;margin-top:8px}
+.bulk-tools input{flex:1}
+.history-dialog{width:min(840px,92vw);max-height:82vh;overflow:auto}
+.history-date-list{margin-top:12px;display:flex;flex-direction:column;gap:7px}
+.history-date-row{display:grid;grid-template-columns:110px 1fr 80px auto;gap:10px;align-items:center;border:1px solid var(--line);border-radius:9px;padding:10px;background:#fff}
+.history-date-row:hover{border-color:#b7c7ef;background:#fbfcff}
+.history-occurrence-list{margin-top:12px}
+.history-back{margin-bottom:8px}
+.history-occ-row{display:grid;grid-template-columns:70px 110px 1fr auto;gap:8px;align-items:center;border-bottom:1px solid #edf0f5;padding:9px 4px}
+.audit-table{background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.audit-row{display:grid;grid-template-columns:145px 115px 1fr 1fr;gap:8px;padding:9px;border-bottom:1px solid #edf0f5;font-size:11px}
+.audit-row.head{background:#f8fafc;font-weight:800}
+.dynamic-note{color:#6843c2;font-size:11px;margin-top:4px}
+@media(max-width:800px){
+  .history-date-row{grid-template-columns:90px 1fr auto}
+  .history-date-row>*:nth-child(3){display:none}
+  .history-occ-row{grid-template-columns:60px 1fr auto}
+  .history-occ-row>*:nth-child(2){display:none}
+  .audit-row{grid-template-columns:110px 90px 1fr}
+  .audit-row>*:nth-child(4){display:none}
+}
