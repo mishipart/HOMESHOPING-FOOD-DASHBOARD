@@ -25,6 +25,8 @@
     watchProducts: new Set(),
     watchKeywords: [],
     reviewDrafts: {},
+    exclusionRules: [],
+    draftExcludeRules: [],
     firstProductDate: new Map(),
     productSalesBenchmarks: new Map(),
     overallHotThreshold: 0,
@@ -272,12 +274,111 @@
     return a[idx];
   }
 
+
+  function isExplicitExcludeStatus(value) {
+    const s = norm(value || "");
+    return (
+      s.includes("exclude") ||
+      s.includes("excluded") ||
+      s.includes("제외") ||
+      s.includes("비식품") ||
+      s.includes("모니터링 제외")
+    );
+  }
+
+  function isPendingStatus(value) {
+    const s = norm(value || "");
+    return (
+      s.includes("확인") ||
+      s.includes("pending") ||
+      s.includes("검토") ||
+      s.includes("review")
+    );
+  }
+
+  function buildExclusionRules() {
+    state.exclusionRules = state.master
+      .filter(m => {
+        const enabled = String(m.enabled || "").trim().toUpperCase();
+        const status = m.review_status || m.status || "";
+
+        // 명시적인 제외 상태는 항상 제외.
+        if (isExplicitExcludeStatus(status)) return true;
+
+        // enabled=N도 제외 규칙으로 지원하되,
+        // 기존 "확인필요/pending/검토" 상품은 숨기지 않는다.
+        if (enabled === "N" && !isPendingStatus(status)) return true;
+
+        return false;
+      })
+      .map(m => ({
+        keyword: norm(
+          m.match_keyword ||
+          m.standard_product_name ||
+          m.normalized_title ||
+          m.raw_title ||
+          ""
+        ),
+        standard: norm(m.standard_product_name || ""),
+        reason: m.review_status || "enabled=N"
+      }))
+      .filter(x => x.keyword || x.standard);
+  }
+
+  function rebuildDraftExcludeRules() {
+    state.draftExcludeRules = Object.values(state.reviewDrafts || {})
+      .filter(d => d && d.action === "exclude")
+      .map(d => ({
+        keyword: norm(
+          d.raw_title ||
+          d.match_keyword ||
+          d.standard_product_name ||
+          ""
+        ),
+        standard: norm(d.standard_product_name || "")
+      }))
+      .filter(x => x.keyword || x.standard);
+  }
+
+  function ruleMatchesRow(rule, r) {
+    const texts = [
+      norm(r.raw_title || ""),
+      norm(r.normalized_title || ""),
+      norm(r.standard_product_name || ""),
+      norm(productName(r))
+    ].filter(Boolean);
+
+    const keys = [rule.keyword, rule.standard].filter(Boolean);
+
+    return keys.some(key =>
+      texts.some(text =>
+        text === key ||
+        (key.length >= 4 && text.includes(key)) ||
+        (text.length >= 8 && key.includes(text))
+      )
+    );
+  }
+
+  function isExcludedRow(r) {
+    if (state.exclusionRules.some(rule => ruleMatchesRow(rule, r))) return true;
+    if (state.draftExcludeRules.some(rule => ruleMatchesRow(rule, r))) return true;
+    return false;
+  }
+
+  function dashboardRows() {
+    return state.rows.filter(r => !isExcludedRow(r));
+  }
+
+  function excludedRows() {
+    return state.rows.filter(isExcludedRow);
+  }
+
   function buildSignalIndexes() {
     state.firstProductDate = new Map();
     const byProductSales = new Map();
     const allSales = [];
 
-    state.rows.forEach(r => {
+    dashboardRows().forEach(r => {
       const k = productKey(r);
       if (k && r.broadcast_date) {
         const old = state.firstProductDate.get(k);
@@ -360,6 +461,8 @@
       state.reviewDrafts = JSON.parse(localStorage.getItem(REVIEW_DRAFTS_KEY) || "{}");
       if (!state.reviewDrafts || typeof state.reviewDrafts !== "object") state.reviewDrafts = {};
     } catch {}
+
+    rebuildDraftExcludeRules();
   }
 
   function saveWatchProducts() {
@@ -372,6 +475,10 @@
 
   function saveReviewDrafts() {
     localStorage.setItem(REVIEW_DRAFTS_KEY, JSON.stringify(state.reviewDrafts));
+    rebuildDraftExcludeRules();
+
+    // 제외 결정을 저장하는 즉시 캘린더/실적/HOT/NEW 계산에서도 제거.
+    if (state.rows.length) buildSignalIndexes();
   }
 
   function toast(message) {
@@ -401,12 +508,12 @@
   }
 
   function allPlatforms() {
-    return unique(state.rows.map(r => r.platform_name)).sort((a, b) => a.localeCompare(b, "ko"));
+    return unique(dashboardRows().map(r => r.platform_name)).sort((a, b) => a.localeCompare(b, "ko"));
   }
 
   function allGroups() {
     return unique([
-      ...state.rows.map(r => r.product_group),
+      ...dashboardRows().map(r => r.product_group),
       ...state.master.map(r => r.product_group)
     ]).sort((a, b) => a.localeCompare(b, "ko"));
   }
@@ -425,7 +532,7 @@
 
   function filteredCalendarRows() {
     const q = norm(state.productQuery);
-    return state.rows.filter(r => {
+    return dashboardRows().filter(r => {
       if (state.platform && r.platform_name !== state.platform) return false;
       if (q) {
         const hay = norm([productName(r), r.raw_title, r.brand, r.product_group, r.main_ingredient].join(" "));
@@ -872,11 +979,12 @@
   }
 
   function defaultPerfRange() {
-    const salesDates = state.rows.filter(hasPerformance).map(r => r.broadcast_date).filter(Boolean).sort();
+    const visibleRows = dashboardRows();
+    const salesDates = visibleRows.filter(hasPerformance).map(r => r.broadcast_date).filter(Boolean).sort();
     const latest = salesDates.length ? salesDates[salesDates.length - 1] : todayKST();
 
     const yesterday = dateKey(addDays(parseDateKey(latest), -1));
-    const hasYesterday = state.rows.some(r => r.broadcast_date === yesterday && hasPerformance(r));
+    const hasYesterday = visibleRows.some(r => r.broadcast_date === yesterday && hasPerformance(r));
 
     // 기본값은 전일. 전일 실적이 없을 때만 최신 실적일 사용.
     return hasYesterday ? [yesterday, yesterday] : [latest, latest];
@@ -885,7 +993,7 @@
   function performanceRows() {
     const p = state.perf;
     const q = norm(p.query);
-    return state.rows.filter(r => {
+    return dashboardRows().filter(r => {
       if (p.from && r.broadcast_date < p.from) return false;
       if (p.to && r.broadcast_date > p.to) return false;
       if (p.platform && r.platform_name !== p.platform) return false;
@@ -919,7 +1027,7 @@
   function rowsForPerfRange(from, to, basePerf) {
     const q = norm(basePerf.query || "");
 
-    return state.rows.filter(r => {
+    return dashboardRows().filter(r => {
       if (from && r.broadcast_date < from) return false;
       if (to && r.broadcast_date > to) return false;
       if (basePerf.platform && r.platform_name !== basePerf.platform) return false;
@@ -1728,8 +1836,12 @@
     const shown = items.filter(x => {
       const done = !!state.reviewDrafts[reviewKey(x)];
 
+      const excluded = !!state.reviewDrafts[reviewKey(x)] &&
+        state.reviewDrafts[reviewKey(x)].action === "exclude";
+
       if (filter === "pending" && done) return false;
-      if (filter === "done" && !done) return false;
+      if (filter === "done" && (!done || excluded)) return false;
+      if (filter === "excluded" && !excluded) return false;
 
       if (q && !norm([x.raw_title, x.reason].join(" ")).includes(q)) return false;
 
@@ -1763,7 +1875,10 @@
 
       <div class="notice warning">
         <strong>상품명뿐 아니라 실제 방송일·시간·홈쇼핑사를 함께 확인할 수 있습니다.</strong>
-        <span>동일 원본명이 여러 차례 방송된 경우 최근 방송과 전체 방송이력을 함께 표시합니다.</span>
+        <span>
+          동일 원본명이 여러 차례 방송된 경우 최근 방송과 전체 방송이력을 함께 표시합니다.
+          현재 모니터링 제외 방송 ${excludedRows().length.toLocaleString("ko-KR")}건은 캘린더·실적·HOT·NEW 계산에서 자동 제외됩니다.
+        </span>
       </div>
 
       <section class="panel review-toolbar review-filter-grid">
@@ -1793,6 +1908,7 @@
         <div class="segmented">
           <button data-review-filter="pending" class="${filter === "pending" ? "active" : ""}" type="button">미확인</button>
           <button data-review-filter="done" class="${filter === "done" ? "active" : ""}" type="button">결정완료</button>
+          <button data-review-filter="excluded" class="${filter === "excluded" ? "active" : ""}" type="button">제외</button>
           <button data-review-filter="all" class="${filter === "all" ? "active" : ""}" type="button">전체</button>
         </div>
 
@@ -1998,7 +2114,7 @@
         saveReviewDrafts();
         closeModal();
         renderReview();
-        toast("제외 결정이 저장되었습니다.");
+        toast("모니터링 제외가 저장되어 모든 식품 화면에서 즉시 제거되었습니다.");
       });
 
       $("#clearReviewDecision")?.addEventListener("click", () => {
@@ -2025,7 +2141,7 @@
 
   function watchProductCatalog() {
     const map = new Map();
-    state.rows.forEach(r => {
+    dashboardRows().forEach(r => {
       const k = productKey(r);
       if (!k) return;
       const old = map.get(k);
@@ -2039,7 +2155,7 @@
     const q = norm(keyword);
     const latest = state.rows.map(r => r.broadcast_date).filter(Boolean).sort().pop() || todayKST();
     const from = dateKey(addDays(parseDateKey(latest), -29));
-    const rows = state.rows.filter(r => {
+    const rows = dashboardRows().filter(r => {
       if (r.broadcast_date < from || r.broadcast_date > latest) return false;
       const hay = norm([productName(r), r.raw_title, r.brand, r.product_group, r.main_ingredient].join(" "));
       return hay.includes(q);
@@ -2192,6 +2308,8 @@
       state.master = parseCSV(masterText);
       state.pending = extractPending(pendingJson);
 
+      buildExclusionRules();
+      rebuildDraftExcludeRules();
       buildSignalIndexes();
 
       const [from, to] = defaultPerfRange();
@@ -2201,7 +2319,8 @@
       $("#updatedAt").textContent = latestUpdateText()
         ? `최근 데이터 갱신: ${latestUpdateText()}`
         : `방송 데이터 ${state.rows.length.toLocaleString("ko-KR")}건`;
-      $("#rowCount").textContent = `정상 로드 · ${state.rows.length.toLocaleString("ko-KR")}건`;
+      $("#rowCount").textContent =
+        `정상 로드 · 식품표시 ${dashboardRows().length.toLocaleString("ko-KR")}건 · 제외 ${excludedRows().length.toLocaleString("ko-KR")}건`;
 
       renderTabs();
       render();

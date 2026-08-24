@@ -911,3 +911,16 @@ input, select {
     gap: 5px;
   }
 }
+
+
+/* V2.6.2 - non-food exclusion */
+.review-filter-grid .segmented {
+  flex-wrap: nowrap;
+}
+
+@media (max-width: 1100px) {
+  .review-filter-grid .segmented {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+}
