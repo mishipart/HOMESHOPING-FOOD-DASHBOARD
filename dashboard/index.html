@@ -1,46 +1,243 @@
 <!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="color-scheme" content="light" />
-  <title>홈쇼핑 식품 모니터</title>
-  <link rel="stylesheet" href="./styles.css?v=2.6.2" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>홈쇼핑 식품 모니터 V2.7</title>
+  <link rel="stylesheet" href="./styles.css?v=2.7.0">
 </head>
 <body>
-  <main class="app-shell">
+  <main class="shell">
     <header class="topbar">
       <div>
         <div class="eyebrow">HOMESHOPPING FOOD MONITOR</div>
         <h1>홈쇼핑 식품 모니터</h1>
-        <p id="updatedAt" class="subtle">데이터를 불러오는 중입니다.</p>
+        <div id="latestDataAt" class="muted">데이터 로드 준비</div>
       </div>
       <div class="top-actions">
-        <button id="todayBtn" class="btn secondary" type="button">오늘</button>
-        <button id="refreshBtn" class="btn primary" type="button">데이터 새로고침</button>
+        <button id="todayBtn" class="btn">오늘</button>
+        <button id="refreshBtn" class="btn primary">데이터 새로고침</button>
+        <button id="adminBtn" class="btn admin">관리자 로그인</button>
       </div>
     </header>
 
-    <section id="kpiRoot" class="kpi-grid" aria-label="핵심 지표"></section>
+    <section id="globalKpis" class="kpi-grid"></section>
 
-    <nav class="tabs" aria-label="대시보드 메뉴">
-      <button class="tab active" data-tab="calendar" type="button">캘린더</button>
-      <button class="tab" data-tab="performance" type="button">실적 상세</button>
-      <button class="tab" data-tab="review" type="button">상품 확인</button>
-      <button class="tab" data-tab="watch" type="button">관심상품</button>
+    <nav class="tabs" aria-label="대시보드 탭">
+      <button class="tab active" data-tab="calendar">캘린더</button>
+      <button class="tab" data-tab="performance">실적 상세</button>
+      <button class="tab" data-tab="review">상품 확인</button>
+      <button class="tab" data-tab="watch">관심상품</button>
     </nav>
 
-    <section id="viewRoot"></section>
+    <section id="statusBar" class="status hidden"></section>
 
-    <footer class="footer">
-      <span>홈쇼핑 식품 모니터 V2.6.2</span>
-      <span id="rowCount"></span>
-    </footer>
+    <section id="calendarPanel" class="panel tab-panel active">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">CALENDAR</div>
+          <h2 id="calendarTitle">캘린더</h2>
+        </div>
+        <div class="segmented">
+          <button data-view="month" class="active">월</button>
+          <button data-view="week">주</button>
+          <button data-view="day">일</button>
+        </div>
+      </div>
+
+      <div class="toolbar calendar-toolbar">
+        <div class="date-nav">
+          <button id="prevPeriod" class="icon-btn">‹</button>
+          <strong id="periodLabel"></strong>
+          <button id="nextPeriod" class="icon-btn">›</button>
+        </div>
+        <label>홈쇼핑사
+          <select id="calendarPlatform"><option value="">전체</option></select>
+        </label>
+        <label class="grow">상품 검색
+          <input id="calendarSearch" type="search" placeholder="상품명 또는 키워드">
+        </label>
+        <label class="check"><input id="calendarWatchOnly" type="checkbox"> 관심상품만</label>
+      </div>
+      <div id="calendarRoot"></div>
+    </section>
+
+    <section id="performancePanel" class="panel tab-panel">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">PERFORMANCE</div>
+          <h2>실적 상세</h2>
+        </div>
+        <span class="muted">기본값은 전일 실적입니다.</span>
+      </div>
+
+      <div class="toolbar perf-toolbar">
+        <div class="quick-range">
+          <button data-range="today">당일</button>
+          <button data-range="yesterday" class="active">전일</button>
+          <button data-range="7">최근 7일</button>
+          <button data-range="30">최근 30일</button>
+          <button data-range="month">이번달</button>
+          <button data-range="all">전체</button>
+        </div>
+        <label>시작일<input id="perfStart" type="date"></label>
+        <label>종료일<input id="perfEnd" type="date"></label>
+        <label>홈쇼핑사<select id="perfPlatform"><option value="">전체</option></select></label>
+        <label>상품군<select id="perfGroup"><option value="">전체</option></select></label>
+        <label class="grow">상품/키워드<input id="perfSearch" type="search" placeholder="예: 흑염소, 콘드로이친"></label>
+        <label>실적 상태<select id="perfStatus"><option value="">전체</option><option value="confirmed">실적 확인</option><option value="missing">실적 미확인</option></select></label>
+        <label class="check"><input id="perfHotOnly" type="checkbox"> HOT만</label>
+        <label class="check"><input id="perfNewOnly" type="checkbox"> NEW만</label>
+        <button id="resetPerf" class="btn">필터 초기화</button>
+      </div>
+
+      <div id="autoBrief" class="brief-card"></div>
+      <div id="perfKpis" class="kpi-grid compact"></div>
+
+      <div class="two-col">
+        <article class="card">
+          <div class="card-head"><h3>매출 상위 상품 TOP 20</h3><span id="topProductCount" class="muted"></span></div>
+          <div id="topProducts"></div>
+        </article>
+        <article class="card">
+          <div class="card-head"><h3>시간대별 매출</h3><span class="muted">00시–23시</span></div>
+          <div id="hourlySales"></div>
+        </article>
+      </div>
+
+      <div class="two-col">
+        <article class="card">
+          <div class="card-head"><h3>🔥 특별히 잘 나온 실적</h3><span id="hotCount" class="muted"></span></div>
+          <div id="hotList"></div>
+        </article>
+        <article class="card">
+          <div class="card-head"><h3>✨ 신규 등장 상품</h3><span id="newCount" class="muted"></span></div>
+          <div id="newList"></div>
+        </article>
+      </div>
+
+      <article class="card">
+        <div class="card-head">
+          <h3>홈쇼핑사별 실적</h3>
+          <span class="muted">방송사명을 누르면 상세가 열립니다.</span>
+        </div>
+        <div id="channelAccordion"></div>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <h3>상품별 실적</h3>
+          <span class="muted">상품명을 눌러 방송 내역을 확인합니다.</span>
+        </div>
+        <div id="productAccordion"></div>
+      </article>
+    </section>
+
+    <section id="reviewPanel" class="panel tab-panel">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">PRODUCT REVIEW / ADMIN</div>
+          <h2>상품 확인</h2>
+        </div>
+        <div id="adminState" class="admin-state">조회 모드</div>
+      </div>
+
+      <div class="notice">
+        미확인 상품뿐 아니라 이미 분류 완료된 상품도 불러와 수정할 수 있습니다.
+        같은 실제 제품이 여러 이름으로 분리되어 있다면 <b>기존 상품으로 연결</b> 또는 <b>상품 합치기</b>를 사용하세요.
+        관리자 저장 결과는 <code>HOMESHOPING-MONITOR/data/product_master_admin.csv</code>에 영구 저장됩니다.
+      </div>
+
+      <div class="toolbar review-toolbar">
+        <label class="grow">상품 검색<input id="reviewSearch" type="search" placeholder="원본명/표준명/브랜드 검색"></label>
+        <label>홈쇼핑사<select id="reviewPlatform"><option value="">전체</option></select></label>
+        <label>방송 시작일<input id="reviewStart" type="date"></label>
+        <label>방송 종료일<input id="reviewEnd" type="date"></label>
+        <div class="segmented review-state-filter">
+          <button data-review-filter="pending" class="active">미확인</button>
+          <button data-review-filter="confirmed">분류완료</button>
+          <button data-review-filter="excluded">제외</button>
+          <button data-review-filter="all">전체</button>
+        </div>
+      </div>
+
+      <div id="reviewSummary" class="review-summary"></div>
+      <div id="reviewList"></div>
+    </section>
+
+    <section id="watchPanel" class="panel tab-panel">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">WATCHLIST</div>
+          <h2>관심상품</h2>
+        </div>
+        <span class="muted">이 브라우저에 저장됩니다.</span>
+      </div>
+      <div class="toolbar">
+        <label class="grow">관심 키워드<input id="watchKeyword" type="search" placeholder="예: 흑염소"></label>
+        <button id="addWatchKeyword" class="btn primary">키워드 등록</button>
+      </div>
+      <div id="watchKeywords" class="chips"></div>
+      <div id="watchResults"></div>
+    </section>
+
+    <footer>홈쇼핑 식품 모니터 V2.7 · 관리자 영구 상품 마스터</footer>
   </main>
 
-  <div id="modalRoot"></div>
-  <div id="toastRoot" class="toast-root" aria-live="polite"></div>
+  <dialog id="adminDialog">
+    <form method="dialog" class="dialog-card" id="adminForm">
+      <h3>관리자 로그인</h3>
+      <p class="muted">Cloudflare Worker에 등록한 ADMIN_PASSWORD를 입력하세요.</p>
+      <input id="adminPasswordInput" type="password" autocomplete="current-password" placeholder="관리자 비밀번호" required>
+      <div id="adminLoginError" class="error-text"></div>
+      <div class="dialog-actions">
+        <button value="cancel" class="btn">취소</button>
+        <button id="adminLoginSubmit" value="default" class="btn primary">로그인</button>
+      </div>
+    </form>
+  </dialog>
 
-  <script src="./app.js?v=2.6.2"></script>
+  <dialog id="productDialog">
+    <form method="dialog" class="dialog-card wide" id="productForm">
+      <div class="dialog-title-row">
+        <h3 id="productDialogTitle">상품 관리</h3>
+        <button value="cancel" class="icon-btn">✕</button>
+      </div>
+      <input id="editRawTitle" type="hidden">
+      <input id="editSourceStandard" type="hidden">
+      <div id="editBroadcastInfo" class="mini-info"></div>
+
+      <div class="form-grid">
+        <label class="full">원본 상품명<input id="editRawDisplay" disabled></label>
+        <label class="full">표준 상품명<input id="editStandardName" placeholder="실제 동일 제품의 대표 이름"></label>
+        <label>브랜드<input id="editBrand"></label>
+        <label>상품군<input id="editGroup"></label>
+        <label>주원료<input id="editIngredient"></label>
+        <label>처리 방식
+          <select id="editAction">
+            <option value="link_existing">기존 상품으로 연결</option>
+            <option value="create_new">신규 상품 등록</option>
+            <option value="update_product">기존 분류 수정</option>
+            <option value="merge_product">다른 상품과 합치기</option>
+            <option value="exclude">모니터링 제외</option>
+            <option value="restore">제외 복원</option>
+          </select>
+        </label>
+        <label id="mergeTargetWrap" class="full hidden">합칠 대상 기존 상품
+          <input id="mergeTarget" list="masterProductNames" placeholder="표준 상품명 검색">
+        </label>
+      </div>
+      <datalist id="masterProductNames"></datalist>
+      <div id="aliasPreview" class="alias-box"></div>
+      <div id="productSaveError" class="error-text"></div>
+      <div class="dialog-actions">
+        <button value="cancel" class="btn">취소</button>
+        <button id="productSaveBtn" value="default" class="btn primary">관리자 저장</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="./config.js?v=2.7.0"></script>
+  <script src="./app.js?v=2.7.0"></script>
 </body>
 </html>
