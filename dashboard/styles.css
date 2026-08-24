@@ -223,3 +223,41 @@ footer{font-size:10px;color:var(--muted);margin-top:18px}
   border-color:#d9e2ef!important;
   color:#344054!important;
 }
+
+
+/* ============================================================
+   V2.8.6 - 표준상품 검색 결과를 모달 내부 고정 영역으로 표시
+   ============================================================ */
+.master-search-wrap{
+  position:relative;
+  width:100%;
+}
+
+.master-search-dropdown.inline-master-results{
+  position:static !important;
+  left:auto !important;
+  right:auto !important;
+  top:auto !important;
+  z-index:auto !important;
+  width:100%;
+  max-height:250px;
+  margin-top:6px;
+  overflow-y:auto;
+  background:#fff;
+  border:1px solid #b9c9e7;
+  border-radius:10px;
+  box-shadow:none;
+  padding:5px;
+}
+
+.inline-master-results .master-search-item{
+  min-height:46px;
+}
+
+.inline-master-results .master-search-name{
+  font-size:12px;
+}
+
+.inline-master-results .master-search-meta{
+  font-size:10px;
+}

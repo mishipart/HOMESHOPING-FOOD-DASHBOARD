@@ -579,7 +579,7 @@
     const hay=normalize(`${item.raw_title||""} ${item.standard_product_name||""} ${item.master?.brand||""} ${(item.aliases||[]).map(a=>a.match_keyword).join(" ")}`);
     if(q&&!hay.includes(q)) return false;
 
-    // IMPORTANT V2.8.5: date/platform filter is applied to the occurrences themselves.
+    // IMPORTANT V2.8.6: date/platform filter is applied to the occurrences themselves.
     const filtered=reviewOccurrences(item.occurrences);
     const filterActive=!!($("#reviewPlatform").value||$("#reviewStart").value||$("#reviewEnd").value);
     if(filterActive && !filtered.length) return false;
@@ -731,15 +731,22 @@
     if(!product) return null;
 
     const target=norm(product.standard_product_name);
-    const rows=(state.adminMaster?.rows||[]).filter(
+    const adminRows=(state.adminMaster?.admin_rows||[]).filter(
+      r=>norm(r.standard_product_name)===target
+    );
+    const effectiveRows=(state.adminMaster?.rows||[]).filter(
       r=>norm(r.standard_product_name)===target
     );
 
     const pick=(field)=>{
       const fromProduct=clean(product[field]||"");
       if(fromProduct) return fromProduct;
-      const hit=rows.find(r=>clean(r[field]||""));
-      return clean(hit?.[field]||"");
+
+      const adminHit=adminRows.find(r=>clean(r[field]||""));
+      if(adminHit) return clean(adminHit[field]||"");
+
+      const effectiveHit=effectiveRows.find(r=>clean(r[field]||""));
+      return clean(effectiveHit?.[field]||"");
     };
 
     return {
@@ -803,7 +810,8 @@
   }
 
   function masterSearchResults(query){
-    const products=state.adminMaster?.products||[];
+    // V2.8.6: product_master_admin.csv에서 만들어진 admin_products만 검색합니다.
+    const products=state.adminMaster?.admin_products||[];
     const raw=$("#editRawTitle")?.value||"";
 
     return products
@@ -815,8 +823,12 @@
         };
       })
       .filter(x=>x.score>0)
-      .sort((a,b)=>b.score-a.score || clean(a.product.standard_product_name).localeCompare(clean(b.product.standard_product_name),"ko"))
-      .slice(0,8);
+      .sort((a,b)=>
+        b.score-a.score ||
+        clean(a.product.standard_product_name)
+          .localeCompare(clean(b.product.standard_product_name),"ko")
+      )
+      .slice(0,6);
   }
 
   function hideMasterSearchDropdown(){
@@ -840,9 +852,8 @@
     const q=clean(query||"");
     const results=masterSearchResults(q);
 
-    // 빈 검색어에서는 현재 원본명 기준 유사상품만 최대 6개,
-    // 검색어가 있으면 관련도 높은 상품만 최대 8개 표시
-    const shown=q ? results : results.slice(0,6);
+    // product_master_admin.csv에서 관련도 순으로 최대 6개만 표시
+    const shown=results.slice(0,6);
 
     if(!shown.length){
       box.innerHTML=`<div class="master-search-empty">${
@@ -858,8 +869,9 @@
       return `
         <button type="button" class="master-search-item" data-master-name="${esc(p.standard_product_name)}" data-index="${i}">
           <span class="master-search-name">${esc(p.standard_product_name)}</span>
-          ${meta?`<span class="master-search-meta">${esc(meta)}</span>`:""}
-          <span class="master-search-alias">연결 ${Number(p.alias_count||0).toLocaleString()}개</span>
+          ${meta?`<span class="master-search-meta">${esc(meta)}</span>`:
+            `<span class="master-search-meta">등록된 브랜드/상품군/주원료 정보 없음</span>`}
+          <span class="master-search-alias">관리자 연결 ${Number(p.alias_count||0).toLocaleString()}개</span>
         </button>`;
     }).join("");
 
@@ -908,9 +920,15 @@
   function getMasterProductByName(name){
     const target=norm(name);
     if(!target) return null;
-    const found=(state.adminMaster?.products||[]).find(
-      p=>norm(p.standard_product_name)===target
-    )||null;
+
+    const adminProducts=state.adminMaster?.admin_products||[];
+    const fallbackProducts=state.adminMaster?.products||[];
+
+    const found=
+      adminProducts.find(p=>norm(p.standard_product_name)===target) ||
+      fallbackProducts.find(p=>norm(p.standard_product_name)===target) ||
+      null;
+
     return enrichedMasterProduct(found);
   }
 
@@ -939,9 +957,9 @@
     }
 
     $("#editStandardName").value=product.standard_product_name||"";
-    $("#editBrand").value=product.brand||"";
-    $("#editGroup").value=product.product_group||"";
-    $("#editIngredient").value=product.main_ingredient||"";
+    $("#editBrand").value=clean(product.brand||"");
+    $("#editGroup").value=clean(product.product_group||"");
+    $("#editIngredient").value=clean(product.main_ingredient||"");
     $("#productForm").dataset.selectedMaster=product.standard_product_name||"";
     $("#productSaveError").textContent="";
 
@@ -1102,9 +1120,12 @@
     }
 
     if(action==="link_existing"){
-      const selected=getMasterProductByName(standard);
-      if(!selected){
-        $("#productSaveError").textContent="기존 상품으로 연결하려면 등록된 표준상품을 검색하여 선택하세요.";
+      const selectedAdmin=(state.adminMaster?.admin_products||[]).find(
+        p=>norm(p.standard_product_name)===norm(standard)
+      );
+      if(!selectedAdmin){
+        $("#productSaveError").textContent=
+          "기존 상품으로 연결하려면 product_master_admin.csv에 등록된 표준상품을 검색하여 선택하세요.";
         return;
       }
     }
