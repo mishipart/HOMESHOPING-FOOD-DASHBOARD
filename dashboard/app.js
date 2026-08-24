@@ -579,7 +579,7 @@
     const hay=normalize(`${item.raw_title||""} ${item.standard_product_name||""} ${item.master?.brand||""} ${(item.aliases||[]).map(a=>a.match_keyword).join(" ")}`);
     if(q&&!hay.includes(q)) return false;
 
-    // IMPORTANT V2.8.4: date/platform filter is applied to the occurrences themselves.
+    // IMPORTANT V2.8.5: date/platform filter is applied to the occurrences themselves.
     const filtered=reviewOccurrences(item.occurrences);
     const filterActive=!!($("#reviewPlatform").value||$("#reviewStart").value||$("#reviewEnd").value);
     if(filterActive && !filtered.length) return false;
@@ -707,8 +707,8 @@
     $("#aliasPreview").innerHTML="이 저장은 같은 제목의 다른 방송에는 영향을 주지 않습니다.";
     $("#bulkAliasTools").classList.add("hidden");
     renderSimilarSuggestions(getRawTitle(r));
-    toggleMergeTarget();
     $("#productDialog").showModal();
+    toggleMergeTarget();
   }
 
   function similarityScore(a,b){
@@ -719,12 +719,199 @@
   }
 
 
+
+  function searchTokens(value){
+    return normalize(value)
+      .split(" ")
+      .map(x=>x.trim())
+      .filter(x=>x.length>0);
+  }
+
+  function enrichedMasterProduct(product){
+    if(!product) return null;
+
+    const target=norm(product.standard_product_name);
+    const rows=(state.adminMaster?.rows||[]).filter(
+      r=>norm(r.standard_product_name)===target
+    );
+
+    const pick=(field)=>{
+      const fromProduct=clean(product[field]||"");
+      if(fromProduct) return fromProduct;
+      const hit=rows.find(r=>clean(r[field]||""));
+      return clean(hit?.[field]||"");
+    };
+
+    return {
+      ...product,
+      brand:pick("brand"),
+      product_group:pick("product_group"),
+      main_ingredient:pick("main_ingredient")
+    };
+  }
+
+  function masterSearchScore(product, query, rawContext){
+    const name=clean(product.standard_product_name||"");
+    const brand=clean(product.brand||"");
+    const group=clean(product.product_group||"");
+    const ingredient=clean(product.main_ingredient||"");
+
+    const q=normalize(query);
+    const qTokens=searchTokens(query);
+    const nameNorm=normalize(name);
+    const combined=normalize([name,brand,group,ingredient].filter(Boolean).join(" "));
+    const rawNorm=normalize(rawContext);
+
+    let score=0;
+
+    // 사용자가 입력한 검색어를 가장 강하게 반영
+    if(q){
+      if(nameNorm===q) score+=1000;
+      else if(nameNorm.startsWith(q)) score+=650;
+      else if(nameNorm.includes(q)) score+=450;
+
+      let matched=0;
+      for(const token of qTokens){
+        if(nameNorm.includes(token)){
+          score+=120;
+          matched++;
+        }else if(combined.includes(token)){
+          score+=55;
+          matched++;
+        }else{
+          score-=100;
+        }
+      }
+
+      // 검색어 토큰이 하나도 안 맞으면 후보에서 제외
+      if(qTokens.length && matched===0) return -1;
+    }
+
+    // 현재 원본 상품명과의 유사도도 보조 점수로 반영
+    if(rawNorm){
+      score+=Math.round(similarityScore(rawContext,name)*280);
+      const rawTokens=searchTokens(rawContext);
+      for(const token of rawTokens){
+        if(token.length>=2 && nameNorm.includes(token)) score+=18;
+      }
+    }
+
+    // 기존 연결 이력이 많은 표준상품을 동점일 때 조금 우선
+    score+=Math.min(Number(product.alias_count||0),20);
+
+    return score;
+  }
+
+  function masterSearchResults(query){
+    const products=state.adminMaster?.products||[];
+    const raw=$("#editRawTitle")?.value||"";
+
+    return products
+      .map(p=>{
+        const enriched=enrichedMasterProduct(p);
+        return {
+          product:enriched,
+          score:masterSearchScore(enriched,query,raw)
+        };
+      })
+      .filter(x=>x.score>0)
+      .sort((a,b)=>b.score-a.score || clean(a.product.standard_product_name).localeCompare(clean(b.product.standard_product_name),"ko"))
+      .slice(0,8);
+  }
+
+  function hideMasterSearchDropdown(){
+    const box=$("#masterSearchDropdown");
+    if(!box) return;
+    box.classList.add("hidden");
+    box.innerHTML="";
+    delete box.dataset.activeIndex;
+  }
+
+  function renderMasterSearchDropdown(query,{force=false}={}){
+    const action=$("#editAction")?.value||"";
+    if(action!=="link_existing"){
+      hideMasterSearchDropdown();
+      return;
+    }
+
+    const box=$("#masterSearchDropdown");
+    if(!box) return;
+
+    const q=clean(query||"");
+    const results=masterSearchResults(q);
+
+    // 빈 검색어에서는 현재 원본명 기준 유사상품만 최대 6개,
+    // 검색어가 있으면 관련도 높은 상품만 최대 8개 표시
+    const shown=q ? results : results.slice(0,6);
+
+    if(!shown.length){
+      box.innerHTML=`<div class="master-search-empty">${
+        q ? "일치하는 기존 표준상품이 없습니다." : "유사한 기존 표준상품을 찾지 못했습니다."
+      }</div>`;
+      box.classList.remove("hidden");
+      return;
+    }
+
+    box.innerHTML=shown.map((x,i)=>{
+      const p=x.product;
+      const meta=[p.brand,p.product_group,p.main_ingredient].filter(Boolean).join(" · ");
+      return `
+        <button type="button" class="master-search-item" data-master-name="${esc(p.standard_product_name)}" data-index="${i}">
+          <span class="master-search-name">${esc(p.standard_product_name)}</span>
+          ${meta?`<span class="master-search-meta">${esc(meta)}</span>`:""}
+          <span class="master-search-alias">연결 ${Number(p.alias_count||0).toLocaleString()}개</span>
+        </button>`;
+    }).join("");
+
+    box.classList.remove("hidden");
+    box.dataset.activeIndex="-1";
+
+    $$("[data-master-name]",box).forEach(btn=>{
+      // blur보다 먼저 선택되도록 mousedown 사용
+      btn.addEventListener("mousedown",e=>{
+        e.preventDefault();
+        selectExistingMasterProduct(btn.dataset.masterName);
+        hideMasterSearchDropdown();
+      });
+    });
+  }
+
+  function moveMasterSearchSelection(direction){
+    const box=$("#masterSearchDropdown");
+    if(!box || box.classList.contains("hidden")) return false;
+
+    const items=$$(".master-search-item",box);
+    if(!items.length) return false;
+
+    let idx=Number(box.dataset.activeIndex??-1);
+    idx=(idx+direction+items.length)%items.length;
+    box.dataset.activeIndex=String(idx);
+
+    items.forEach((el,i)=>el.classList.toggle("active",i===idx));
+    items[idx].scrollIntoView({block:"nearest"});
+    return true;
+  }
+
+  function chooseActiveMasterSearchItem(){
+    const box=$("#masterSearchDropdown");
+    if(!box || box.classList.contains("hidden")) return false;
+
+    const items=$$(".master-search-item",box);
+    const idx=Number(box.dataset.activeIndex??-1);
+    if(idx<0 || !items[idx]) return false;
+
+    selectExistingMasterProduct(items[idx].dataset.masterName);
+    hideMasterSearchDropdown();
+    return true;
+  }
+
   function getMasterProductByName(name){
     const target=norm(name);
     if(!target) return null;
-    return (state.adminMaster?.products||[]).find(
+    const found=(state.adminMaster?.products||[]).find(
       p=>norm(p.standard_product_name)===target
     )||null;
+    return enrichedMasterProduct(found);
   }
 
   function setMasterMetaLocked(locked){
@@ -756,6 +943,7 @@
     $("#editGroup").value=product.product_group||"";
     $("#editIngredient").value=product.main_ingredient||"";
     $("#productForm").dataset.selectedMaster=product.standard_product_name||"";
+    $("#productSaveError").textContent="";
 
     if(setAction) $("#editAction").value="link_existing";
 
@@ -772,7 +960,8 @@
     }
 
     setMasterMetaLocked(true);
-    toggleMergeTarget();
+    $("#mergeTargetWrap").classList.add("hidden");
+    $("#editStandardName").placeholder="기존 표준상품 검색";
     return true;
   }
 
@@ -871,8 +1060,10 @@
       $("#unlockMasterMetaBtn").textContent="정보 수정";
     }
     renderSimilarSuggestions(item.raw_title||item.standard_product_name||"");
-    $("#mergeTarget").value=""; toggleMergeTarget(); $("#productSaveError").textContent="";
+    $("#mergeTarget").value="";
+    $("#productSaveError").textContent="";
     $("#productDialog").showModal();
+    toggleMergeTarget();
   }
 
   function toggleMergeTarget(){
@@ -888,8 +1079,15 @@
     }
 
     if(action==="link_existing"){
-      syncExistingProductSelection();
+      const current=clean($("#editStandardName").value||"");
+      if(current && getMasterProductByName(current)){
+        selectExistingMasterProduct(current,{setAction:false});
+      }else{
+        clearExistingProductSelection();
+        renderMasterSearchDropdown(current,{force:true});
+      }
     }else{
+      hideMasterSearchDropdown();
       clearExistingProductSelection();
     }
   }
@@ -1045,8 +1243,59 @@
     $("#adminBtn").onclick=()=>state.adminPassword?logoutAdmin():adminLogin();
     $("#adminLoginSubmit").onclick=async e=>{e.preventDefault();const pw=$("#adminPasswordInput").value;try{if(!await verifyAdmin(pw)) throw new Error("관리자 비밀번호가 올바르지 않습니다.");state.adminPassword=pw;sessionStorage.setItem("hsfm_admin_password",pw);await loadAdminMaster();$("#adminDialog").close();fillCommonFilters();renderGlobalKpis();renderActiveTab();showStatus("관리자 모드로 로그인했습니다.");}catch(err){$("#adminLoginError").textContent=err.message;}};
     $("#editAction").onchange=toggleMergeTarget;
-    $("#editStandardName").addEventListener("change",syncExistingProductSelection);
-    $("#editStandardName").addEventListener("blur",syncExistingProductSelection);
+
+    const debouncedMasterSearch=debounce(
+      ()=>renderMasterSearchDropdown($("#editStandardName").value),
+      90
+    );
+
+    $("#editStandardName").addEventListener("focus",()=>{
+      if($("#editAction").value==="link_existing"){
+        renderMasterSearchDropdown($("#editStandardName").value,{force:true});
+      }
+    });
+
+    $("#editStandardName").addEventListener("input",()=>{
+      if($("#editAction").value!=="link_existing") return;
+
+      // 사용자가 기존 선택값을 다시 타이핑하면 이전 자동입력 상태 해제
+      const selected=clean($("#productForm").dataset.selectedMaster||"");
+      if(selected && norm(selected)!==norm($("#editStandardName").value)){
+        clearExistingProductSelection();
+      }
+
+      debouncedMasterSearch();
+    });
+
+    $("#editStandardName").addEventListener("keydown",e=>{
+      if(e.key==="ArrowDown"){
+        e.preventDefault();
+        if($("#masterSearchDropdown").classList.contains("hidden")){
+          renderMasterSearchDropdown($("#editStandardName").value,{force:true});
+        }
+        moveMasterSearchSelection(1);
+      }else if(e.key==="ArrowUp"){
+        e.preventDefault();
+        moveMasterSearchSelection(-1);
+      }else if(e.key==="Enter"){
+        if(chooseActiveMasterSearchItem()){
+          e.preventDefault();
+        }
+      }else if(e.key==="Escape"){
+        hideMasterSearchDropdown();
+      }
+    });
+
+    $("#editStandardName").addEventListener("blur",()=>{
+      setTimeout(()=>{
+        const exact=getMasterProductByName($("#editStandardName").value);
+        if(exact && $("#editAction").value==="link_existing"){
+          selectExistingMasterProduct(exact.standard_product_name,{setAction:false});
+        }
+        hideMasterSearchDropdown();
+      },120);
+    });
+
     $("#unlockMasterMetaBtn").onclick=()=>{
       setMasterMetaLocked(false);
       $("#masterEditTools").classList.remove("hidden");
@@ -1054,6 +1303,7 @@
       $("#unlockMasterMetaBtn").disabled=true;
     };
     $("#productSaveBtn").onclick=e=>{e.preventDefault();saveProductAdmin();};
+    $("#productDialog").addEventListener("close",hideMasterSearchDropdown);
     $("#bulkAliasMoveBtn").onclick=bulkMoveAliases;
     $("#historyCloseBtn").onclick=()=>$("#historyDialog").close();
     $("#addWatchKeyword").onclick=()=>{const k=clean($("#watchKeyword").value);if(!k)return;if(!state.watchKeywords.includes(k))state.watchKeywords.push(k);$("#watchKeyword").value="";saveWatch();renderWatch();};

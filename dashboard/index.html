@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>홈쇼핑 식품 모니터 V2.8.4</title>
-  <link rel="stylesheet" href="./styles.css?v=2.8.4">
+  <title>홈쇼핑 식품 모니터 V2.8.5</title>
+  <link rel="stylesheet" href="./styles.css?v=2.8.5">
 </head>
 <body>
   <main class="shell">
@@ -183,7 +183,7 @@
       <div id="watchResults"></div>
     </section>
 
-    <footer>홈쇼핑 식품 모니터 V2.8.4 · 관리자 영구 상품 마스터</footer>
+    <footer>홈쇼핑 식품 모니터 V2.8.5 · 관리자 영구 상품 마스터</footer>
   </main>
 
   <dialog id="adminDialog">
@@ -211,7 +211,12 @@
 
       <div class="form-grid">
         <label class="full">원본 상품명<input id="editRawDisplay" disabled></label>
-        <label class="full">표준 상품명<input id="editStandardName" list="masterProductNames" autocomplete="off" placeholder="기존 표준상품 검색 또는 신규 대표 이름"></label>
+        <label class="full">표준 상품명
+          <div class="master-search-wrap">
+            <input id="editStandardName" autocomplete="off" placeholder="기존 표준상품 검색 또는 신규 대표 이름">
+            <div id="masterSearchDropdown" class="master-search-dropdown hidden"></div>
+          </div>
+        </label>
         <label>브랜드<input id="editBrand"></label>
         <label>상품군<input id="editGroup"></label>
         <label>주원료<input id="editIngredient"></label>
@@ -265,7 +270,7 @@
     </div>
   </dialog>
 
-  <script src="./config.js?v=2.8.4"></script>
-  <script src="./app.js?v=2.8.4"></script>
+  <script src="./config.js?v=2.8.5"></script>
+  <script src="./app.js?v=2.8.5"></script>
 </body>
 </html>

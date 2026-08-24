@@ -135,3 +135,91 @@ footer{font-size:10px;color:var(--muted);margin-top:18px}
   color:#667085!important;
   cursor:not-allowed;
 }
+
+
+/* ============================================================
+   V2.8.5 - 표준상품 관련도 검색 + 즉시 자동입력
+   ============================================================ */
+.master-search-wrap{
+  position:relative;
+  width:100%;
+}
+
+.master-search-dropdown{
+  position:absolute;
+  left:0;
+  right:0;
+  top:calc(100% + 5px);
+  z-index:1200;
+  max-height:320px;
+  overflow-y:auto;
+  background:#fff;
+  border:1px solid #cbd5e1;
+  border-radius:10px;
+  box-shadow:0 14px 34px rgba(15,23,42,.18);
+  padding:5px;
+}
+
+.master-search-item{
+  width:100%;
+  border:0;
+  background:#fff;
+  border-radius:8px;
+  padding:9px 10px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:2px 10px;
+  text-align:left;
+  cursor:pointer;
+}
+
+.master-search-item:hover,
+.master-search-item.active{
+  background:#eef4ff;
+}
+
+.master-search-name{
+  grid-column:1;
+  font-size:12px;
+  font-weight:850;
+  color:#152238;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.master-search-meta{
+  grid-column:1;
+  font-size:10px;
+  color:#667085;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.master-search-alias{
+  grid-column:2;
+  grid-row:1 / span 2;
+  align-self:center;
+  color:#315fbd;
+  background:#edf4ff;
+  border-radius:999px;
+  padding:4px 7px;
+  font-size:9px;
+  font-weight:800;
+  white-space:nowrap;
+}
+
+.master-search-empty{
+  padding:12px;
+  font-size:11px;
+  color:#667085;
+  text-align:center;
+}
+
+/* 기존 상품 연결 후 자동으로 들어온 정보임을 더 분명하게 표시 */
+.master-meta-locked{
+  background:#f3f6fa!important;
+  border-color:#d9e2ef!important;
+  color:#344054!important;
+}
