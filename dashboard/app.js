@@ -16,7 +16,16 @@
     cursor: new Date(),
     reviewFilter: "pending",
     interests: new Set(JSON.parse(localStorage.getItem("hsfm_interests") || "[]")),
-    watchKeywords: JSON.parse(localStorage.getItem("hsfm_watch_keywords") || "[]")
+    watchKeywords: JSON.parse(localStorage.getItem("hsfm_watch_keywords") || "[]"),
+    derived: {
+      visibleRows: null,
+      firstSeen: null,
+      occurrenceMap: null,
+      masterGroups: null,
+      masterMatch: new Map(),
+      occurrenceRuleMap: null,
+      dynamicRules: null
+    }
   };
 
   const $ = s => document.querySelector(s);
@@ -116,31 +125,85 @@
     localStorage.setItem("hsfm_watch_keywords", JSON.stringify(state.watchKeywords));
   }
 
+
+  function invalidateDerived(){
+    state.derived.visibleRows = null;
+    state.derived.firstSeen = null;
+    state.derived.occurrenceMap = null;
+    state.derived.masterGroups = null;
+    state.derived.masterMatch = new Map();
+    state.derived.occurrenceRuleMap = null;
+    state.derived.dynamicRules = null;
+  }
+
+  function debounce(fn, wait=180){
+    let timer=0;
+    return (...args)=>{
+      clearTimeout(timer);
+      timer=setTimeout(()=>fn(...args),wait);
+    };
+  }
+
+  function masterCandidates(){
+    return state.adminMaster?.rows || state.masterPublic || [];
+  }
+
   function findMasterForRow(r){
     const raw=normalize(getRawTitle(r));
-    const candidates = state.adminMaster?.rows || state.masterPublic;
-    if(!raw || !candidates) return null;
-    return candidates.find(m=>{
+    if(!raw) return null;
+
+    if(state.derived.masterMatch.has(raw)){
+      return state.derived.masterMatch.get(raw);
+    }
+
+    const candidates=masterCandidates();
+    let hit=null;
+
+    for(const m of candidates){
       const k=normalize(m.match_keyword || m.raw_title || m.normalized_title || "");
-      return k && (raw===k || raw.includes(k) || k.includes(raw));
-    }) || null;
+      if(k && (raw===k || raw.includes(k) || k.includes(raw))){
+        hit=m;
+        break;
+      }
+    }
+
+    state.derived.masterMatch.set(raw,hit);
+    return hit;
   }
 
   function occurrenceRuleForRow(r){
-    const rules = state.adminMaster?.occurrence_rules || [];
-    const id = clean(r.hsshow_id);
-    return id ? rules.find(x => clean(x.hsshow_id) === id) : null;
+    const id=clean(r.hsshow_id);
+    if(!id) return null;
+
+    if(!state.derived.occurrenceRuleMap){
+      state.derived.occurrenceRuleMap=new Map(
+        (state.adminMaster?.occurrence_rules||[])
+          .map(x=>[clean(x.hsshow_id),x])
+          .filter(([k])=>k)
+      );
+    }
+
+    return state.derived.occurrenceRuleMap.get(id)||null;
   }
 
   function dynamicRuleForRow(r){
-    const rules = state.adminMaster?.dynamic_rules || [];
-    const raw = normalize(getRawTitle(r));
-    const platform = normalize(getPlatform(r));
-    return rules.find(x => {
-      const p = normalize(x.pattern || "");
-      const ch = normalize(x.platform || "");
-      return p && raw.includes(p) && (!ch || ch === platform);
-    }) || null;
+    const raw=normalize(getRawTitle(r));
+    const platform=normalize(getPlatform(r));
+
+    if(!state.derived.dynamicRules){
+      state.derived.dynamicRules=(state.adminMaster?.dynamic_rules||[])
+        .map(x=>({
+          row:x,
+          pattern:normalize(x.pattern||""),
+          platform:normalize(x.platform||"")
+        }))
+        .filter(x=>x.pattern);
+    }
+
+    const hit=state.derived.dynamicRules.find(
+      x=>raw.includes(x.pattern)&&(!x.platform||x.platform===platform)
+    );
+    return hit?.row||null;
   }
 
   function overlayRow(r){
@@ -179,16 +242,22 @@
   }
 
   function visibleRows(){
-    return state.rows.map(overlayRow).filter(r=>!isExcludedRow(r));
+    if(state.derived.visibleRows) return state.derived.visibleRows;
+    state.derived.visibleRows=state.rows.map(overlayRow).filter(r=>!isExcludedRow(r));
+    return state.derived.visibleRows;
   }
 
   function firstSeenMap(){
+    if(state.derived.firstSeen) return state.derived.firstSeen;
+
     const map=new Map();
     const rows=[...visibleRows()].sort((a,b)=>getDate(a).localeCompare(getDate(b)));
     for(const r of rows){
       const k=normalize(getProductName(r));
       if(k && !map.has(k)) map.set(k,getDate(r));
     }
+
+    state.derived.firstSeen=map;
     return map;
   }
 
@@ -402,11 +471,18 @@
   }
 
   function buildOccurrenceMap(){
+    if(state.derived.occurrenceMap) return state.derived.occurrenceMap;
+
     const map=new Map();
     for(const r of state.rows){
-      const raw=getRawTitle(r), k=normalize(raw); if(!k) continue;
-      const x=map.get(k)||{raw,rows:[]}; x.rows.push(r); map.set(k,x);
+      const raw=getRawTitle(r), k=normalize(raw);
+      if(!k) continue;
+      const x=map.get(k)||{raw,rows:[]};
+      x.rows.push(r);
+      map.set(k,x);
     }
+
+    state.derived.occurrenceMap=map;
     return map;
   }
 
@@ -415,6 +491,8 @@
   }
 
   function masterProductGroups(){
+    if(state.derived.masterGroups) return state.derived.masterGroups;
+
     const groups=new Map();
     for(const m of masterRowsForReview()){
       const std=clean(m.standard_product_name||m.match_keyword||"미분류");
@@ -422,6 +500,8 @@
       g.aliases.push(m);
       groups.set(std,g);
     }
+
+    state.derived.masterGroups=groups;
     return groups;
   }
 
@@ -499,7 +579,7 @@
     const hay=normalize(`${item.raw_title||""} ${item.standard_product_name||""} ${item.master?.brand||""} ${(item.aliases||[]).map(a=>a.match_keyword).join(" ")}`);
     if(q&&!hay.includes(q)) return false;
 
-    // IMPORTANT V2.8.2: date/platform filter is applied to the occurrences themselves.
+    // IMPORTANT V2.8.4: date/platform filter is applied to the occurrences themselves.
     const filtered=reviewOccurrences(item.occurrences);
     const filterActive=!!($("#reviewPlatform").value||$("#reviewStart").value||$("#reviewEnd").value);
     if(filterActive && !filtered.length) return false;
@@ -638,12 +718,89 @@
     return inter/Math.max(A.size,B.size);
   }
 
+
+  function getMasterProductByName(name){
+    const target=norm(name);
+    if(!target) return null;
+    return (state.adminMaster?.products||[]).find(
+      p=>norm(p.standard_product_name)===target
+    )||null;
+  }
+
+  function setMasterMetaLocked(locked){
+    ["#editBrand","#editGroup","#editIngredient"].forEach(sel=>{
+      const el=$(sel);
+      if(!el) return;
+      el.readOnly=!!locked;
+      el.classList.toggle("master-meta-locked",!!locked);
+    });
+    $("#masterEditTools")?.classList.toggle("hidden",!locked);
+  }
+
+  function clearExistingProductSelection(){
+    $("#productForm").dataset.selectedMaster="";
+    $("#existingProductMeta")?.classList.add("hidden");
+    if($("#existingProductMeta")) $("#existingProductMeta").innerHTML="";
+    setMasterMetaLocked(false);
+  }
+
+  function selectExistingMasterProduct(name,{setAction=true}={}){
+    const product=getMasterProductByName(name);
+    if(!product){
+      clearExistingProductSelection();
+      return false;
+    }
+
+    $("#editStandardName").value=product.standard_product_name||"";
+    $("#editBrand").value=product.brand||"";
+    $("#editGroup").value=product.product_group||"";
+    $("#editIngredient").value=product.main_ingredient||"";
+    $("#productForm").dataset.selectedMaster=product.standard_product_name||"";
+
+    if(setAction) $("#editAction").value="link_existing";
+
+    const meta=$("#existingProductMeta");
+    if(meta){
+      meta.innerHTML=`
+        <b>기존 표준상품 선택됨</b>
+        <span>표준명: ${esc(product.standard_product_name||"-")}</span>
+        <span>브랜드: ${esc(product.brand||"-")}</span>
+        <span>상품군: ${esc(product.product_group||"-")}</span>
+        <span>주원료: ${esc(product.main_ingredient||"-")}</span>
+        <span>연결 원본명: ${Number(product.alias_count||0).toLocaleString()}개</span>`;
+      meta.classList.remove("hidden");
+    }
+
+    setMasterMetaLocked(true);
+    toggleMergeTarget();
+    return true;
+  }
+
+  function syncExistingProductSelection(){
+    const action=$("#editAction")?.value||"";
+    const name=clean($("#editStandardName")?.value||"");
+
+    if(action!=="link_existing"){
+      clearExistingProductSelection();
+      return;
+    }
+
+    if(!name){
+      clearExistingProductSelection();
+      return;
+    }
+
+    if(!selectExistingMasterProduct(name,{setAction:false})){
+      clearExistingProductSelection();
+    }
+  }
+
   function renderSimilarSuggestions(raw){
     const products=state.adminMaster?.products||[];
     const top=products.map(p=>({name:p.standard_product_name,score:similarityScore(raw,p.standard_product_name)}))
       .filter(x=>x.score>0).sort((a,b)=>b.score-a.score).slice(0,5);
     $("#similarSuggestions").innerHTML=top.length?`<div class="suggestion-title">유사 기존상품 추천</div><div class="suggestion-buttons">${top.map(x=>`<button type="button" class="suggestion-btn" data-suggest="${esc(x.name)}">${esc(x.name)}</button>`).join("")}</div>`:"";
-    $$("[data-suggest]").forEach(b=>b.onclick=()=>{$("#editStandardName").value=b.dataset.suggest;$("#editAction").value="link_existing";});
+    $$("[data-suggest]").forEach(b=>b.onclick=()=>selectExistingMasterProduct(b.dataset.suggest));
   }
 
   async function adminLogin(){
@@ -662,6 +819,7 @@
     const r=await fetch(`${API}/master`,{headers:{"X-Admin-Password":state.adminPassword},cache:"no-store"});
     if(!r.ok) throw new Error(`관리자 마스터 조회 실패 ${r.status}`);
     state.adminMaster=await r.json();
+    invalidateDerived();
     $("#adminState").textContent=`관리자 모드 · ${state.adminMaster.product_count||0}개 상품`;
     $("#adminState").classList.add("on");
     $("#adminBtn").textContent="관리자 로그아웃";
@@ -675,8 +833,13 @@
 
   function logoutAdmin(){
     state.adminPassword=""; state.adminMaster=null; sessionStorage.removeItem("hsfm_admin_password");
-    $("#adminState").textContent="조회 모드"; $("#adminState").classList.remove("on"); $("#adminBtn").textContent="관리자 로그인";
-    renderAll();
+    invalidateDerived();
+    $("#adminState").textContent="조회 모드";
+    $("#adminState").classList.remove("on");
+    $("#adminBtn").textContent="관리자 로그인";
+    fillCommonFilters();
+    renderGlobalKpis();
+    renderActiveTab();
   }
 
   function openProductDialog(name,kind){
@@ -693,6 +856,7 @@
     $("#editStandardName").value=item.standard_product_name||m.standard_product_name||"";
     $("#editBrand").value=m.brand||""; $("#editGroup").value=m.product_group||""; $("#editIngredient").value=m.main_ingredient||"";
     $("#editAction").value=kind==="pending"?"link_existing":kind==="dynamic"?"mark_dynamic_title":kind==="excluded"?"restore":"update_product";
+    clearExistingProductSelection();
     $("#editBroadcastInfo").textContent=last?`최근 방송: ${getDate(last)} ${getTime(last)} · ${getPlatform(last)} · 전체 ${item.occurrences.length}회`:"방송 이력 없음";
 
     const aliases=item.aliases||[];
@@ -702,6 +866,10 @@
     $("#aliasPreview").innerHTML=aliases.length?`<b>현재 연결된 원본명 ${aliases.length}개</b>${aliases.map(a=>`<label class="alias-row"><input type="checkbox" class="alias-check" value="${esc(a.match_keyword||"")}"><span>${esc(a.match_keyword||"")}</span><span class="small">${esc(a.admin_action||"")}</span></label>`).join("")}`:"기존 연결 원본명 없음";
     $("#bulkAliasTools").classList.toggle("hidden",aliases.length<1);
     $("#bulkAliasTarget").value="";
+    if($("#unlockMasterMetaBtn")){
+      $("#unlockMasterMetaBtn").disabled=false;
+      $("#unlockMasterMetaBtn").textContent="정보 수정";
+    }
     renderSimilarSuggestions(item.raw_title||item.standard_product_name||"");
     $("#mergeTarget").value=""; toggleMergeTarget(); $("#productSaveError").textContent="";
     $("#productDialog").showModal();
@@ -710,10 +878,19 @@
   function toggleMergeTarget(){
     const action=$("#editAction").value;
     $("#mergeTargetWrap").classList.toggle("hidden",action!=="merge_product");
+
     if(action==="mark_dynamic_title"){
       $("#editStandardName").placeholder="가변형 제목은 대표 표준상품명을 지정하지 않습니다.";
+    }else if(action==="link_existing"){
+      $("#editStandardName").placeholder="기존 표준상품 검색";
     }else{
       $("#editStandardName").placeholder="실제 동일 제품의 대표 이름";
+    }
+
+    if(action==="link_existing"){
+      syncExistingProductSelection();
+    }else{
+      clearExistingProductSelection();
     }
   }
 
@@ -724,6 +901,14 @@
       sourceAliases=JSON.parse($("#productForm").dataset.sourceAliases||"[]");
     }catch{
       sourceAliases=[];
+    }
+
+    if(action==="link_existing"){
+      const selected=getMasterProductByName(standard);
+      if(!selected){
+        $("#productSaveError").textContent="기존 상품으로 연결하려면 등록된 표준상품을 검색하여 선택하세요.";
+        return;
+      }
     }
 
     const body={
@@ -758,9 +943,17 @@
       const data=await r.json();
       if(!r.ok||!data.ok) throw new Error(data.error||`HTTP ${r.status}`);
       $("#productDialog").close();
-      await loadAdminMaster();
-      renderAll();
-      showStatus("관리자 결정이 HOMESHOPING-MONITOR에 영구 저장되었습니다.");
+      showStatus("저장 완료 · 최신 분류정보를 동기화하고 있습니다.");
+
+      loadAdminMaster()
+        .then(()=>{
+          fillCommonFilters();
+          renderGlobalKpis();
+          if(state.activeTab==="review") renderReview();
+          else renderActiveTab();
+          showStatus("관리자 결정이 HOMESHOPING-MONITOR에 영구 저장되었습니다.");
+        })
+        .catch(err=>showStatus(`저장은 완료되었지만 화면 동기화 실패: ${err.message}`,"error"));
     }catch(e){ $("#productSaveError").textContent=e.message; }
   }
 
@@ -784,10 +977,25 @@
     $("#watchResults").innerHTML=[...byProd].map(([name,rs])=>{const m=metricsForRows(rs);return `<div class="review-card"><div><h4>${esc(name)}</h4><div class="review-meta">방송 ${rs.length}회 · 매출 ${money(m.sales)} · 평균 ${money(m.avg)}</div></div></div>`;}).join("")||'<div class="card muted">관심 키워드와 일치하는 방송이 없습니다.</div>';
   }
 
-  function renderAll(){
+  function fillCommonFilters(){
     const rows=visibleRows();
-    fillSelect("#calendarPlatform",rows.map(getPlatform)); fillSelect("#perfPlatform",rows.map(getPlatform)); fillSelect("#reviewPlatform",state.rows.map(getPlatform)); fillSelect("#perfGroup",rows.map(r=>clean(r.product_group)));
-    renderGlobalKpis(); renderCalendar(); renderPerformance(); renderReview(); renderWatch();
+    fillSelect("#calendarPlatform",rows.map(getPlatform));
+    fillSelect("#perfPlatform",rows.map(getPlatform));
+    fillSelect("#reviewPlatform",state.rows.map(getPlatform));
+    fillSelect("#perfGroup",rows.map(r=>clean(r.product_group)));
+  }
+
+  function renderActiveTab(){
+    if(state.activeTab==="calendar") renderCalendar();
+    else if(state.activeTab==="performance") renderPerformance();
+    else if(state.activeTab==="review") renderReview();
+    else if(state.activeTab==="watch") renderWatch();
+  }
+
+  function renderAll(){
+    fillCommonFilters();
+    renderGlobalKpis();
+    renderActiveTab();
   }
 
   async function loadData(){
@@ -796,7 +1004,10 @@
         fetchText("../data/food_broadcasts.csv"),
         fetchText("../data/product_master.csv").catch(()=>""), fetchJsonSafe("../reports/pending_products.json")
       ]);
-      state.rows=parseCSV(csv); state.masterPublic=parseCSV(master); state.pending=Array.isArray(pending)?pending:(pending?.items||[]);
+      state.rows=parseCSV(csv);
+      state.masterPublic=parseCSV(master);
+      state.pending=Array.isArray(pending)?pending:(pending?.items||[]);
+      invalidateDerived();
       const stamps=state.rows.map(r=>clean(r.performance_updated_at||r.last_seen_at||r.start_datetime)).filter(Boolean).sort();
       $("#latestDataAt").textContent=`최근 데이터 갱신: ${stamps.at(-1)||"확인 불가"}`;
       if(state.adminPassword){ try{await loadAdminMaster();}catch{logoutAdmin();} }
@@ -808,21 +1019,40 @@
   }
 
   function bind(){
-    $$(".tab").forEach(b=>b.onclick=()=>{state.activeTab=b.dataset.tab; $$(".tab").forEach(x=>x.classList.toggle("active",x===b)); $$(".tab-panel").forEach(p=>p.classList.toggle("active",p.id===`${state.activeTab}Panel`));});
+    $$(".tab").forEach(b=>b.onclick=()=>{
+      state.activeTab=b.dataset.tab;
+      $$(".tab").forEach(x=>x.classList.toggle("active",x===b));
+      $$(".tab-panel").forEach(p=>p.classList.toggle("active",p.id===`${state.activeTab}Panel`));
+      requestAnimationFrame(renderActiveTab);
+    });
     $$("[data-view]").forEach(b=>b.onclick=()=>{state.view=b.dataset.view;renderCalendar();});
     $("#prevPeriod").onclick=()=>{state.cursor=state.view==="month"?new Date(state.cursor.getFullYear(),state.cursor.getMonth()-1,1):state.view==="week"?addDays(state.cursor,-7):addDays(state.cursor,-1);renderCalendar();};
     $("#nextPeriod").onclick=()=>{state.cursor=state.view==="month"?new Date(state.cursor.getFullYear(),state.cursor.getMonth()+1,1):state.view==="week"?addDays(state.cursor,7):addDays(state.cursor,1);renderCalendar();};
     $("#todayBtn").onclick=()=>{state.cursor=today();renderCalendar();};
     $("#refreshBtn").onclick=loadData;
-    ["#calendarPlatform","#calendarSearch","#calendarWatchOnly"].forEach(s=>$(s).addEventListener("input",renderCalendar));
+    const debouncedCalendar=debounce(renderCalendar,160);
+    ["#calendarPlatform","#calendarWatchOnly"].forEach(s=>$(s).addEventListener("input",renderCalendar));
+    $("#calendarSearch").addEventListener("input",debouncedCalendar);
     $$(".quick-range button").forEach(b=>b.onclick=()=>setPerfRange(b.dataset.range));
-    ["#perfStart","#perfEnd","#perfPlatform","#perfGroup","#perfSearch","#perfStatus","#perfHotOnly","#perfNewOnly"].forEach(s=>$(s).addEventListener("input",renderPerformance));
+    const debouncedPerf=debounce(renderPerformance,180);
+    ["#perfStart","#perfEnd","#perfPlatform","#perfGroup","#perfStatus","#perfHotOnly","#perfNewOnly"].forEach(s=>$(s).addEventListener("input",renderPerformance));
+    $("#perfSearch").addEventListener("input",debouncedPerf);
     $("#resetPerf").onclick=()=>setPerfRange("yesterday");
     $$(".review-state-filter button").forEach(b=>b.onclick=()=>setReviewFilter(b.dataset.reviewFilter));
-    ["#reviewSearch","#reviewPlatform","#reviewStart","#reviewEnd"].forEach(s=>$(s).addEventListener("input",renderReview));
+    const debouncedReview=debounce(renderReview,180);
+    ["#reviewPlatform","#reviewStart","#reviewEnd"].forEach(s=>$(s).addEventListener("input",renderReview));
+    $("#reviewSearch").addEventListener("input",debouncedReview);
     $("#adminBtn").onclick=()=>state.adminPassword?logoutAdmin():adminLogin();
-    $("#adminLoginSubmit").onclick=async e=>{e.preventDefault();const pw=$("#adminPasswordInput").value;try{if(!await verifyAdmin(pw)) throw new Error("관리자 비밀번호가 올바르지 않습니다.");state.adminPassword=pw;sessionStorage.setItem("hsfm_admin_password",pw);await loadAdminMaster();$("#adminDialog").close();renderAll();showStatus("관리자 모드로 로그인했습니다.");}catch(err){$("#adminLoginError").textContent=err.message;}};
+    $("#adminLoginSubmit").onclick=async e=>{e.preventDefault();const pw=$("#adminPasswordInput").value;try{if(!await verifyAdmin(pw)) throw new Error("관리자 비밀번호가 올바르지 않습니다.");state.adminPassword=pw;sessionStorage.setItem("hsfm_admin_password",pw);await loadAdminMaster();$("#adminDialog").close();fillCommonFilters();renderGlobalKpis();renderActiveTab();showStatus("관리자 모드로 로그인했습니다.");}catch(err){$("#adminLoginError").textContent=err.message;}};
     $("#editAction").onchange=toggleMergeTarget;
+    $("#editStandardName").addEventListener("change",syncExistingProductSelection);
+    $("#editStandardName").addEventListener("blur",syncExistingProductSelection);
+    $("#unlockMasterMetaBtn").onclick=()=>{
+      setMasterMetaLocked(false);
+      $("#masterEditTools").classList.remove("hidden");
+      $("#unlockMasterMetaBtn").textContent="정보 수정 중";
+      $("#unlockMasterMetaBtn").disabled=true;
+    };
     $("#productSaveBtn").onclick=e=>{e.preventDefault();saveProductAdmin();};
     $("#bulkAliasMoveBtn").onclick=bulkMoveAliases;
     $("#historyCloseBtn").onclick=()=>$("#historyDialog").close();

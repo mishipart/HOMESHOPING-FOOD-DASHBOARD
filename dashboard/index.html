@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>홈쇼핑 식품 모니터 V2.8.2</title>
-  <link rel="stylesheet" href="./styles.css?v=2.8.2">
+  <title>홈쇼핑 식품 모니터 V2.8.4</title>
+  <link rel="stylesheet" href="./styles.css?v=2.8.4">
 </head>
 <body>
   <main class="shell">
@@ -183,7 +183,7 @@
       <div id="watchResults"></div>
     </section>
 
-    <footer>홈쇼핑 식품 모니터 V2.8.2 · 관리자 영구 상품 마스터</footer>
+    <footer>홈쇼핑 식품 모니터 V2.8.4 · 관리자 영구 상품 마스터</footer>
   </main>
 
   <dialog id="adminDialog">
@@ -211,10 +211,15 @@
 
       <div class="form-grid">
         <label class="full">원본 상품명<input id="editRawDisplay" disabled></label>
-        <label class="full">표준 상품명<input id="editStandardName" placeholder="실제 동일 제품의 대표 이름"></label>
+        <label class="full">표준 상품명<input id="editStandardName" list="masterProductNames" autocomplete="off" placeholder="기존 표준상품 검색 또는 신규 대표 이름"></label>
         <label>브랜드<input id="editBrand"></label>
         <label>상품군<input id="editGroup"></label>
         <label>주원료<input id="editIngredient"></label>
+        <div id="existingProductMeta" class="full existing-product-meta hidden"></div>
+        <div id="masterEditTools" class="full master-edit-tools hidden">
+          <button type="button" id="unlockMasterMetaBtn" class="btn">정보 수정</button>
+          <span class="small">기존 상품 연결 시 마스터 정보는 기본 잠금됩니다.</span>
+        </div>
         <label>처리 방식
           <select id="editAction">
             <option value="link_existing">기존 상품으로 연결</option>
@@ -260,7 +265,7 @@
     </div>
   </dialog>
 
-  <script src="./config.js?v=2.8.2"></script>
-  <script src="./app.js?v=2.8.2"></script>
+  <script src="./config.js?v=2.8.4"></script>
+  <script src="./app.js?v=2.8.4"></script>
 </body>
 </html>

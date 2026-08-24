@@ -114,3 +114,24 @@ footer{font-size:10px;color:var(--muted);margin-top:18px}
   .audit-row{grid-template-columns:110px 90px 1fr}
   .audit-row>*:nth-child(4){display:none}
 }
+
+
+/* V2.8.3 - 기존 표준상품 선택/자동 메타데이터 */
+.existing-product-meta{
+  border:1px solid #bcd7ff;
+  background:#f4f8ff;
+  border-radius:10px;
+  padding:10px 12px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:4px 12px;
+  font-size:11px;
+  color:#355070;
+}
+.existing-product-meta b{grid-column:1/-1;color:#1f5fc4;font-size:12px}
+.master-edit-tools{display:flex;align-items:center;gap:10px}
+.master-meta-locked{
+  background:#f4f6f8!important;
+  color:#667085!important;
+  cursor:not-allowed;
+}
