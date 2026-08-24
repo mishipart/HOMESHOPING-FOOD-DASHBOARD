@@ -499,7 +499,7 @@
     const hay=normalize(`${item.raw_title||""} ${item.standard_product_name||""} ${item.master?.brand||""} ${(item.aliases||[]).map(a=>a.match_keyword).join(" ")}`);
     if(q&&!hay.includes(q)) return false;
 
-    // IMPORTANT V2.8.1: date/platform filter is applied to the occurrences themselves.
+    // IMPORTANT V2.8.2: date/platform filter is applied to the occurrences themselves.
     const filtered=reviewOccurrences(item.occurrences);
     const filterActive=!!($("#reviewPlatform").value||$("#reviewStart").value||$("#reviewEnd").value);
     if(filterActive && !filtered.length) return false;
@@ -622,6 +622,7 @@
     $("#editBrand").value=o.brand||""; $("#editGroup").value=o.product_group||""; $("#editIngredient").value=o.main_ingredient||"";
     $("#editAction").value="save_occurrence";
     $("#productForm").dataset.occurrenceId=clean(r.hsshow_id);
+    $("#productForm").dataset.sourceAliases="[]";
     $("#editBroadcastInfo").textContent=`${getDate(r)} ${getTime(r)} · ${getPlatform(r)} · 이 방송 1건에만 적용`;
     $("#aliasPreview").innerHTML="이 저장은 같은 제목의 다른 방송에는 영향을 주지 않습니다.";
     $("#bulkAliasTools").classList.add("hidden");
@@ -695,6 +696,9 @@
     $("#editBroadcastInfo").textContent=last?`최근 방송: ${getDate(last)} ${getTime(last)} · ${getPlatform(last)} · 전체 ${item.occurrences.length}회`:"방송 이력 없음";
 
     const aliases=item.aliases||[];
+    $("#productForm").dataset.sourceAliases=JSON.stringify(
+      aliases.map(a=>clean(a.match_keyword||"")).filter(Boolean)
+    );
     $("#aliasPreview").innerHTML=aliases.length?`<b>현재 연결된 원본명 ${aliases.length}개</b>${aliases.map(a=>`<label class="alias-row"><input type="checkbox" class="alias-check" value="${esc(a.match_keyword||"")}"><span>${esc(a.match_keyword||"")}</span><span class="small">${esc(a.admin_action||"")}</span></label>`).join("")}`:"기존 연결 원본명 없음";
     $("#bulkAliasTools").classList.toggle("hidden",aliases.length<1);
     $("#bulkAliasTarget").value="";
@@ -715,7 +719,24 @@
 
   async function saveProductAdmin(){
     const action=$("#editAction").value, raw=$("#editRawTitle").value, source=$("#editSourceStandard").value, standard=$("#editStandardName").value;
-    const body={action,raw_title:raw,match_keyword:raw,standard_product_name:standard,source_standard_product_name:source,brand:$("#editBrand").value,product_group:$("#editGroup").value,main_ingredient:$("#editIngredient").value};
+    let sourceAliases=[];
+    try{
+      sourceAliases=JSON.parse($("#productForm").dataset.sourceAliases||"[]");
+    }catch{
+      sourceAliases=[];
+    }
+
+    const body={
+      action,
+      raw_title:raw,
+      match_keyword:raw,
+      standard_product_name:standard,
+      source_standard_product_name:source,
+      source_aliases:sourceAliases,
+      brand:$("#editBrand").value,
+      product_group:$("#editGroup").value,
+      main_ingredient:$("#editIngredient").value
+    };
 
     if(action==="merge_product"){ body.source_standard_product_name=source; body.target_standard_product_name=$("#mergeTarget").value; }
     if(action==="exclude"){ body.scope=source&&!raw?"product":"alias"; }
