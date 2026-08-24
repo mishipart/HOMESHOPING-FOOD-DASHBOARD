@@ -902,17 +902,166 @@
     });
   }
 
+
+  function daysInclusive(from, to) {
+    const a = parseDateKey(from);
+    const b = parseDateKey(to);
+    return Math.max(1, Math.round((b - a) / 86400000) + 1);
+  }
+
+  function previousPeriodRange(from, to) {
+    const len = daysInclusive(from, to);
+    const prevTo = addDays(parseDateKey(from), -1);
+    const prevFrom = addDays(prevTo, -(len - 1));
+    return [dateKey(prevFrom), dateKey(prevTo)];
+  }
+
+  function rowsForPerfRange(from, to, basePerf) {
+    const q = norm(basePerf.query || "");
+
+    return state.rows.filter(r => {
+      if (from && r.broadcast_date < from) return false;
+      if (to && r.broadcast_date > to) return false;
+      if (basePerf.platform && r.platform_name !== basePerf.platform) return false;
+      if (basePerf.group && r.product_group !== basePerf.group) return false;
+      if (basePerf.status === "confirmed" && !hasPerformance(r)) return false;
+      if (basePerf.status === "missing" && hasPerformance(r)) return false;
+      if (basePerf.hotOnly && !isHot(r)) return false;
+      if (basePerf.newOnly && !isNew(r)) return false;
+
+      if (q) {
+        const hay = norm([
+          productName(r), r.raw_title, r.brand,
+          r.product_group, r.main_ingredient
+        ].join(" "));
+
+        if (!hay.includes(q)) return false;
+      }
+
+      return true;
+    });
+  }
+
+  function pctChange(current, previous) {
+    if (!previous && !current) return 0;
+    if (!previous && current) return null;
+    return ((current - previous) / previous) * 100;
+  }
+
+  function compareBadge(current, previous, suffix = "") {
+    const pct = pctChange(current, previous);
+
+    if (pct === null) {
+      return `<span class="compare-badge neutral">비교기준 없음</span>`;
+    }
+
+    const arrow = pct > 0 ? "▲" : pct < 0 ? "▼" : "–";
+    const cls = pct > 0 ? "up" : pct < 0 ? "down" : "neutral";
+
+    return `
+      <span class="compare-badge ${cls}">
+        ${arrow} ${Math.abs(pct).toFixed(1)}%${suffix}
+      </span>
+    `;
+  }
+
+  function productTrendBars(rows, maxBars = 8) {
+    const items = rows
+      .filter(hasPerformance)
+      .slice()
+      .sort((a, b) => String(a.start_datetime || "").localeCompare(String(b.start_datetime || "")))
+      .slice(-maxBars);
+
+    if (!items.length) return `<span class="trend-empty">-</span>`;
+
+    const vals = items.map(salesAmount);
+    const max = Math.max(1, ...vals);
+
+    return `
+      <span class="mini-trend" title="${esc(items.map(r => `${r.broadcast_date} ${timeHHMM(r.start_datetime)} ${fmtWon(salesAmount(r))}`).join("\n"))}">
+        ${vals.map(v => `<i style="height:${Math.max(8, v / max * 100)}%"></i>`).join("")}
+      </span>
+    `;
+  }
+
+  function autoPerformanceSummary(rows, perf, previousRows, previousPerf) {
+    const total = sum(perf, salesAmount);
+    const prevTotal = sum(previousPerf, salesAmount);
+    const avg = perf.length ? total / perf.length : 0;
+    const prevAvg = previousPerf.length ? prevTotal / previousPerf.length : 0;
+
+    const platforms = Object.entries(groupBy(perf, r => r.platform_name || "미분류"))
+      .map(([name, rs]) => ({
+        name,
+        avg: rs.length ? sum(rs, salesAmount) / rs.length : 0,
+        total: sum(rs, salesAmount)
+      }))
+      .sort((a, b) => b.avg - a.avg);
+
+    const products = Object.entries(groupBy(perf, r => productName(r)))
+      .map(([name, rs]) => ({ name, total: sum(rs, salesAmount) }))
+      .sort((a, b) => b.total - a.total);
+
+    const confirmation = rows.length ? perf.length / rows.length * 100 : 0;
+    const hotCount = rows.filter(isHot).length;
+    const newCount = rows.filter(isNew).length;
+
+    const parts = [];
+
+    parts.push(
+      `선택기간 식품방송 ${rows.length.toLocaleString("ko-KR")}회 중 실적 ${perf.length.toLocaleString("ko-KR")}회가 확인되어 확인률은 ${confirmation.toFixed(1)}%입니다.`
+    );
+
+    if (perf.length) {
+      const totalPct = pctChange(total, prevTotal);
+      const avgPct = pctChange(avg, prevAvg);
+
+      let compareText = "";
+      if (totalPct !== null && avgPct !== null) {
+        compareText =
+          ` 직전 동일기간 대비 총매출은 ${totalPct >= 0 ? "증가" : "감소"} ${Math.abs(totalPct).toFixed(1)}%, 방송당 평균매출은 ${avgPct >= 0 ? "증가" : "감소"} ${Math.abs(avgPct).toFixed(1)}%입니다.`;
+      }
+
+      parts.push(
+        `총매출은 ${fmtWon(total)}, 방송당 평균매출은 ${fmtWon(avg)}입니다.${compareText}`
+      );
+    }
+
+    if (platforms.length) {
+      parts.push(
+        `평균매출이 가장 높은 채널은 ${platforms[0].name}(${fmtWon(platforms[0].avg)})입니다.`
+      );
+    }
+
+    if (products.length) {
+      parts.push(
+        `선택기간 총매출 1위 상품은 ${products[0].name}(${fmtWon(products[0].total)})입니다. HOT ${hotCount}건, NEW ${newCount}건이 감지되었습니다.`
+      );
+    }
+
+    return parts;
+  }
+
   function renderPerformance() {
     const root = $("#viewRoot");
+
     const rows = performanceRows();
     const perf = rows.filter(hasPerformance);
-    const salesValues = perf.map(salesAmount).filter(v => v > 0);
 
+    const [prevFrom, prevTo] = previousPeriodRange(state.perf.from, state.perf.to);
+    const previousRows = rowsForPerfRange(prevFrom, prevTo, state.perf);
+    const previousPerf = previousRows.filter(hasPerformance);
+
+    const salesValues = perf.map(salesAmount).filter(v => v > 0);
     const totalSales = sum(perf, salesAmount);
     const avgSales = perf.length ? totalSales / perf.length : 0;
     const medSales = median(salesValues);
     const maxSales = salesValues.length ? Math.max(...salesValues) : 0;
     const totalUnits = sum(perf, salesCount);
+
+    const prevTotalSales = sum(previousPerf, salesAmount);
+    const prevAvgSales = previousPerf.length ? prevTotalSales / previousPerf.length : 0;
+    const prevUnits = sum(previousPerf, salesCount);
 
     const hotRows = rows.filter(isHot).sort((a, b) => salesAmount(b) - salesAmount(a));
     const newRows = rows.filter(isNew).sort((a, b) =>
@@ -927,7 +1076,8 @@
         avg: rs.length ? sum(rs, salesAmount) / rs.length : 0,
         med: median(rs.map(salesAmount)),
         max: Math.max(0, ...rs.map(salesAmount)),
-        units: sum(rs, salesCount)
+        units: sum(rs, salesCount),
+        channels: unique(rs.map(r => r.platform_name)).length
       }))
       .sort((a, b) => b.sales - a.sales);
 
@@ -957,7 +1107,7 @@
       };
     });
 
-    const maxHourAvg = Math.max(1, ...hours.map(x => x.avg));
+    const maxHourSales = Math.max(1, ...hours.map(x => x.sales));
 
     const lowProducts = byProduct
       .filter(x => x.rs.length >= 3)
@@ -965,13 +1115,27 @@
       .sort((a, b) => a.avg - b.avg)
       .slice(0, 10);
 
+    const summaryLines = autoPerformanceSummary(
+      rows, perf, previousRows, previousPerf
+    );
+
+    const platformGroups = byPlatform.map(p => ({
+      ...p,
+      allRows: rows
+        .filter(r => (r.platform_name || "미분류") === p.name)
+        .slice()
+        .sort((a, b) =>
+          String(b.start_datetime || "").localeCompare(String(a.start_datetime || ""))
+        )
+    }));
+
     root.innerHTML = `
       <section class="section-head">
         <div>
           <div class="eyebrow">PERFORMANCE DETAIL</div>
           <h2>실적 상세</h2>
         </div>
-        <p>방송 단위 실적부터 상품·채널·시간대까지 상세하게 확인합니다.</p>
+        <p>핵심 실적은 위에서, 상세 데이터는 필요한 경우에만 펼쳐봅니다.</p>
       </section>
 
       <section class="panel performance-filter">
@@ -1029,16 +1193,113 @@
         </div>
       </section>
 
-      <section class="mini-kpis detail-kpis">
-        <div><span>방송</span><strong>${fmtCount(rows.length)}</strong></div>
-        <div><span>실적 확인률</span><strong>${rows.length ? (perf.length / rows.length * 100).toFixed(1) : "0.0"}%</strong></div>
-        <div><span>총 매출</span><strong>${fmtWon(totalSales)}</strong></div>
-        <div><span>평균 매출</span><strong>${fmtWon(avgSales)}</strong></div>
-        <div><span>중앙값 매출</span><strong>${fmtWon(medSales)}</strong></div>
-        <div><span>최고 매출</span><strong>${fmtWon(maxSales)}</strong></div>
-        <div><span>총 판매량</span><strong>${totalUnits ? totalUnits.toLocaleString("ko-KR") : "-"}</strong></div>
+      <section class="auto-summary panel">
+        <div class="auto-summary-head">
+          <div>
+            <span class="eyebrow">AUTO BRIEF</span>
+            <h3>선택기간 핵심 요약</h3>
+          </div>
+          <span class="confidence-badge ${rows.length && perf.length / rows.length >= .9 ? "good" : rows.length && perf.length / rows.length >= .7 ? "warn" : "bad"}">
+            실적확인률 ${rows.length ? (perf.length / rows.length * 100).toFixed(1) : "0.0"}%
+          </span>
+        </div>
+        <div class="auto-summary-lines">
+          ${summaryLines.map(x => `<p>${esc(x)}</p>`).join("")}
+        </div>
+      </section>
+
+      <section class="mini-kpis detail-kpis v26">
+        <div>
+          <span>방송</span>
+          <strong>${fmtCount(rows.length)}</strong>
+          ${compareBadge(rows.length, previousRows.length)}
+        </div>
+
+        <div>
+          <span>실적 확인률</span>
+          <strong>${rows.length ? (perf.length / rows.length * 100).toFixed(1) : "0.0"}%</strong>
+          <small>${perf.length}/${rows.length}회</small>
+        </div>
+
+        <div>
+          <span>총 매출</span>
+          <strong>${fmtWon(totalSales)}</strong>
+          ${compareBadge(totalSales, prevTotalSales)}
+        </div>
+
+        <div>
+          <span>평균 매출</span>
+          <strong>${fmtWon(avgSales)}</strong>
+          ${compareBadge(avgSales, prevAvgSales)}
+        </div>
+
+        <div>
+          <span>중앙값 매출</span>
+          <strong>${fmtWon(medSales)}</strong>
+          <small>이상치 영향 완화</small>
+        </div>
+
+        <div>
+          <span>최고 매출</span>
+          <strong>${fmtWon(maxSales)}</strong>
+          <small>단일 방송 최고</small>
+        </div>
+
+        <div>
+          <span>총 판매량</span>
+          <strong>${totalUnits ? totalUnits.toLocaleString("ko-KR") : "-"}</strong>
+          ${compareBadge(totalUnits, prevUnits)}
+        </div>
+
         <div class="signal-kpi hot"><span>HOT 방송</span><strong>${hotRows.length}건</strong></div>
         <div class="signal-kpi new"><span>NEW 방송</span><strong>${newRows.length}건</strong></div>
+      </section>
+
+      <section class="analysis-grid v26-primary">
+        <article class="panel analysis-card top-products-card">
+          <div class="panel-title">
+            <h3>매출 상위 상품 TOP 15</h3>
+            <span>${byProduct.length}개 상품</span>
+          </div>
+
+          <div class="rank-list">
+            ${byProduct.slice(0, 15).map((x, i) => `
+              <div class="rank-row v26">
+                <span class="rank">${i + 1}</span>
+                <span class="rank-name">
+                  ${esc(x.name)}
+                  <small>${x.rs.length}회 · 평균 ${fmtWon(x.avg)}</small>
+                </span>
+                <span class="rank-value">${fmtWon(x.sales)}</span>
+              </div>
+            `).join("") || `<div class="empty-box">실적 데이터가 없습니다.</div>`}
+          </div>
+        </article>
+
+        <article class="panel analysis-card hourly-sales-card">
+          <div class="panel-title">
+            <h3>시간대별 매출</h3>
+            <span>00시~23시</span>
+          </div>
+
+          <div class="hour-sales-list">
+            ${hours.map(x => `
+              <div class="hour-sales-row">
+                <span class="hour-label">${String(x.h).padStart(2, "0")}시</span>
+
+                <div class="hour-bar-wrap">
+                  <span class="bar-track">
+                    <i style="width:${x.sales ? Math.max(2, x.sales / maxHourSales * 100) : 0}%"></i>
+                  </span>
+                </div>
+
+                <span class="hour-count">${x.count}개</span>
+                <strong>${fmtWon(x.sales)}</strong>
+                <span class="hour-avg">평균 ${fmtWon(x.avg)}</span>
+              </div>
+            `).join("")}
+          </div>
+        </article>
       </section>
 
       <section class="signal-panels">
@@ -1047,9 +1308,10 @@
             <h3>🔥 특별히 잘 나온 실적</h3>
             <span>HOT ${hotRows.length}건</span>
           </div>
+
           ${hotRows.length ? `
             <div class="compact-list">
-              ${hotRows.slice(0, 10).map(r => `
+              ${hotRows.slice(0, 8).map(r => `
                 <button data-perf-show="${esc(r.hsshow_id || "")}" type="button">
                   <span>
                     ${badgesFor(r, true)} ${esc(productName(r))}
@@ -1058,7 +1320,8 @@
                   <strong>${fmtWon(salesAmount(r))}</strong>
                 </button>
               `).join("")}
-            </div>` : `<div class="empty-box">선택 기간에 HOT 방송이 없습니다.</div>`}
+            </div>
+          ` : `<div class="empty-box">선택 기간에 HOT 방송이 없습니다.</div>`}
         </article>
 
         <article class="panel analysis-card">
@@ -1066,9 +1329,10 @@
             <h3>✨ 신규 등장 상품</h3>
             <span>NEW ${newRows.length}건</span>
           </div>
+
           ${newRows.length ? `
             <div class="compact-list">
-              ${newRows.slice(0, 10).map(r => `
+              ${newRows.slice(0, 8).map(r => `
                 <button data-perf-show="${esc(r.hsshow_id || "")}" type="button">
                   <span>
                     ${badgesFor(r, true)} ${esc(productName(r))}
@@ -1077,110 +1341,194 @@
                   <strong>${fmtWon(salesAmount(r))}</strong>
                 </button>
               `).join("")}
-            </div>` : `<div class="empty-box">선택 기간에 NEW 상품이 없습니다.</div>`}
-        </article>
-      </section>
-
-      <section class="analysis-grid">
-        <article class="panel analysis-card">
-          <h3>매출 상위 상품</h3>
-          <div class="rank-list">
-            ${byProduct.slice(0, 10).map((x, i) => `
-              <div class="rank-row">
-                <span class="rank">${i + 1}</span>
-                <span class="rank-name">${esc(x.name)}<small>${x.rs.length}회 방송</small></span>
-                <span class="rank-value">${fmtWon(x.sales)}</span>
-              </div>
-            `).join("") || `<div class="empty-box">실적 데이터가 없습니다.</div>`}
-          </div>
-        </article>
-
-        <article class="panel analysis-card">
-          <h3>시간대별 평균 매출 · 1시간 단위</h3>
-          <div class="hour-bars">
-            ${hours.map(x => `
-              <div class="hour-row">
-                <span>${String(x.h).padStart(2, "0")}시</span>
-                <span class="bar-track"><i style="width:${x.avg ? Math.max(2, x.avg / maxHourAvg * 100) : 0}%"></i></span>
-                <strong>${fmtWon(x.avg)}</strong>
-              </div>
-            `).join("")}
-          </div>
+            </div>
+          ` : `<div class="empty-box">선택 기간에 NEW 상품이 없습니다.</div>`}
         </article>
       </section>
 
       <section class="panel table-panel">
-        <div class="panel-title"><h3>시간대별 상세</h3><span>00시~23시</span></div>
-        <table class="data-table">
-          <thead><tr><th>시간</th><th class="num">방송수</th><th class="num">총매출</th><th class="num">평균매출</th></tr></thead>
-          <tbody>
-            ${hours.map(x => `
-              <tr><td>${String(x.h).padStart(2, "0")}시</td><td class="num">${x.count}</td><td class="num strong">${fmtWon(x.sales)}</td><td class="num">${fmtWon(x.avg)}</td></tr>
-            `).join("")}
-          </tbody>
-        </table>
-      </section>
+        <div class="panel-title">
+          <h3>홈쇼핑사별 실적</h3>
+          <span>${byPlatform.length}개 채널</span>
+        </div>
 
-      <section class="panel table-panel">
-        <div class="panel-title"><h3>홈쇼핑사별 실적</h3><span>${byPlatform.length}개 채널</span></div>
         <table class="data-table">
-          <thead><tr><th>홈쇼핑사</th><th class="num">방송</th><th class="num">총매출</th><th class="num">평균</th><th class="num">중앙값</th><th class="num">최고매출</th><th class="num">판매량</th></tr></thead>
+          <thead>
+            <tr>
+              <th>홈쇼핑사</th>
+              <th class="num">방송</th>
+              <th class="num">총매출</th>
+              <th class="num">평균</th>
+              <th class="num">중앙값</th>
+              <th class="num">최고매출</th>
+              <th class="num">판매량</th>
+            </tr>
+          </thead>
+
           <tbody>
             ${byPlatform.map(x => `
-              <tr><td>${esc(x.name)}</td><td class="num">${x.rs.length}</td><td class="num strong">${fmtWon(x.sales)}</td><td class="num">${fmtWon(x.avg)}</td><td class="num">${fmtWon(x.med)}</td><td class="num">${fmtWon(x.max)}</td><td class="num">${x.units.toLocaleString("ko-KR")}</td></tr>
+              <tr>
+                <td>${esc(x.name)}</td>
+                <td class="num">${x.rs.length}</td>
+                <td class="num strong">${fmtWon(x.sales)}</td>
+                <td class="num">${fmtWon(x.avg)}</td>
+                <td class="num">${fmtWon(x.med)}</td>
+                <td class="num">${fmtWon(x.max)}</td>
+                <td class="num">${x.units.toLocaleString("ko-KR")}</td>
+              </tr>
             `).join("") || `<tr><td colspan="7" class="empty-cell">데이터가 없습니다.</td></tr>`}
           </tbody>
         </table>
       </section>
 
-      <section class="panel table-panel">
-        <div class="panel-title"><h3>상품별 실적 상세</h3><span>${byProduct.length}개 상품</span></div>
-        <div class="table-scroll">
-          <table class="data-table">
-            <thead><tr><th>상품</th><th class="num">방송</th><th class="num">총매출</th><th class="num">평균</th><th class="num">중앙값</th><th class="num">최고매출</th><th class="num">판매량</th></tr></thead>
-            <tbody>
-              ${byProduct.slice(0, 100).map(x => `
-                <tr><td>${esc(x.name)}</td><td class="num">${x.rs.length}</td><td class="num strong">${fmtWon(x.sales)}</td><td class="num">${fmtWon(x.avg)}</td><td class="num">${fmtWon(x.med)}</td><td class="num">${fmtWon(x.max)}</td><td class="num">${x.units.toLocaleString("ko-KR")}</td></tr>
-              `).join("")}
-            </tbody>
-          </table>
+      <details class="detail-section panel">
+        <summary>
+          <span>
+            <strong>상품별 실적 상세</strong>
+            <small>${byProduct.length}개 상품 · 필요할 때 펼쳐보기</small>
+          </span>
+          <span class="summary-action">펼치기</span>
+        </summary>
+
+        <div class="detail-section-body">
+          <div class="detail-toolbar">
+            <input id="productDetailSearch" placeholder="상품명 검색">
+            <select id="productDetailSort">
+              <option value="sales">총매출 높은순</option>
+              <option value="avg">평균매출 높은순</option>
+              <option value="count">방송수 많은순</option>
+              <option value="latest">최근추세 중심</option>
+            </select>
+          </div>
+
+          <div id="productDetailTable"></div>
         </div>
-      </section>
+      </details>
 
-      <section class="panel table-panel">
-        <div class="panel-title"><h3>평균매출 하위 상품</h3><span>방송 3회 이상</span></div>
-        <table class="data-table">
-          <thead><tr><th>상품</th><th class="num">방송</th><th class="num">평균매출</th><th class="num">총매출</th></tr></thead>
-          <tbody>
-            ${lowProducts.map(x => `
-              <tr><td>${esc(x.name)}</td><td class="num">${x.rs.length}</td><td class="num">${fmtWon(x.avg)}</td><td class="num">${fmtWon(x.sales)}</td></tr>
-            `).join("") || `<tr><td colspan="4" class="empty-cell">조건에 맞는 상품이 없습니다.</td></tr>`}
-          </tbody>
-        </table>
-      </section>
+      <details class="detail-section panel">
+        <summary>
+          <span>
+            <strong>방송별 상세 내역</strong>
+            <small>${rows.length}건 · 방송사별로 접어서 확인</small>
+          </span>
+          <span class="summary-action">펼치기</span>
+        </summary>
 
-      <section class="panel table-panel">
-        <div class="panel-title"><h3>방송별 상세 내역</h3><span>${rows.length}건</span></div>
-        <div class="table-scroll">
+        <div class="detail-section-body platform-accordion">
+          ${platformGroups.map(p => `
+            <details class="platform-detail">
+              <summary>
+                <span class="platform-name">${esc(p.name)}</span>
+                <span>${p.allRows.length}회</span>
+                <strong>${fmtWon(sum(p.allRows.filter(hasPerformance), salesAmount))}</strong>
+                <small>평균 ${fmtWon(p.avg)}</small>
+              </summary>
+
+              <div class="platform-table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>날짜</th><th>시간</th><th>상품</th><th>표시</th>
+                      <th class="num">판매량</th><th class="num">매출</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    ${p.allRows.map(r => `
+                      <tr>
+                        <td>${esc(r.broadcast_date)}</td>
+                        <td>${esc(timeHHMM(r.start_datetime))}</td>
+                        <td><button class="link-btn" data-perf-show="${esc(r.hsshow_id || "")}" type="button">${esc(productName(r))}</button></td>
+                        <td>${badgesFor(r)}</td>
+                        <td class="num">${salesCount(r) ? salesCount(r).toLocaleString("ko-KR") : "-"}</td>
+                        <td class="num strong">${fmtWon(salesAmount(r))}</td>
+                      </tr>
+                    `).join("")}
+                  </tbody>
+                </table>
+              </div>
+            </details>
+          `).join("")}
+        </div>
+      </details>
+
+      <details class="detail-section panel">
+        <summary>
+          <span>
+            <strong>평균매출 하위 상품</strong>
+            <small>방송 3회 이상 · 저성과 후보</small>
+          </span>
+          <span class="summary-action">펼치기</span>
+        </summary>
+
+        <div class="detail-section-body">
           <table class="data-table">
-            <thead><tr><th>날짜</th><th>시간</th><th>홈쇼핑사</th><th>상품</th><th>표시</th><th class="num">판매량</th><th class="num">매출</th></tr></thead>
+            <thead><tr><th>상품</th><th class="num">방송</th><th class="num">평균매출</th><th class="num">총매출</th></tr></thead>
             <tbody>
-              ${rows.slice().sort((a, b) => String(b.start_datetime || "").localeCompare(String(a.start_datetime || ""))).slice(0, 500).map(r => `
+              ${lowProducts.map(x => `
                 <tr>
-                  <td>${esc(r.broadcast_date)}</td>
-                  <td>${esc(timeHHMM(r.start_datetime))}</td>
-                  <td>${esc(r.platform_name || "")}</td>
-                  <td><button class="link-btn" data-perf-show="${esc(r.hsshow_id || "")}" type="button">${esc(productName(r))}</button></td>
-                  <td>${badgesFor(r)}</td>
-                  <td class="num">${salesCount(r) ? salesCount(r).toLocaleString("ko-KR") : "-"}</td>
-                  <td class="num strong">${fmtWon(salesAmount(r))}</td>
+                  <td>${esc(x.name)}</td>
+                  <td class="num">${x.rs.length}</td>
+                  <td class="num">${fmtWon(x.avg)}</td>
+                  <td class="num">${fmtWon(x.sales)}</td>
                 </tr>
-              `).join("")}
+              `).join("") || `<tr><td colspan="4" class="empty-cell">조건에 맞는 상품이 없습니다.</td></tr>`}
             </tbody>
           </table>
         </div>
-      </section>
+      </details>
     `;
+
+    function renderProductDetailTable() {
+      const q = norm($("#productDetailSearch")?.value || "");
+      const sort = $("#productDetailSort")?.value || "sales";
+
+      let list = byProduct.filter(x => !q || norm(x.name).includes(q));
+
+      list = list.slice();
+
+      if (sort === "avg") list.sort((a, b) => b.avg - a.avg);
+      else if (sort === "count") list.sort((a, b) => b.rs.length - a.rs.length);
+      else if (sort === "latest") {
+        list.sort((a, b) => {
+          const aLast = a.rs.slice().sort((x, y) => String(y.start_datetime || "").localeCompare(String(x.start_datetime || "")))[0];
+          const bLast = b.rs.slice().sort((x, y) => String(y.start_datetime || "").localeCompare(String(x.start_datetime || "")))[0];
+          return String(bLast?.start_datetime || "").localeCompare(String(aLast?.start_datetime || ""));
+        });
+      } else list.sort((a, b) => b.sales - a.sales);
+
+      const shown = list.slice(0, 40);
+
+      $("#productDetailTable").innerHTML = `
+        <div class="detail-count">검색 결과 ${list.length}개 · 상위 40개 표시</div>
+
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>상품</th><th class="num">방송</th><th class="num">채널수</th>
+                <th class="num">총매출</th><th class="num">평균</th><th class="num">최고</th>
+                <th>최근 8회 추세</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              ${shown.map(x => `
+                <tr>
+                  <td>${esc(x.name)}</td>
+                  <td class="num">${x.rs.length}</td>
+                  <td class="num">${x.channels}</td>
+                  <td class="num strong">${fmtWon(x.sales)}</td>
+                  <td class="num">${fmtWon(x.avg)}</td>
+                  <td class="num">${fmtWon(x.max)}</td>
+                  <td>${productTrendBars(x.rs)}</td>
+                </tr>
+              `).join("") || `<tr><td colspan="7" class="empty-cell">검색 결과가 없습니다.</td></tr>`}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
 
     const rerenderFromInputs = () => {
       state.perf.from = $("#perfFrom").value;
@@ -1236,10 +1584,12 @@
 
     $("#perfReset").addEventListener("click", () => {
       const [from, to] = defaultPerfRange();
+
       state.perf = {
         from, to, platform: "", query: "", group: "", status: "all",
         hotOnly: false, newOnly: false
       };
+
       renderPerformance();
     });
 
@@ -1248,37 +1598,18 @@
       if (r) openBroadcastModal(r);
     }));
 
+    $("#productDetailSearch")?.addEventListener("input", renderProductDetailTable);
+    $("#productDetailSort")?.addEventListener("change", renderProductDetailTable);
+    renderProductDetailTable();
+
+    $$("details.detail-section").forEach(d => {
+      d.addEventListener("toggle", () => {
+        const label = $(".summary-action", d);
+        if (label) label.textContent = d.open ? "접기" : "펼치기";
+      });
+    });
+
     renderKPIs(rows);
-  }
-
-
-  function matchReviewOccurrences(item) {
-    const raw = norm(
-      item.raw_title ||
-      item.title ||
-      item.match_keyword ||
-      item.standard_product_name ||
-      ""
-    );
-
-    if (!raw) return [];
-
-    return state.rows
-      .filter(r => {
-        const candidates = [
-          r.raw_title,
-          r.normalized_title,
-          r.standard_product_name
-        ].map(norm);
-
-        return candidates.some(c =>
-          c === raw ||
-          (raw.length >= 6 && (c.includes(raw) || raw.includes(c)))
-        );
-      })
-      .sort((a, b) =>
-        String(b.start_datetime || "").localeCompare(String(a.start_datetime || ""))
-      );
   }
 
   function reviewKey(item) {
