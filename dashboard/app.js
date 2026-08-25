@@ -59,6 +59,10 @@
       .replace(/\s+/g," ").trim();
   }
 
+  // V2.8.7 HOTFIX: 기존 코드 전반에서 사용하던 norm() 별칭을 명시적으로 정의
+  // 이 별칭이 없으면 표준상품 검색/선택 시 ReferenceError가 발생한다.
+  const norm = normalize;
+
   function getProductName(r){
     return clean(r.standard_product_name || r.normalized_title || r.raw_title || "미분류");
   }
@@ -1108,7 +1112,7 @@
   }
 
   function renderSimilarSuggestions(raw){
-    const products=state.adminMaster?.products||[];
+    const products=buildAdminSearchProducts();
     const top=products.map(p=>({name:p.standard_product_name,score:similarityScore(raw,p.standard_product_name)}))
       .filter(x=>x.score>0).sort((a,b)=>b.score-a.score).slice(0,5);
     $("#similarSuggestions").innerHTML=top.length?`<div class="suggestion-title">유사 기존상품 추천</div><div class="suggestion-buttons">${top.map(x=>`<button type="button" class="suggestion-btn" data-suggest="${esc(x.name)}">${esc(x.name)}</button>`).join("")}</div>`:"";
@@ -1139,7 +1143,9 @@
   }
 
   function renderMasterDatalist(){
-    const names=state.adminMaster?.products?.map(p=>p.standard_product_name)||[];
+    const names=buildAdminSearchProducts()
+      .map(p=>clean(p.standard_product_name))
+      .filter(Boolean);
     $("#masterProductNames").innerHTML=names.map(n=>`<option value="${esc(n)}"></option>`).join("");
   }
 
