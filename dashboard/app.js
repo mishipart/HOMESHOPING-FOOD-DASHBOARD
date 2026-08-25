@@ -579,7 +579,7 @@
     const hay=normalize(`${item.raw_title||""} ${item.standard_product_name||""} ${item.master?.brand||""} ${(item.aliases||[]).map(a=>a.match_keyword).join(" ")}`);
     if(q&&!hay.includes(q)) return false;
 
-    // IMPORTANT V2.8.6: date/platform filter is applied to the occurrences themselves.
+    // IMPORTANT V2.8.7: date/platform filter is applied to the occurrences themselves.
     const filtered=reviewOccurrences(item.occurrences);
     const filterActive=!!($("#reviewPlatform").value||$("#reviewStart").value||$("#reviewEnd").value);
     if(filterActive && !filtered.length) return false;
@@ -764,71 +764,90 @@
     const ingredient=clean(product.main_ingredient||"");
 
     const q=normalize(query);
-    const qTokens=searchTokens(query);
     const nameNorm=normalize(name);
-    const combined=normalize([name,brand,group,ingredient].filter(Boolean).join(" "));
-    const rawNorm=normalize(rawContext);
+
+    const combined=normalize(
+      [name,brand,group,ingredient]
+        .filter(Boolean)
+        .join(" ")
+    );
+
+    const words=[name,brand,group,ingredient]
+      .flatMap(v=>clean(v).split(/\s+/))
+      .filter(Boolean);
 
     let score=0;
 
-    // 사용자가 입력한 검색어를 가장 강하게 반영
     if(q){
-      if(nameNorm===q) score+=1000;
-      else if(nameNorm.startsWith(q)) score+=650;
-      else if(nameNorm.includes(q)) score+=450;
-
-      let matched=0;
-      for(const token of qTokens){
-        if(nameNorm.includes(token)){
-          score+=120;
-          matched++;
-        }else if(combined.includes(token)){
-          score+=55;
-          matched++;
-        }else{
-          score-=100;
-        }
+      if(nameNorm===q){
+        score+=1600;
+      }else if(nameNorm.startsWith(q)){
+        score+=1000;
+      }else if(nameNorm.includes(q)){
+        score+=800;
+      }else if(combined.includes(q)){
+        score+=600;
       }
 
-      // 검색어 토큰이 하나도 안 맞으면 후보에서 제외
-      if(qTokens.length && matched===0) return -1;
-    }
+      let bestFuzzy=0;
 
-    // 현재 원본 상품명과의 유사도도 보조 점수로 반영
-    if(rawNorm){
-      score+=Math.round(similarityScore(rawContext,name)*280);
-      const rawTokens=searchTokens(rawContext);
-      for(const token of rawTokens){
-        if(token.length>=2 && nameNorm.includes(token)) score+=18;
+      for(const word of words){
+        bestFuzzy=Math.max(
+          bestFuzzy,
+          fuzzyRatio(q,word)
+        );
+      }
+
+      if(bestFuzzy>=0.72){
+        score+=Math.round(bestFuzzy*700);
+      }
+
+      if(
+        !nameNorm.includes(q) &&
+        !combined.includes(q) &&
+        bestFuzzy<0.72
+      ){
+        return -1;
       }
     }
 
-    // 기존 연결 이력이 많은 표준상품을 동점일 때 조금 우선
-    score+=Math.min(Number(product.alias_count||0),20);
+    if(rawContext){
+      score+=Math.round(
+        similarityScore(rawContext,name)*220
+      );
+    }
+
+    score+=Math.min(
+      Number(product.alias_count||0),
+      20
+    );
 
     return score;
   }
 
   function masterSearchResults(query){
-    // V2.8.6: product_master_admin.csv에서 만들어진 admin_products만 검색합니다.
-    const products=state.adminMaster?.admin_products||[];
+    const products=buildAdminSearchProducts();
     const raw=$("#editRawTitle")?.value||"";
 
     return products
-      .map(p=>{
-        const enriched=enrichedMasterProduct(p);
-        return {
-          product:enriched,
-          score:masterSearchScore(enriched,query,raw)
-        };
-      })
+      .map(product=>({
+        product,
+        score:masterSearchScore(
+          product,
+          query,
+          raw
+        )
+      }))
       .filter(x=>x.score>0)
       .sort((a,b)=>
         b.score-a.score ||
         clean(a.product.standard_product_name)
-          .localeCompare(clean(b.product.standard_product_name),"ko")
+          .localeCompare(
+            clean(b.product.standard_product_name),
+            "ko"
+          )
       )
-      .slice(0,6);
+      .slice(0,8);
   }
 
   function hideMasterSearchDropdown(){
@@ -917,19 +936,105 @@
     return true;
   }
 
+
+  function levenshtein(a,b){
+    a=normalize(a); b=normalize(b);
+    if(a===b) return 0;
+    if(!a) return b.length;
+    if(!b) return a.length;
+
+    let prev=Array.from({length:b.length+1},(_,i)=>i);
+
+    for(let i=1;i<=a.length;i++){
+      const cur=[i];
+
+      for(let j=1;j<=b.length;j++){
+        const cost=a[i-1]===b[j-1]?0:1;
+
+        cur[j]=Math.min(
+          cur[j-1]+1,
+          prev[j]+1,
+          prev[j-1]+cost
+        );
+      }
+
+      prev=cur;
+    }
+
+    return prev[b.length];
+  }
+
+  function fuzzyRatio(a,b){
+    const aa=normalize(a);
+    const bb=normalize(b);
+
+    if(!aa || !bb) return 0;
+
+    return 1-(
+      levenshtein(aa,bb) /
+      Math.max(aa.length,bb.length)
+    );
+  }
+
+  function buildAdminSearchProducts(){
+    const direct=state.adminMaster?.admin_products;
+
+    if(Array.isArray(direct) && direct.length){
+      return direct.map(enrichedMasterProduct);
+    }
+
+    const rows=state.adminMaster?.admin_rows||[];
+    const groups=new Map();
+
+    for(const row of rows){
+      const name=clean(row.standard_product_name||"");
+
+      if(!name) continue;
+      if(clean(row.enabled||"Y").toUpperCase()==="N") continue;
+      if(clean(row.review_status||"").toLowerCase()==="exclude") continue;
+
+      const key=norm(name);
+      let group=groups.get(key);
+
+      if(!group){
+        group={
+          standard_product_name:name,
+          brand:"",
+          product_group:"",
+          main_ingredient:"",
+          alias_count:0,
+          aliases:[]
+        };
+        groups.set(key,group);
+      }
+
+      group.alias_count++;
+      group.aliases.push(row);
+
+      if(!group.brand && clean(row.brand)){
+        group.brand=clean(row.brand);
+      }
+
+      if(!group.product_group && clean(row.product_group)){
+        group.product_group=clean(row.product_group);
+      }
+
+      if(!group.main_ingredient && clean(row.main_ingredient)){
+        group.main_ingredient=clean(row.main_ingredient);
+      }
+    }
+
+    return [...groups.values()].map(enrichedMasterProduct);
+  }
+
   function getMasterProductByName(name){
     const target=norm(name);
+
     if(!target) return null;
 
-    const adminProducts=state.adminMaster?.admin_products||[];
-    const fallbackProducts=state.adminMaster?.products||[];
-
-    const found=
-      adminProducts.find(p=>norm(p.standard_product_name)===target) ||
-      fallbackProducts.find(p=>norm(p.standard_product_name)===target) ||
-      null;
-
-    return enrichedMasterProduct(found);
+    return buildAdminSearchProducts().find(
+      p=>norm(p.standard_product_name)===target
+    )||null;
   }
 
   function setMasterMetaLocked(locked){
@@ -1120,7 +1225,7 @@
     }
 
     if(action==="link_existing"){
-      const selectedAdmin=(state.adminMaster?.admin_products||[]).find(
+      const selectedAdmin=buildAdminSearchProducts().find(
         p=>norm(p.standard_product_name)===norm(standard)
       );
       if(!selectedAdmin){
