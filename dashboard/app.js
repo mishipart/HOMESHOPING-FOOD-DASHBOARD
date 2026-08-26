@@ -185,8 +185,40 @@
     };
   }
 
+  // V2.9.5: 관리자 영구 규칙을 기본/자동등록 행보다 항상 우선한다.
+  // 같은 match_keyword가 product_master.csv에 확인필요로 남아 있고
+  // product_master_admin.csv에는 confirmed로 저장된 경우, 예전 코드는
+  // 배열에서 먼저 만난 확인필요 행을 집어 계속 미확인으로 보일 수 있었다.
   function masterCandidates(){
-    return state.adminMaster?.rows || state.masterPublic || [];
+    const adminRows=Array.isArray(state.adminMaster?.admin_rows) ? state.adminMaster.admin_rows : [];
+    const effectiveRows=Array.isArray(state.adminMaster?.rows) ? state.adminMaster.rows : [];
+    const publicRows=Array.isArray(state.masterPublic) ? state.masterPublic : [];
+    const source=adminRows.length || effectiveRows.length ? [...adminRows,...effectiveRows] : publicRows;
+
+    const seen=new Set();
+    const ranked=[...source].sort((a,b)=>masterRulePriority(b)-masterRulePriority(a));
+    return ranked.filter(m=>{
+      const k=normalize(m.match_keyword || m.raw_title || m.normalized_title || m.standard_product_name || "");
+      if(!k) return false;
+      const sig=`${k}__${productNameKey(m.standard_product_name||"")}`;
+      if(seen.has(sig)) return false;
+      seen.add(sig);
+      return true;
+    });
+  }
+
+  function masterRulePriority(m){
+    let score=0;
+    const status=clean(m?.review_status||"").toLowerCase();
+    const enabled=clean(m?.enabled||"Y").toUpperCase();
+    const locked=clean(m?.manual_lock||"").toUpperCase();
+    if(locked==="Y") score+=1000;
+    if(/confirmed|확정|분류완료/.test(status)) score+=500;
+    if(clean(m?.standard_product_name)) score+=100;
+    if(enabled!=="N") score+=20;
+    if(/pending|미분류|확인필요|review/.test(status)) score-=300;
+    if(enabled==="N") score-=500;
+    return score;
   }
 
   function findMasterForRow(r){
@@ -197,17 +229,23 @@
       return state.derived.masterMatch.get(raw);
     }
 
-    const candidates=masterCandidates();
-    let hit=null;
-
-    for(const m of candidates){
+    const matches=masterCandidates().filter(m=>{
       const k=normalize(m.match_keyword || m.raw_title || m.normalized_title || "");
-      if(k && (raw===k || raw.includes(k) || k.includes(raw))){
-        hit=m;
-        break;
-      }
-    }
+      return k && (raw===k || raw.includes(k) || k.includes(raw));
+    });
 
+    matches.sort((a,b)=>{
+      const ak=normalize(a.match_keyword || a.raw_title || a.normalized_title || "");
+      const bk=normalize(b.match_keyword || b.raw_title || b.normalized_title || "");
+      const aExact=raw===ak ? 1 : 0, bExact=raw===bk ? 1 : 0;
+      if(aExact!==bExact) return bExact-aExact;
+      const ap=masterRulePriority(a), bp=masterRulePriority(b);
+      if(ap!==bp) return bp-ap;
+      // 더 구체적인(긴) alias를 우선해 짧은 키워드의 오매칭을 줄인다.
+      return bk.length-ak.length;
+    });
+
+    const hit=matches[0]||null;
     state.derived.masterMatch.set(raw,hit);
     return hit;
   }
@@ -1423,7 +1461,19 @@
         const local=state.rows.find(x=>clean(x.hsshow_id)===clean(rawOccurrenceId));
         if(local){local.raw_title_original=local.raw_title_original||local.raw_title||"";local.raw_title_corrected=clean(rawDisplay.value);}
       }
+      // V2.9.5: GitHub/Worker 재조회가 수 초 지연돼도 방금 저장한 규칙을
+      // 현재 화면에 즉시 반영한다. 이후 loadAdminMaster()로 서버 상태와 다시 동기화한다.
+      if(body.action!=="save_occurrence" && body.action!=="save_occurrence_batch" && body.action!=="exclude" && body.action!=="mark_dynamic_title") {
+        state.adminMaster=state.adminMaster||{};
+        const optimistic={...body,review_status:"confirmed",enabled:"Y",manual_lock:"Y"};
+        const current=Array.isArray(state.adminMaster.admin_rows)?state.adminMaster.admin_rows:[];
+        const key=normalize(optimistic.match_keyword||optimistic.raw_title||"");
+        state.adminMaster.admin_rows=[optimistic,...current.filter(x=>normalize(x.match_keyword||x.raw_title||"")!==key)];
+        invalidateDerived();
+      }
+
       $("#productDialog").close();
+      if(state.activeTab==="review") renderReview();
       showStatus("저장 완료 · 최신 분류정보를 동기화하고 있습니다.");
 
       loadAdminMaster()

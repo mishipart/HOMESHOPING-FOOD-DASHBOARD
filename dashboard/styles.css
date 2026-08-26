@@ -418,3 +418,63 @@ footer{font-size:10px;color:var(--muted);margin-top:18px}
   color:#6c788d;
   line-height:1.35;
 }
+
+
+/* =========================================================
+   V2.9.5 FINAL - review save precedence + history no-x-scroll
+   ========================================================= */
+#historyDialog{
+  width:min(920px,94vw)!important;
+  max-width:94vw!important;
+  overflow:hidden!important;
+  padding:0!important;
+}
+#historyDialog .history-dialog{
+  box-sizing:border-box;
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+}
+#historyDialog .history-date-list,
+#historyDialog .history-occurrence-list{
+  width:100%;
+  max-width:100%;
+  min-width:0;
+  overflow-x:hidden!important;
+  box-sizing:border-box;
+}
+#historyDialog .history-date-row,
+#historyDialog .history-occ-row{
+  width:100%;
+  max-width:100%;
+  min-width:0!important;
+  box-sizing:border-box;
+}
+#historyDialog .history-occ-row{
+  grid-template-columns:60px 105px minmax(0,1fr) minmax(170px,auto)!important;
+}
+#historyDialog .history-occ-row > *,
+#historyDialog .history-date-row > *{
+  min-width:0!important;
+}
+#historyDialog .history-occ-row > span:nth-child(3){
+  white-space:normal;
+  overflow-wrap:anywhere;
+  word-break:break-word;
+}
+#historyDialog .history-actions{
+  min-width:0;
+  max-width:100%;
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  gap:6px;
+}
+@media(max-width:760px){
+  #historyDialog{width:96vw!important;max-width:96vw!important;}
+  #historyDialog .history-occ-row{grid-template-columns:56px minmax(0,1fr)!important;}
+  #historyDialog .history-occ-row > span:nth-child(2){display:block!important;}
+  #historyDialog .history-actions{grid-column:1/-1;justify-content:flex-start;}
+}
