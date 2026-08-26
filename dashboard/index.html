@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>홈쇼핑 식품 모니터 V2.9.3</title>
+  <title>홈쇼핑 식품 모니터 V2.9.4</title>
   <link rel="stylesheet" href="./styles.css?v=2.9.1">
 </head>
 <body>
@@ -112,13 +112,19 @@
       </div>
 
       <div class="two-col">
-        <article class="card">
-          <div class="card-head"><h3>🔥 특별히 잘 나온 실적</h3><span id="hotCount" class="muted"></span></div>
-          <div id="hotList"></div>
+        <article class="card detail-dropdown-card collapsed" id="hotDetailCard">
+          <div class="card-head">
+            <h3>🔥 특별히 잘 나온 실적 <span id="hotCount" class="muted"></span></h3>
+            <button type="button" class="btn section-toggle" id="hotDetailToggle" aria-expanded="false">펼치기 ▾</button>
+          </div>
+          <div id="hotList" class="section-collapsible hidden"></div>
         </article>
-        <article class="card">
-          <div class="card-head"><h3>✨ 신규 등장 상품</h3><span id="newCount" class="muted"></span></div>
-          <div id="newList"></div>
+        <article class="card detail-dropdown-card collapsed" id="newDetailCard">
+          <div class="card-head">
+            <h3>✨ 신규 등장 상품 <span id="newCount" class="muted"></span></h3>
+            <button type="button" class="btn section-toggle" id="newDetailToggle" aria-expanded="false">펼치기 ▾</button>
+          </div>
+          <div id="newList" class="section-collapsible hidden"></div>
         </article>
       </div>
 
@@ -190,7 +196,7 @@
       <div id="watchResults"></div>
     </section>
 
-    <footer>홈쇼핑 식품 모니터 V2.9.3 · 관리자 영구 상품 마스터</footer>
+    <footer>홈쇼핑 식품 모니터 V2.9.4 · 관리자 영구 상품 마스터</footer>
   </main>
 
   <dialog id="adminDialog">
@@ -227,7 +233,12 @@
           </div>
         </label>
         <label>브랜드<input id="editBrand"></label>
-        <label>기존 상품군<input id="editGroup" placeholder="기존 호환용"></label>
+        <label>기존 상품군
+          <div class="group-search-wrap">
+            <input id="editGroup" autocomplete="off" placeholder="식품유형/상품군 일부만 입력해도 검색">
+            <div id="groupSearchDropdown" class="group-search-dropdown hidden"></div>
+          </div>
+        </label>
         <label>주원료<input id="editIngredient"></label>
         <div id="categoryAutoSummary" class="full category-auto-summary hidden"></div>
         <div id="manualCategoryWrap" class="full category-manual-wrap">

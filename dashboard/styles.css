@@ -356,3 +356,65 @@ footer{font-size:10px;color:var(--muted);margin-top:18px}
 @media(max-width:820px){
   .category-manual-wrap .category-grid-inner{grid-template-columns:1fr!important}
 }
+
+/* V2.9.4: HOT/NEW 접기·펼치기 + 기존 상품군 부분검색 */
+#hotDetailCard .card-head h3,
+#newDetailCard .card-head h3{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  flex-wrap:wrap;
+}
+#hotDetailCard .section-collapsible,
+#newDetailCard .section-collapsible{
+  padding-top:8px;
+}
+
+.group-search-wrap{
+  position:relative;
+  width:100%;
+}
+.group-search-wrap > input{
+  width:100%;
+}
+.group-search-dropdown{
+  position:absolute;
+  z-index:80;
+  top:calc(100% + 4px);
+  left:0;
+  right:0;
+  max-height:280px;
+  overflow-y:auto;
+  background:#fff;
+  border:1px solid #d7dfeb;
+  border-radius:10px;
+  box-shadow:0 12px 30px rgba(24,46,82,.16);
+  padding:5px;
+}
+.group-search-item{
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  width:100%;
+  padding:9px 10px;
+  border:0;
+  border-radius:7px;
+  background:transparent;
+  text-align:left;
+  cursor:pointer;
+}
+.group-search-item:hover,
+.group-search-item:focus{
+  background:#edf3ff;
+  outline:none;
+}
+.group-search-name{
+  font-weight:700;
+  color:#17233a;
+  line-height:1.35;
+}
+.group-search-meta{
+  margin-top:2px;
+  font-size:11px;
+  color:#6c788d;
+  line-height:1.35;
+}

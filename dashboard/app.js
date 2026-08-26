@@ -1476,6 +1476,98 @@
     if($("#editCategorySub")) $("#editCategorySub").disabled=!fresh && !subs.length;
   }
 
+  function groupSearchCandidates(query){
+    const q=normalize(query);
+    const qc=q.replace(/\s+/g,"");
+    if(qc.length<1) return [];
+
+    const found=new Map();
+    const add=(label,major="",middle="",sub="",source="")=>{
+      const text=clean(label);
+      if(!text) return;
+      const key=[text,major,middle,sub].map(clean).join("|");
+      if(found.has(key)) return;
+      const nc=normalize(text).replace(/\s+/g,"");
+      const middlec=normalize(middle).replace(/\s+/g,"");
+      const subc=normalize(sub).replace(/\s+/g,"");
+      let score=0;
+      if(nc===qc) score=1000;
+      else if(nc.startsWith(qc)) score=850;
+      else if(nc.includes(qc)) score=700;
+      else if(subc.startsWith(qc)) score=820;
+      else if(subc.includes(qc)) score=680;
+      else if(middlec.startsWith(qc)) score=620;
+      else if(middlec.includes(qc)) score=520;
+      if(!score) return;
+      found.set(key,{label:text,major:clean(major),middle:clean(middle),sub:clean(sub),source,score});
+    };
+
+    // 식품 분류 기준 자체를 검색 대상으로 사용한다.
+    for(const [major,middles] of Object.entries(CATEGORY_TREE)){
+      for(const [middle,subs] of Object.entries(middles)){
+        add(middle,major,middle,"","중분류");
+        for(const sub of (subs||[])) add(sub,major,middle,sub,"식품유형");
+      }
+    }
+
+    // 기존 관리자/마스터 데이터의 상품군도 함께 검색한다.
+    const pool=[...(state.adminMaster?.rows||[]),...(state.masterPublic||[]),...(state.rows||[])];
+    for(const r of pool){
+      const label=clean(r.product_group);
+      if(!label) continue;
+      add(label,r.category_major,r.category_middle,r.category_sub,"기존 상품군");
+    }
+
+    return [...found.values()]
+      .sort((a,b)=>b.score-a.score || a.label.localeCompare(b.label,"ko"))
+      .slice(0,10);
+  }
+
+  function hideGroupSearchDropdown(){
+    const box=$("#groupSearchDropdown");
+    if(!box) return;
+    box.classList.add("hidden");
+    box.innerHTML="";
+  }
+
+  function chooseGroupCandidate(candidate){
+    if(!candidate) return;
+    $("#editGroup").value=candidate.label;
+    if(candidate.major&&candidate.middle){
+      setCategoryValues(candidate.major,candidate.middle,candidate.sub||"");
+      showCategoryAutoSummary({
+        major:candidate.major,
+        middle:candidate.middle,
+        sub:candidate.sub||"",
+        source:candidate.source||"부분 검색 자동매칭"
+      });
+    }else{
+      applyCategoryFromProductGroup();
+    }
+    hideGroupSearchDropdown();
+  }
+
+  function renderGroupSearchDropdown(query){
+    const box=$("#groupSearchDropdown");
+    if(!box) return;
+    const q=clean(query);
+    if(!q){ hideGroupSearchDropdown(); return; }
+    const results=groupSearchCandidates(q);
+    if(!results.length){ hideGroupSearchDropdown(); return; }
+    box.innerHTML=results.map((x,i)=>`
+      <button type="button" class="group-search-item" data-group-index="${i}">
+        <span class="group-search-name">${esc(x.label)}</span>
+        <span class="group-search-meta">${esc([x.major,x.middle,x.sub].filter(Boolean).join(" › "))}</span>
+      </button>`).join("");
+    box.classList.remove("hidden");
+    $$('[data-group-index]',box).forEach(btn=>{
+      btn.addEventListener("mousedown",e=>{
+        e.preventDefault();
+        chooseGroupCandidate(results[Number(btn.dataset.groupIndex)]);
+      });
+    });
+  }
+
   function categoryTupleFromGroup(group,ingredient=""){
     const g=normalize(group), ing=normalize(ingredient);
     const compact=v=>normalize(v).replace(/\s+/g,"");
@@ -1516,6 +1608,24 @@
         });
         if(sub) return {major,middle,sub,source:"식품유형 자동매칭"};
       }
+    }
+
+    // 2-1) 전체 식품유형을 다 입력하지 않아도, 부분 문자열이 유일하게 한 항목을 가리키면 자동 분류한다.
+    // 예: "과채주" -> "과채주스"가 유일하면 즉시 분류. 후보가 여러 개면 자동 확정하지 않고 검색목록만 보여준다.
+    if(gc.length>=2){
+      const partial=[];
+      for(const [major,middles] of Object.entries(CATEGORY_TREE)){
+        for(const [middle,subs] of Object.entries(middles)){
+          const mc=compact(middle);
+          if(mc.includes(gc)) partial.push({major,middle,sub:"",source:"중분류 부분매칭"});
+          for(const sub of (subs||[])){
+            const sc=compact(sub);
+            if(sc.includes(gc)) partial.push({major,middle,sub,source:"식품유형 부분매칭"});
+          }
+        }
+      }
+      const unique=new Map(partial.map(x=>[[x.major,x.middle,x.sub].join("|"),x]));
+      if(unique.size===1) return [...unique.values()][0];
     }
 
     // 3) 대표적인 기존 상품군 명칭 보정.
@@ -1727,6 +1837,8 @@
         btn.setAttribute("aria-expanded",String(open));
       };
     };
+    bindSectionToggle("#hotDetailToggle","#hotList");
+    bindSectionToggle("#newDetailToggle","#newList");
     bindSectionToggle("#channelDetailToggle","#channelAccordion");
     bindSectionToggle("#productDetailToggle","#productAccordion");
     $("#resetPerf").onclick=()=>setPerfRange("yesterday");
@@ -1798,9 +1910,14 @@
     };
     $("#editCategoryMajor").addEventListener("change",()=>{refreshEditCategoryChildren("major"); $("#categoryAutoSummary")?.classList.add("hidden"); $("#manualCategoryWrap")?.classList.remove("hidden");});
     $("#editCategoryMiddle").addEventListener("change",()=>{refreshEditCategoryChildren("middle"); $("#categoryAutoSummary")?.classList.add("hidden"); $("#manualCategoryWrap")?.classList.remove("hidden");});
-    const debouncedCategoryFromGroup=debounce(()=>applyCategoryFromProductGroup(),120);
+    const debouncedCategoryFromGroup=debounce(()=>{
+      renderGroupSearchDropdown($("#editGroup").value);
+      applyCategoryFromProductGroup();
+    },100);
+    $("#editGroup").addEventListener("focus",()=>renderGroupSearchDropdown($("#editGroup").value));
     $("#editGroup").addEventListener("input",debouncedCategoryFromGroup);
-    $("#editGroup").addEventListener("change",applyCategoryFromProductGroup);
+    $("#editGroup").addEventListener("change",()=>{applyCategoryFromProductGroup(); hideGroupSearchDropdown();});
+    $("#editGroup").addEventListener("blur",()=>setTimeout(hideGroupSearchDropdown,120));
     $("#editIngredient").addEventListener("change",()=>{ if(!$("#editCategoryMajor").value || !$("#editCategoryMiddle").value) applyCategoryFromProductGroup(); });
     $("#unlockRawTitleBtn").onclick=()=>{
       const el=$("#editRawDisplay"); el.disabled=!el.disabled;
@@ -1815,7 +1932,7 @@
     $("#datePrevMonth").onclick=()=>{datePickerState.month=new Date(datePickerState.month.getFullYear(),datePickerState.month.getMonth()-1,1);renderDatePicker();};
     $("#dateNextMonth").onclick=()=>{datePickerState.month=new Date(datePickerState.month.getFullYear(),datePickerState.month.getMonth()+1,1);renderDatePicker();};
     $("#productSaveBtn").onclick=e=>{e.preventDefault();saveProductAdmin();};
-    $("#productDialog").addEventListener("close",hideMasterSearchDropdown);
+    $("#productDialog").addEventListener("close",()=>{hideMasterSearchDropdown();hideGroupSearchDropdown();});
     $("#bulkAliasMoveBtn").onclick=bulkMoveAliases;
     $("#historyCloseBtn").onclick=()=>$("#historyDialog").close();
     $("#addWatchKeyword").onclick=()=>{const k=clean($("#watchKeyword").value);if(!k)return;if(!state.watchKeywords.includes(k))state.watchKeywords.push(k);$("#watchKeyword").value="";saveWatch();renderWatch();};
