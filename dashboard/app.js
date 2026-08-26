@@ -22,6 +22,9 @@
       firstSeen: null,
       occurrenceMap: null,
       masterGroups: null,
+      masterCandidates: null,
+      adminSearchProducts: null,
+      adminSearchIndex: null,
       masterMatch: new Map(),
       occurrenceRuleMap: null,
       dynamicRules: null
@@ -177,6 +180,9 @@
     state.derived.firstSeen = null;
     state.derived.occurrenceMap = null;
     state.derived.masterGroups = null;
+    state.derived.masterCandidates = null;
+    state.derived.adminSearchProducts = null;
+    state.derived.adminSearchIndex = null;
     state.derived.masterMatch = new Map();
     state.derived.occurrenceRuleMap = null;
     state.derived.dynamicRules = null;
@@ -195,6 +201,8 @@
   // product_master_admin.csv에는 confirmed로 저장된 경우, 예전 코드는
   // 배열에서 먼저 만난 확인필요 행을 집어 계속 미확인으로 보일 수 있었다.
   function masterCandidates(){
+    if(Array.isArray(state.derived.masterCandidates)) return state.derived.masterCandidates;
+
     const adminRows=Array.isArray(state.adminMaster?.admin_rows) ? state.adminMaster.admin_rows : [];
     const effectiveRows=Array.isArray(state.adminMaster?.rows) ? state.adminMaster.rows : [];
     const publicRows=Array.isArray(state.masterPublic) ? state.masterPublic : [];
@@ -202,7 +210,7 @@
 
     const seen=new Set();
     const ranked=[...source].sort((a,b)=>masterRulePriority(b)-masterRulePriority(a));
-    return ranked.filter(m=>{
+    state.derived.masterCandidates=ranked.filter(m=>{
       const k=normalize(m.match_keyword || m.raw_title || m.normalized_title || m.standard_product_name || "");
       if(!k) return false;
       const sig=`${k}__${productNameKey(m.standard_product_name||"")}`;
@@ -210,6 +218,7 @@
       seen.add(sig);
       return true;
     });
+    return state.derived.masterCandidates;
   }
 
   function masterRulePriority(m){
@@ -1146,10 +1155,12 @@
   }
 
   function buildAdminSearchProducts(){
+    if(Array.isArray(state.derived.adminSearchProducts)) return state.derived.adminSearchProducts;
     const direct=state.adminMaster?.admin_products;
 
     if(Array.isArray(direct) && direct.length){
-      return direct.map(enrichedMasterProduct);
+      state.derived.adminSearchProducts=direct.map(enrichedMasterProduct);
+      return state.derived.adminSearchProducts;
     }
 
     const rows=state.adminMaster?.admin_rows||[];
@@ -1195,17 +1206,20 @@
       if(!group.category_sub && clean(row.category_sub)){ group.category_sub=clean(row.category_sub); }
     }
 
-    return [...groups.values()].map(enrichedMasterProduct);
+    state.derived.adminSearchProducts=[...groups.values()].map(enrichedMasterProduct);
+    return state.derived.adminSearchProducts;
   }
 
   function getMasterProductByName(name){
     const target=productNameKey(name);
-
     if(!target) return null;
 
-    return buildAdminSearchProducts().find(
-      p=>productNameKey(p.standard_product_name)===target
-    )||null;
+    if(!(state.derived.adminSearchIndex instanceof Map)){
+      state.derived.adminSearchIndex=new Map(
+        buildAdminSearchProducts().map(p=>[productNameKey(p.standard_product_name),p])
+      );
+    }
+    return state.derived.adminSearchIndex.get(target)||null;
   }
 
   function setMasterMetaLocked(locked){
@@ -1304,12 +1318,15 @@
     if(!state.adminPassword) return;
     const r=await fetch(`${API}/master`,{headers:{"X-Admin-Password":state.adminPassword},cache:"no-store"});
     if(!r.ok) throw new Error(`관리자 마스터 조회 실패 ${r.status}`);
-    state.adminMaster=await r.json();
+    const next=await r.json();
+    const prevSig=state.adminMaster?`${state.adminMaster.product_count||0}:${state.adminMaster.admin_rule_count||state.adminMaster.admin_rows?.length||0}`:"";
+    const nextSig=`${next.product_count||0}:${next.admin_rule_count||next.admin_rows?.length||0}`;
+    state.adminMaster=next;
     invalidateDerived();
     $("#adminState").textContent=`관리자 모드 · ${state.adminMaster.product_count||0}개 상품`;
     $("#adminState").classList.add("on");
     $("#adminBtn").textContent="관리자 로그아웃";
-    renderMasterDatalist();
+    if(prevSig!==nextSig || !$("#masterProductNames")?.children?.length) renderMasterDatalist();
   }
 
   function renderMasterDatalist(){
