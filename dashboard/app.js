@@ -29,6 +29,9 @@
   };
 
 
+  // V2.9.6: 식품 분류 체계
+  // - 건강식품: 영양성분(5개 군) / 고시형원료(69개) / 개별인정형원료(직접입력)
+  // - 신선식품: 농산물/수산물/축산물 + 식품유형 직접입력
   const CATEGORY_TREE = {
     "일반식품": {
       "과자류, 빵류 또는 떡류": ["과자","캔디류","추잉껌","빵류","떡류"],
@@ -57,11 +60,13 @@
       "기타식품류": ["효모식품","기타가공품"]
     },
     "건강식품": {
-      "고시형원료": ["영양성분", "인삼", "홍삼", "엽록소 함유 식물", "클로렐라", "스피루리나", "프로폴리스추출물", "코엔자임Q10", "대두이소플라본", "구아바잎추출물", "바나바잎추출물", "은행잎추출물", "밀크씨슬추출물", "옥타코사놀 함유 유지", "매실추출물", "공액리놀레산", "가르시니아캄보지아 추출물", "루테인", "헤마토코쿠스 추출물", "쏘팔메토 열매 추출물", "포스파티딜세린", "글루코사민", "N-아세틸글루코사민", "뮤코다당·단백", "알로에 겔", "영지버섯 자실체 추출물", "키토산/키토올리고당", "프락토올리고당", "프로바이오틱스", "홍국", "대두단백", "테아닌", "엠에스엠(MSM)", "폴리감마글루탐산", "히알루론산", "홍경천 추출물", "빌베리 추출물", "마리골드꽃추출물", "EPA 및 DHA 함유 유지"],
-      "개별인정형원료": ["개별인정형 기능성원료"]
+      "영양성분": ["비타민", "무기질", "식이섬유", "단백질", "필수지방산"],
+      "고시형원료": ["인삼", "홍삼", "엽록소 함유 식물", "클로렐라", "스피루리나", "녹차추출물", "알로에 전잎", "프로폴리스추출물", "코엔자임Q10", "대두이소플라본", "구아바잎 추출물", "바나바잎 추출물", "은행잎 추출물", "밀크씨슬 추출물", "달맞이꽃종자 추출물", "EPA 및 DHA 함유 유지", "감마리놀렌산 함유 유지", "레시틴", "스쿠알렌", "식물스테롤/식물스테롤에스테르", "알콕시글리세롤 함유 상어간유", "옥타코사놀 함유 유지", "매실추출물", "공액리놀레산", "가르시니아캄보지아 추출물", "마리골드꽃추출물", "헤마토코쿠스 추출물", "쏘팔메토 열매 추출물", "포스파티딜세린", "글루코사민", "NAG(N-아세틸글루코사민)", "뮤코다당·단백", "구아검/구아검가수분해물", "글루코만난(곤약, 곤약만난)", "귀리식이섬유", "난소화성말토덱스트린", "대두식이섬유", "목이버섯식이섬유", "밀식이섬유", "보리식이섬유", "아라비아검(아카시아검)", "옥수수겨식이섬유", "이눌린/치커리추출물", "차전자피식이섬유", "폴리덱스트로스", "호로파종자식이섬유", "알로에 겔", "키토산", "키토올리고당", "프락토올리고당", "프로바이오틱스", "홍국", "대두단백", "테아닌", "엠에스엠(MSM)", "폴리감마글루탐산", "히알루론산", "홍경천 추출물", "빌베리 추출물", "마늘", "라피노스", "분말한천", "크레아틴", "유단백가수분해물", "상황버섯추출물", "토마토추출물", "곤약감자추출물", "회화나무열매추출물", "콜레우스포스콜리추출물"],
+      "개별인정형원료": []
     },
     "신선식품": {"농산물": [], "수산물": [], "축산물": []}
   };
+
   const datePickerState = { target:null, selected:"", month:new Date() };
 
   const $ = s => document.querySelector(s);
@@ -185,7 +190,7 @@
     };
   }
 
-  // V2.9.5: 관리자 영구 규칙을 기본/자동등록 행보다 항상 우선한다.
+  // V2.9.6: 관리자 영구 규칙을 기본/자동등록 행보다 항상 우선한다.
   // 같은 match_keyword가 product_master.csv에 확인필요로 남아 있고
   // product_master_admin.csv에는 confirmed로 저장된 경우, 예전 코드는
   // 배열에서 먼저 만난 확인필요 행을 집어 계속 미확인으로 보일 수 있었다.
@@ -1507,8 +1512,14 @@
     if(value && [...el.options].some(o=>o.value===value)) el.value=value;
   }
 
+  function categoryUsesFreeText(major="", middle=""){
+    return major==="신선식품" || (major==="건강식품" && middle==="개별인정형원료");
+  }
+
   function categorySubValue(){
-    return $("#editCategoryMajor")?.value==="신선식품"
+    const major=$("#editCategoryMajor")?.value||"";
+    const middle=$("#editCategoryMiddle")?.value||"";
+    return categoryUsesFreeText(major,middle)
       ? clean($("#editCategorySubFresh")?.value||"")
       : clean($("#editCategorySub")?.value||"");
   }
@@ -1517,13 +1528,19 @@
     categoryOptions("#editCategoryMajor",Object.keys(CATEGORY_TREE),major);
     const mids=major?Object.keys(CATEGORY_TREE[major]||{}):[];
     categoryOptions("#editCategoryMiddle",mids,middle);
-    const fresh=major==="신선식품";
+    const freeText=categoryUsesFreeText(major,middle);
     const subs=major&&middle?(CATEGORY_TREE[major]?.[middle]||[]):[];
-    categoryOptions("#editCategorySub",subs,fresh?"":sub);
-    $("#editCategorySubSelectWrap")?.classList.toggle("hidden",fresh);
-    $("#editCategorySubFreshWrap")?.classList.toggle("hidden",!fresh);
-    if($("#editCategorySubFresh")) $("#editCategorySubFresh").value=fresh?clean(sub):"";
-    if($("#editCategorySub")) $("#editCategorySub").disabled=!fresh && !subs.length;
+    categoryOptions("#editCategorySub",subs,freeText?"":sub);
+    $("#editCategorySubSelectWrap")?.classList.toggle("hidden",freeText);
+    $("#editCategorySubFreshWrap")?.classList.toggle("hidden",!freeText);
+    const direct=$("#editCategorySubFresh");
+    if(direct){
+      direct.value=freeText?clean(sub):"";
+      direct.placeholder=(major==="건강식품" && middle==="개별인정형원료")
+        ? "예: 저분자콜라겐펩타이드, 루바브뿌리추출물"
+        : "예: 사과, 쌀, 고등어, 한우";
+    }
+    if($("#editCategorySub")) $("#editCategorySub").disabled=!freeText && !subs.length;
   }
 
   function groupSearchCandidates(query){
@@ -1564,8 +1581,11 @@
     const pool=[...(state.adminMaster?.rows||[]),...(state.masterPublic||[]),...(state.rows||[])];
     for(const r of pool){
       const label=clean(r.product_group);
-      if(!label) continue;
-      add(label,r.category_major,r.category_middle,r.category_sub,"기존 상품군");
+      const major=clean(r.category_major), middle=clean(r.category_middle), sub=clean(r.category_sub);
+      if(label) add(label,major,middle,sub,"기존 상품군");
+      // 신선식품/개별인정형에서 관리자가 직접 입력한 식품유형도
+      // 다음 상품 등록 때 검색어로 재사용한다. 선택 시 기존 상품군은 유지하고 분류만 자동 적용한다.
+      if(sub && categoryUsesFreeText(major,middle)) add(sub,major,middle,sub,"학습된 직접입력 분류");
     }
 
     return [...found.values()]
@@ -1582,7 +1602,8 @@
 
   function chooseGroupCandidate(candidate){
     if(!candidate) return;
-    $("#editGroup").value=candidate.label;
+    const currentGroup=clean($("#editGroup").value);
+    if(candidate.source!=="학습된 직접입력 분류" || !currentGroup) $("#editGroup").value=candidate.label;
     if(candidate.major&&candidate.middle){
       setCategoryValues(candidate.major,candidate.middle,candidate.sub||"");
       showCategoryAutoSummary({
@@ -1640,6 +1661,18 @@
       return {major,middle,sub,source:"기존 등록상품군"};
     }
 
+    // 1-1) 신선식품/개별인정형에서 과거 직접 입력한 식품유형 자체를 입력해도 분류 재사용.
+    // 예: 사과 -> 신선식품 > 농산물 > 사과
+    const learned=[];
+    for(const r of pool){
+      const major=clean(r.category_major), middle=clean(r.category_middle), sub=clean(r.category_sub);
+      if(!sub || !categoryUsesFreeText(major,middle)) continue;
+      if(compact(sub)===gc || (gc.length>=2 && compact(sub).includes(gc)))
+        learned.push({major,middle,sub,source:"학습된 직접입력 분류"});
+    }
+    const learnedUnique=new Map(learned.map(x=>[[x.major,x.middle,x.sub].join("|"),x]));
+    if(learnedUnique.size===1) return [...learnedUnique.values()][0];
+
     // 2) 식품공전/건강식품 분류표의 중분류·식품유형과 기존상품군명이 직접 일치하는 경우.
     // 특수문자/띄어쓰기 차이(과‧채주스↔과채주스, 기타 식용유지가공품↔기타식용유지가공품)도 동일 취급한다.
     const aliases={
@@ -1680,9 +1713,12 @@
 
     // 3) 대표적인 기존 상품군 명칭 보정.
     if(g.includes("건강기능식품") || g.includes("건강식품")){
-      const std=CATEGORY_TREE["건강식품"]["고시형원료"]||[];
-      const sub=std.find(x=>ing && (ing.includes(normalize(x)) || normalize(x).includes(ing)));
-      return {major:"건강식품",middle:sub?"고시형원료":"",sub:sub||"",source:"건강식품 자동분류"};
+      const nutrient=CATEGORY_TREE["건강식품"]["영양성분"]||[];
+      const functional=CATEGORY_TREE["건강식품"]["고시형원료"]||[];
+      const n=nutrient.find(x=>ing && (ing.includes(normalize(x)) || normalize(x).includes(ing)));
+      if(n) return {major:"건강식품",middle:"영양성분",sub:n,source:"건강식품 영양성분 자동분류"};
+      const f=functional.find(x=>ing && (ing.includes(normalize(x)) || normalize(x).includes(ing)));
+      return {major:"건강식품",middle:f?"고시형원료":"",sub:f||"",source:"건강식품 자동분류"};
     }
     if(g.includes("농산")) return {major:"신선식품",middle:"농산물",sub:"",source:"신선식품 자동분류"};
     if(g.includes("수산")) return {major:"신선식품",middle:"수산물",sub:"",source:"신선식품 자동분류"};
@@ -1738,7 +1774,7 @@
     const middle=$("#perfMiddle").value;
     const subs=[...new Set([...(major&&middle?(CATEGORY_TREE[major]?.[middle]||[]):[]),...rows.filter(r=>(!major||clean(r.category_major)===major)&&(!middle||clean(r.category_middle)===middle)).map(r=>clean(r.category_sub)).filter(Boolean)])];
     categoryOptions("#perfSub",subs,keepSub);
-    $("#perfSub").disabled=major==="신선식품" || !subs.length;
+    $("#perfSub").disabled=!subs.length;
   }
 
   async function confirmAutoClassification(raw){
