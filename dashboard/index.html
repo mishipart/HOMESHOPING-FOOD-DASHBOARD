@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>홈쇼핑 식품 모니터 V2.8.7</title>
-  <link rel="stylesheet" href="./styles.css?v=2.8.7-hotfix1">
+  <title>홈쇼핑 식품 모니터 V2.9.0</title>
+  <link rel="stylesheet" href="./styles.css?v=2.9.0">
 </head>
 <body>
   <main class="shell">
@@ -83,7 +83,9 @@
         <label>시작일<input id="perfStart" type="date"></label>
         <label>종료일<input id="perfEnd" type="date"></label>
         <label>홈쇼핑사<select id="perfPlatform"><option value="">전체</option></select></label>
-        <label>상품군<select id="perfGroup"><option value="">전체</option></select></label>
+        <label>대분류<select id="perfMajor"><option value="">전체</option></select></label>
+        <label>중분류<select id="perfMiddle"><option value="">전체</option></select></label>
+        <label>소분류<select id="perfSub"><option value="">전체</option></select></label>
         <label class="grow">상품/키워드<input id="perfSearch" type="search" placeholder="예: 흑염소, 콘드로이친"></label>
         <label>실적 상태<select id="perfStatus"><option value="">전체</option><option value="confirmed">실적 확인</option><option value="missing">실적 미확인</option></select></label>
         <label class="check"><input id="perfHotOnly" type="checkbox"> HOT만</label>
@@ -156,6 +158,7 @@
         <div class="segmented review-state-filter">
           <button data-review-filter="pending" class="active">미확인</button>
           <button data-review-filter="confirmed">분류완료</button>
+          <button data-review-filter="auto">자동분류</button>
           <button data-review-filter="dynamic">가변방송</button>
           <button data-review-filter="excluded">제외</button>
           <button data-review-filter="audit">변경이력</button>
@@ -183,7 +186,7 @@
       <div id="watchResults"></div>
     </section>
 
-    <footer>홈쇼핑 식품 모니터 V2.8.7 · 관리자 영구 상품 마스터</footer>
+    <footer>홈쇼핑 식품 모니터 V2.9.0 · 관리자 영구 상품 마스터</footer>
   </main>
 
   <dialog id="adminDialog">
@@ -210,7 +213,9 @@
       <div id="editBroadcastInfo" class="mini-info"></div>
 
       <div class="form-grid">
-        <label class="full">원본 상품명<input id="editRawDisplay" disabled></label>
+        <label class="full">원본 상품명
+          <div class="inline-edit-row"><input id="editRawDisplay" disabled><button type="button" id="unlockRawTitleBtn" class="btn">원본명 수정</button></div>
+        </label>
         <label class="full">표준 상품명
           <div class="master-search-wrap">
             <input id="editStandardName" autocomplete="off" placeholder="기존 표준상품 검색 또는 신규 대표 이름">
@@ -218,8 +223,11 @@
           </div>
         </label>
         <label>브랜드<input id="editBrand"></label>
-        <label>상품군<input id="editGroup"></label>
+        <label>기존 상품군<input id="editGroup" placeholder="기존 호환용"></label>
         <label>주원료<input id="editIngredient"></label>
+        <label>대분류<select id="editCategoryMajor"><option value="">선택</option></select></label>
+        <label>중분류<select id="editCategoryMiddle"><option value="">선택</option></select></label>
+        <label>소분류<select id="editCategorySub"><option value="">선택</option></select></label>
         <div id="existingProductMeta" class="full existing-product-meta hidden"></div>
         <div id="masterEditTools" class="full master-edit-tools hidden">
           <button type="button" id="unlockMasterMetaBtn" class="btn">정보 수정</button>
@@ -247,6 +255,7 @@
         <input id="bulkAliasTarget" list="masterProductNames" placeholder="선택 원본명을 이동할 표준상품">
         <button id="bulkAliasMoveBtn" type="button" class="btn">선택 원본명 이동</button>
       </div>
+      <label id="sameSlotWrap" class="check full hidden"><input id="applySameSlot" type="checkbox"> 같은 일시·홈쇼핑사의 방송행 전체에 동일 분류 적용</label>
       <div id="productSaveError" class="error-text"></div>
       <div class="dialog-actions">
         <button value="cancel" class="btn">취소</button>
@@ -270,7 +279,31 @@
     </div>
   </dialog>
 
-  <script src="./config.js?v=2.8.7-hotfix1"></script>
-  <script src="./app.js?v=2.8.7-hotfix1"></script>
+
+  <dialog id="overrideDialog">
+    <form method="dialog" class="dialog-card" id="overrideForm">
+      <div class="dialog-title-row"><h3 id="overrideTitle">방송 데이터 수정</h3><button value="cancel" class="icon-btn">✕</button></div>
+      <div id="overrideInfo" class="mini-info"></div>
+      <label>판매량<input id="overrideSalesCnt" inputmode="numeric" placeholder="예: 120"></label>
+      <label>매출액(원)<input id="overrideSalesAmt" inputmode="numeric" placeholder="예: 12500000"></label>
+      <label class="full">수정 원본 상품명<input id="overrideRawTitle" placeholder="필요할 때만 입력"></label>
+      <label class="full">메모<input id="overrideNote" placeholder="수정 사유"></label>
+      <div class="small">비워둔 항목은 기존 값을 유지합니다. 수동 실적은 이후 자동수집보다 우선합니다.</div>
+      <div id="overrideError" class="error-text"></div>
+      <div class="dialog-actions"><button value="cancel" class="btn">취소</button><button id="overrideSaveBtn" value="default" class="btn primary">수정 저장</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="datePickerDialog">
+    <div class="dialog-card date-picker-card">
+      <div class="dialog-title-row"><h3>날짜 선택</h3><button id="datePickerClose" type="button" class="icon-btn">✕</button></div>
+      <div class="date-picker-nav"><button id="datePrevMonth" type="button" class="icon-btn">‹</button><b id="datePickerMonth"></b><button id="dateNextMonth" type="button" class="icon-btn">›</button></div>
+      <div id="datePickerGrid" class="date-picker-grid"></div>
+      <div class="dialog-actions"><button id="datePickerCancel" type="button" class="btn">취소</button><button id="datePickerConfirm" type="button" class="btn primary">확인</button></div>
+    </div>
+  </dialog>
+
+  <script src="./config.js?v=2.9.0"></script>
+  <script src="./app.js?v=2.9.0"></script>
 </body>
 </html>
