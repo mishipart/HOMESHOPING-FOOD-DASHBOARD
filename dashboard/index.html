@@ -3,9 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>홈쇼핑 식품 모니터 V2.9.1</title>
+  <title>홈쇼핑 식품 모니터 V2.9.3</title>
   <link rel="stylesheet" href="./styles.css?v=2.9.1">
-  <link rel="stylesheet" href="./v2.9.2-hotfix.css?v=2.9.2">
 </head>
 <body>
   <main class="shell">
@@ -82,15 +81,15 @@
             <button data-range="month">이번달</button>
             <button data-range="all">전체</button>
           </div>
-          <label>시작일<input id="perfStart" type="text" inputmode="numeric" placeholder="YYYY-MM-DD" autocomplete="off"></label>
-          <label>종료일<input id="perfEnd" type="text" inputmode="numeric" placeholder="YYYY-MM-DD" autocomplete="off"></label>
+          <label>시작일<div class="date-input-wrap"><input id="perfStart" type="text" inputmode="numeric" placeholder="YYYY-MM-DD" autocomplete="off"><button type="button" class="date-picker-open" data-date-input="perfStart" aria-label="시작일 달력 열기">▣</button></div></label>
+          <label>종료일<div class="date-input-wrap"><input id="perfEnd" type="text" inputmode="numeric" placeholder="YYYY-MM-DD" autocomplete="off"><button type="button" class="date-picker-open" data-date-input="perfEnd" aria-label="종료일 달력 열기">▣</button></div></label>
           <label>홈쇼핑사<select id="perfPlatform"><option value="">전체</option></select></label>
           <label>실적 상태<select id="perfStatus"><option value="">전체</option><option value="confirmed">실적 확인</option><option value="missing">실적 미확인</option></select></label>
         </div>
         <div class="perf-filter-row perf-filter-row-2">
           <label>대분류<select id="perfMajor"><option value="">전체</option></select></label>
           <label>중분류<select id="perfMiddle"><option value="">전체</option></select></label>
-          <label>소분류<select id="perfSub"><option value="">전체</option></select></label>
+          <label>식품유형<select id="perfSub"><option value="">전체</option></select></label>
           <label class="grow">상품/키워드<input id="perfSearch" type="search" placeholder="예: 흑염소, 콘드로이친"></label>
           <label class="check"><input id="perfHotOnly" type="checkbox"> HOT만</label>
           <label class="check"><input id="perfNewOnly" type="checkbox"> NEW만</label>
@@ -123,26 +122,20 @@
         </article>
       </div>
 
-      <article class="card detail-dropdown-card">
+      <article class="card detail-dropdown-card collapsed" id="channelDetailCard">
         <div class="card-head">
           <h3>홈쇼핑사별 실적</h3>
-          <span class="muted">홈쇼핑사를 선택하면 해당 방송만 펼쳐집니다.</span>
+          <button type="button" class="btn section-toggle" id="channelDetailToggle" aria-expanded="false">펼치기 ▾</button>
         </div>
-        <label class="detail-select-label">홈쇼핑사 선택
-          <select id="channelDetailSelect"><option value="">선택하세요</option></select>
-        </label>
-        <div id="channelAccordion" class="detail-dropdown-body"><div class="muted">홈쇼핑사를 선택하세요.</div></div>
+        <div id="channelAccordion" class="detail-dropdown-body section-collapsible hidden"></div>
       </article>
 
-      <article class="card detail-dropdown-card">
+      <article class="card detail-dropdown-card collapsed" id="productDetailCard">
         <div class="card-head">
           <h3>상품별 실적</h3>
-          <span class="muted">상품을 선택하면 해당 방송만 펼쳐집니다.</span>
+          <button type="button" class="btn section-toggle" id="productDetailToggle" aria-expanded="false">펼치기 ▾</button>
         </div>
-        <label class="detail-select-label">상품 선택
-          <select id="productDetailSelect"><option value="">선택하세요</option></select>
-        </label>
-        <div id="productAccordion" class="detail-dropdown-body"><div class="muted">상품을 선택하세요.</div></div>
+        <div id="productAccordion" class="detail-dropdown-body section-collapsible hidden"></div>
       </article>
     </section>
 
@@ -164,8 +157,8 @@
       <div class="toolbar review-toolbar">
         <label class="grow">상품 검색<input id="reviewSearch" type="search" placeholder="원본명/표준명/브랜드 검색"></label>
         <label>홈쇼핑사<select id="reviewPlatform"><option value="">전체</option></select></label>
-        <label>방송 시작일<input id="reviewStart" type="date"></label>
-        <label>방송 종료일<input id="reviewEnd" type="date"></label>
+        <label>방송 시작일<div class="date-input-wrap"><input id="reviewStart" type="text" inputmode="numeric" placeholder="YYYY-MM-DD" autocomplete="off"><button type="button" class="date-picker-open" data-date-input="reviewStart" aria-label="방송 시작일 달력 열기">▣</button></div></label>
+        <label>방송 종료일<div class="date-input-wrap"><input id="reviewEnd" type="text" inputmode="numeric" placeholder="YYYY-MM-DD" autocomplete="off"><button type="button" class="date-picker-open" data-date-input="reviewEnd" aria-label="방송 종료일 달력 열기">▣</button></div></label>
         <div class="segmented review-state-filter">
           <button data-review-filter="pending" class="active">미확인</button>
           <button data-review-filter="confirmed">분류완료</button>
@@ -197,7 +190,7 @@
       <div id="watchResults"></div>
     </section>
 
-    <footer>홈쇼핑 식품 모니터 V2.9.1 · 관리자 영구 상품 마스터</footer>
+    <footer>홈쇼핑 식품 모니터 V2.9.3 · 관리자 영구 상품 마스터</footer>
   </main>
 
   <dialog id="adminDialog">
@@ -241,8 +234,8 @@
           <div class="form-grid category-grid-inner">
             <label>대분류<select id="editCategoryMajor"><option value="">선택</option></select></label>
             <label>중분류<select id="editCategoryMiddle"><option value="">선택</option></select></label>
-            <label id="editCategorySubSelectWrap">소분류<select id="editCategorySub"><option value="">선택</option></select></label>
-            <label id="editCategorySubFreshWrap" class="hidden">소분류 직접입력<input id="editCategorySubFresh" placeholder="예: 쌀, 고등어, 한우"></label>
+            <label id="editCategorySubSelectWrap">식품유형<select id="editCategorySub"><option value="">선택</option></select></label>
+            <label id="editCategorySubFreshWrap" class="hidden">식품유형 직접입력<input id="editCategorySubFresh" placeholder="예: 쌀, 고등어, 한우"></label>
           </div>
         </div>
         <div id="existingProductMeta" class="full existing-product-meta hidden"></div>
@@ -322,6 +315,5 @@
 
   <script src="./config.js?v=2.9.1"></script>
   <script src="./app.js?v=2.9.1"></script>
-  <script src="./v2.9.2-hotfix.js?v=2.9.2"></script>
 </body>
 </html>

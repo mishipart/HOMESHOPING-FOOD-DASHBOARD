@@ -301,3 +301,58 @@ footer{font-size:10px;color:var(--muted);margin-top:18px}
 
 @media(max-width:1180px){.perf-filter-row-1{grid-template-columns:1fr 1fr 1fr}.perf-filter-row-1 .quick-range{grid-column:1/-1}.perf-filter-row-2{grid-template-columns:1fr 1fr 1fr}.perf-filter-row-2 .grow{grid-column:1/-1}.perf-filter-row-2 .check{padding-bottom:0}.detail-summary{grid-template-columns:1fr auto auto}}
 @media(max-width:760px){.perf-filter-row-1,.perf-filter-row-2{grid-template-columns:1fr 1fr}.perf-filter-row-1 .quick-range,.perf-filter-row-2 .grow{grid-column:1/-1}.history-occ-row{grid-template-columns:60px minmax(0,1fr)}.history-occ-row>span:nth-child(2){display:block}.history-actions{grid-column:1/-1;justify-content:flex-start}.detail-select-label{grid-template-columns:1fr}.detail-summary{grid-template-columns:1fr 1fr}.broadcast-mini{grid-template-columns:110px 1fr!important}}
+
+/* =========================================================
+   V2.9.3 - date/category/detail usability fixes
+   ========================================================= */
+.date-input-wrap{
+  position:relative;
+  display:flex;
+  align-items:center;
+  width:100%;
+  min-width:0;
+}
+.date-input-wrap input{
+  width:100%!important;
+  min-width:0!important;
+  padding-right:40px!important;
+}
+.date-input-wrap .date-picker-open{
+  position:absolute!important;
+  right:6px!important;
+  top:50%!important;
+  transform:translateY(-50%)!important;
+  margin:0!important;
+  width:30px!important;
+  height:30px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  border:0!important;
+  border-radius:7px!important;
+  background:transparent!important;
+  cursor:pointer!important;
+  z-index:3!important;
+  pointer-events:auto!important;
+}
+.date-input-wrap .date-picker-open:hover{background:#edf3ff!important;color:#2455bd!important}
+.review-toolbar .date-input-wrap{min-width:155px}
+.section-toggle{margin-left:auto;white-space:nowrap}
+.section-collapsible.hidden{display:none!important}
+.detail-dropdown-card .card-head{align-items:center}
+.detail-dropdown-card .detail-dropdown-body{padding-top:10px}
+.detail-dropdown-card .detail-summary{margin-bottom:8px}
+
+/* 상품 관리 분류 3개 항목을 한 줄에 배치 */
+.category-manual-wrap .category-grid-inner{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:10px!important;
+}
+.category-manual-wrap .category-grid-inner label{min-width:0!important}
+.category-manual-wrap .category-grid-inner select,
+.category-manual-wrap .category-grid-inner input{width:100%!important;min-width:0!important}
+
+@media(max-width:820px){
+  .category-manual-wrap .category-grid-inner{grid-template-columns:1fr!important}
+}

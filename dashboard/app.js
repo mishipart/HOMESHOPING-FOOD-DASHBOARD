@@ -31,50 +31,37 @@
 
   const CATEGORY_TREE = {
     "일반식품": {
-      "과자류, 빵류 또는 떡류": ["과자", "캔디류", "추잉껌", "빵류", "떡류"],
-      "코코아가공품류 또는 초콜릿류": ["코코아가공품류", "초콜릿류"],
-      "잼류": ["잼", "기타 잼류"],
-      "설탕류": ["백설탕", "갈색설탕", "기타설탕"],
-      "포도당": ["액상포도당", "분말·결정포도당"],
-      "과당류": ["과당", "기타과당"],
-      "엿류": ["물엿", "기타엿"],
-      "당시럽류": ["당시럽류"],
-      "올리고당류": ["프락토올리고당", "이소말토올리고당", "갈락토올리고당", "기타올리고당"],
-      "식육 또는 알함유가공품": ["식육함유가공품", "알함유가공품"],
-      "어육가공품": ["어육살", "연육", "어육반제품", "어묵", "기타 어육가공품"],
-      "두부류 또는 묵류": ["두부", "전두부", "유바", "가공두부", "묵류"],
-      "식용유지류": ["콩기름", "옥수수기름", "채종유", "미강유", "참기름", "들기름", "홍화유", "해바라기유", "목화씨유", "땅콩기름", "올리브유", "팜유", "야자유", "고추씨기름", "기타식용유지"],
-      "면류": ["생면", "숙면", "건면", "유탕면"],
-      "다류": ["침출차", "액상차", "고형차"],
-      "커피": ["볶은커피", "인스턴트커피", "조제커피", "액상커피"],
-      "음료류": ["과·채주스", "과·채음료", "탄산음료", "탄산수", "두유류", "발효음료", "인삼·홍삼음료", "혼합음료", "음료베이스"],
-      "특수영양식품": ["조제유류", "영아용 조제식", "성장기용 조제식", "영·유아용 이유식", "체중조절용 조제식품", "임산·수유부용 식품"],
-      "특수의료용도식품": ["환자용식품", "선천성대사질환자용식품", "유단백 알레르기 영·유아용 조제식품", "영·유아용 특수조제식품"],
-      "장류": ["메주", "한식간장", "양조간장", "산분해간장", "효소분해간장", "혼합간장", "한식된장", "된장", "고추장", "춘장", "청국장", "혼합장", "기타장류"],
-      "조미식품": ["식초", "소스", "토마토케첩", "카레", "고춧가루 또는 실고추", "향신료가공품", "복합조미식품"],
-      "절임류 또는 조림류": ["김치", "절임식품", "조림류"],
-      "주류": ["탁주", "약주", "청주", "맥주", "과실주", "소주", "위스키", "브랜디", "일반증류주", "리큐르", "기타주류"],
-      "농산가공식품류": ["전분류", "밀가루류", "땅콩 또는 견과류가공품류", "시리얼류", "찐쌀", "효소식품", "기타 농산가공품"],
-      "식육가공품 및 포장육": ["햄류", "소시지류", "베이컨류", "건조저장육류", "양념육류", "식육추출가공품", "식육함유가공품", "포장육"],
-      "알가공품류": ["전란액", "난황액", "난백액", "전란분", "난황분", "난백분", "알가열제품", "피단", "기타알가공품"],
-      "유가공품": ["우유류", "가공유류", "산양유", "발효유류", "버터유", "농축유류", "유크림류", "버터류", "치즈류", "분유류", "유청류", "유당", "유단백가수분해식품", "조제유류", "아이스크림류"],
-      "수산가공식품류": ["젓갈류", "건포류", "조미김", "한천", "기타 수산가공품"],
-      "동물성가공식품류": ["추출가공식품", "동물성유지", "기타 동물성가공품"],
-      "벌꿀 및 화분가공품류": ["벌꿀", "사양벌꿀", "화분가공식품"],
-      "즉석식품류": ["생식류", "즉석섭취·편의식품류", "만두류"],
-      "기타식품류": ["효모식품", "기타가공품"]
+      "과자류, 빵류 또는 떡류": ["과자","캔디류","추잉껌","빵류","떡류"],
+      "빙과류": ["빙과","식용얼음","어업용얼음"],
+      "코코아가공품류 또는 초콜릿류": ["코코아매스","코코아버터","코코아분말","기타코코아가공품","초콜릿","밀크초콜릿","화이트초콜릿","준초콜릿","초콜릿가공품"],
+      "당류": ["설탕","기타설탕","당시럽류","올리고당","올리고당가공품","포도당","과당","기타과당","물엿","기타엿","덱스트린","당류가공품"],
+      "잼류": ["잼","기타잼"],
+      "두부류 또는 묵류": ["두부","유바","가공두부","묵류"],
+      "식용유지류": ["콩기름(대두유)","옥수수기름(옥배유)","채종유(유채유 또는 카놀라유)","미강유(현미유)","참기름","추출참깨유","들기름","추출들깨유","홍화유(사플라워유 또는 잇꽃유)","해바라기유","목화씨기름(면실유)","땅콩기름(낙화생유)","올리브유","팜유류","야자유","고추씨기름","기타식물성유지","어유","기타동물성유지","혼합식용유","향미유","가공유지","쇼트닝","마가린","모조치즈","식물성크림","기타식용유지가공품"],
+      "면류": ["생면","숙면","건면","유탕면"],
+      "음료류": ["침출차","액상차","고형차","커피","농축과채즙(또는 과채분)","과채주스","과채음료","탄산음료","탄산수","원액두유","가공두유","유산균음료","효모음료","기타발효음료","인삼홍삼음료","혼합음료","음료베이스"],
+      "특수영양식품": ["영아전기용 조제식","영아후기용 조제식","유아기용 조제식","영유아용 이유식","체중조절용 조제식품","임산수유부용식품","고령자용 영양조제식품"],
+      "특수의료용도식품": ["일반 환자용 균형영양조제식품","당뇨환자용 영양조제식품","신장질환자용 영양조제식품","장질환자용 단백가수분해 영양조제식품","암환자용 영양조제식품","고혈압환자용 영양조제식품","폐질환자용 영양조제식품","간경변환자용 영양조제식품","열량 및 영양공급용 식품","연하곤란자용 점도조절 식품","수분 및 전해질 보충용 조제식품","선천성대사질환자용조제식품","영유아용 특수조제식품","기타환자용 영양조제식품","당뇨환자용 식단형 식품","신장질환자용 식단형 식품","암환자용 식단형 식품","고혈압환자용 식단형 식품"],
+      "장류": ["한식메주","개량메주","한식간장","양조간장","산분해간장","효소분해간장","혼합간장","한식된장","된장","고추장","춘장","청국장","혼합장","기타장류"],
+      "조미식품": ["발효식초","희석초산","소스","마요네즈","토마토케첩","복합조미식품","카레(커리)분","카레(커리)","고춧가루","실고추","천연향신료","향신료조제품","천일염","재제소금(재제조소금)","태움용융소금","정제소금","기타소금","가공소금"],
+      "절임류 또는 조림류": ["김치","김칫속","절임식품","당절임","조림류"],
+      "주류": ["탁주","약주","청주","맥주","과실주","소주","위스키","브랜디","일반증류주","리큐르","기타주류","주정"],
+      "농산가공식품류": ["전분","전분가공품","밀가루","영양강화 밀가루","땅콩버터","땅콩 또는 견과류가공품","시리얼류","찐쌀","효소식품","과채가공품","곡류가공품","두류가공품","서류가공품","기타 농산가공품"],
+      "식육가공품 및 포장육": ["식육함유가공품"],
+      "알가공품류": ["알함유가공품"],
+      "유함유가공품": ["유함유가공품"],
+      "수산가공식품류": ["어육살","연육","어육반제품","어묵","어육소시지","기타 어육가공품","젓갈","양념젓갈","액젓","조미액젓","조미건어포","건어포","기타 건포류","가공김(조미김 또는 구운김)","한천","기타 수산물가공품"],
+      "동물성가공식품류": ["기타식육 또는 기타알","기타동물성가공식품","곤충가공식품","자라분말","자라분말제품","자라유제품","추출가공식품"],
+      "벌꿀 및 화분가공품": ["벌집꿀","벌꿀","사양벌집꿀","사양벌꿀","로열젤리","로열젤리제품","가공화분","화분함유제품"],
+      "즉석식품류": ["생식제품","생식함유제품","즉석섭취식품","신선편의식품","즉석조리식품","간편조리세트","만두","만두피"],
+      "기타식품류": ["효모식품","기타가공품"]
     },
     "건강식품": {
       "고시형원료": ["영양성분", "인삼", "홍삼", "엽록소 함유 식물", "클로렐라", "스피루리나", "프로폴리스추출물", "코엔자임Q10", "대두이소플라본", "구아바잎추출물", "바나바잎추출물", "은행잎추출물", "밀크씨슬추출물", "옥타코사놀 함유 유지", "매실추출물", "공액리놀레산", "가르시니아캄보지아 추출물", "루테인", "헤마토코쿠스 추출물", "쏘팔메토 열매 추출물", "포스파티딜세린", "글루코사민", "N-아세틸글루코사민", "뮤코다당·단백", "알로에 겔", "영지버섯 자실체 추출물", "키토산/키토올리고당", "프락토올리고당", "프로바이오틱스", "홍국", "대두단백", "테아닌", "엠에스엠(MSM)", "폴리감마글루탐산", "히알루론산", "홍경천 추출물", "빌베리 추출물", "마리골드꽃추출물", "EPA 및 DHA 함유 유지"],
       "개별인정형원료": ["개별인정형 기능성원료"]
     },
-    "신선식품": {
-      "농산물": [],
-      "수산물": [],
-      "축산물": []
-    }
+    "신선식품": {"농산물": [], "수산물": [], "축산물": []}
   };
-
   const datePickerState = { target:null, selected:"", month:new Date() };
 
   const $ = s => document.querySelector(s);
@@ -510,40 +497,27 @@
   }
 
   function renderAccordions(rows){
-    // V2.9.1: 긴 목록 대신 하나의 드롭다운에서 선택한 대상만 표시한다.
     const byChannel=new Map();
     rows.forEach(r=>{const k=getPlatform(r); (byChannel.get(k)||byChannel.set(k,[]).get(k)).push(r);});
     const channelEntries=[...byChannel].sort((a,b)=>metricsForRows(b[1]).sales-metricsForRows(a[1]).sales);
-    const channelSelect=$("#channelDetailSelect");
-    const keepChannel=channelSelect?.value||"";
-    if(channelSelect){
-      channelSelect.innerHTML='<option value="">선택하세요</option>'+channelEntries.map(([k,rs])=>`<option value="${esc(k)}">${esc(k)} · ${rs.length}회 · ${money(metricsForRows(rs).sales)}</option>`).join("");
-      if(channelEntries.some(([k])=>k===keepChannel)) channelSelect.value=keepChannel;
+    const channelTarget=$("#channelAccordion");
+    if(channelTarget){
+      channelTarget.innerHTML=channelEntries.map(([name,rs])=>{
+        const m=metricsForRows(rs);
+        return `<div class="detail-summary"><b>${esc(name)}</b><span>${rs.length}회</span><span class="money">${money(m.sales)}</span><span>평균 ${money(m.avg)}</span></div>`;
+      }).join("")||'<div class="muted detail-empty">해당 기간 홈쇼핑사 실적이 없습니다.</div>';
     }
-    renderDetailDropdown("channel",channelEntries,channelSelect?.value||"");
 
     const byProd=new Map();
     rows.forEach(r=>{const k=getProductName(r); (byProd.get(k)||byProd.set(k,[]).get(k)).push(r);});
     const productEntries=[...byProd].sort((a,b)=>metricsForRows(b[1]).sales-metricsForRows(a[1]).sales);
-    const productSelect=$("#productDetailSelect");
-    const keepProduct=productSelect?.value||"";
-    if(productSelect){
-      productSelect.innerHTML='<option value="">선택하세요</option>'+productEntries.map(([k,rs])=>`<option value="${esc(k)}">${esc(k)} · ${rs.length}회 · ${money(metricsForRows(rs).sales)}</option>`).join("");
-      if(productEntries.some(([k])=>k===keepProduct)) productSelect.value=keepProduct;
+    const productTarget=$("#productAccordion");
+    if(productTarget){
+      productTarget.innerHTML=productEntries.map(([name,rs])=>{
+        const m=metricsForRows(rs);
+        return `<div class="detail-summary"><b>${esc(name)}</b><span>${rs.length}회</span><span class="money">${money(m.sales)}</span><span>평균 ${money(m.avg)}</span></div>`;
+      }).join("")||'<div class="muted detail-empty">해당 기간 상품 실적이 없습니다.</div>';
     }
-    renderDetailDropdown("product",productEntries,productSelect?.value||"");
-  }
-
-  function renderDetailDropdown(type, entries, selected){
-    const target=type==="channel"?$("#channelAccordion"):$("#productAccordion");
-    if(!target) return;
-    if(!selected){
-      target.innerHTML=`<div class="muted detail-empty">${type==="channel"?"홈쇼핑사를":"상품을"} 선택하세요.</div>`;
-      return;
-    }
-    const hit=entries.find(([name])=>name===selected);
-    if(!hit){ target.innerHTML='<div class="muted detail-empty">선택한 항목의 실적이 없습니다.</div>'; return; }
-    target.innerHTML=detailBreakdown(hit[0],hit[1]);
   }
 
   function detailBreakdown(name,rs){
@@ -618,7 +592,7 @@
       }
     }
 
-    // V2.9.1: 관리자 오버레이 결과의 표준상품명이 같은 방송도 포함.
+    // V2.9.3: 관리자 오버레이 결과의 표준상품명이 같은 방송도 포함.
     // product_master_admin.csv에는 연결되어 있지만 CSV 원본 표준명이 아직 예전 값인 경우를 보완한다.
     if(target){
       for(const r of visibleRows()){
@@ -738,7 +712,7 @@
 
     const reviewRangeActive=!!($("#reviewStart").value||$("#reviewEnd").value||$("#reviewPlatform").value);
     const sortedItems=[...items].sort((a,b)=>{
-      // V2.9.1: 선택기간이 있으면 방송시간 오름차순, 전체 조회는 최근 방송 우선.
+      // V2.9.3: 선택기간이 있으면 방송시간 오름차순, 전체 조회는 최근 방송 우선.
       const ar=reviewOccurrences(a.occurrences||[]); const br=reviewOccurrences(b.occurrences||[]);
       const aKeys=(ar.length?ar:(a.occurrences||[])).map(rowChronoKey).sort();
       const bKeys=(br.length?br:(b.occurrences||[])).map(rowChronoKey).sort();
@@ -783,7 +757,7 @@
   }
 
   function findReviewItem(name,kind){
-    // V2.9.1: 동일 표준명이 여러 상태에 존재할 때 다른 그룹을 집어오는 문제 방지.
+    // V2.9.3: 동일 표준명이 여러 상태에 존재할 때 다른 그룹을 집어오는 문제 방지.
     const exactPool=getReviewItems(kind||"all");
     return exactPool.find(x=>(x.standard_product_name||x.raw_title)===name) ||
            getReviewItems("all").find(x=>x.kind===kind && (x.standard_product_name||x.raw_title)===name) ||
@@ -1504,6 +1478,8 @@
 
   function categoryTupleFromGroup(group,ingredient=""){
     const g=normalize(group), ing=normalize(ingredient);
+    const compact=v=>normalize(v).replace(/\s+/g,"");
+    const gc=compact(group);
     if(!g) return null;
 
     // 1) 이미 관리자/마스터/방송 데이터에 확정된 같은 기존상품군이 있으면 가장 많이 쓰인 분류를 재사용한다.
@@ -1522,14 +1498,23 @@
       return {major,middle,sub,source:"기존 등록상품군"};
     }
 
-    // 2) 식품공전/건강식품 분류표의 중분류·소분류와 기존상품군명이 직접 일치하는 경우.
+    // 2) 식품공전/건강식품 분류표의 중분류·식품유형과 기존상품군명이 직접 일치하는 경우.
+    // 특수문자/띄어쓰기 차이(과‧채주스↔과채주스, 기타 식용유지가공품↔기타식용유지가공품)도 동일 취급한다.
+    const aliases={
+      "과채주스":"과채주스",
+      "과채음료":"과채음료",
+      "기타식용유지가공품":"기타식용유지가공품",
+      "인삼홍삼음료":"인삼홍삼음료"
+    };
     for(const [major,middles] of Object.entries(CATEGORY_TREE)){
       for(const [middle,subs] of Object.entries(middles)){
-        if(normalize(middle)===g || normalize(middle).includes(g) || g.includes(normalize(middle))){
-          return {major,middle,sub:"",source:"분류 기준 자동매칭"};
-        }
-        const sub=(subs||[]).find(x=>normalize(x)===g || (normalize(x).length>1 && g.includes(normalize(x))));
-        if(sub) return {major,middle,sub,source:"분류 기준 자동매칭"};
+        const mc=compact(middle);
+        if(mc===gc){ return {major,middle,sub:"",source:"분류 기준 자동매칭"}; }
+        const sub=(subs||[]).find(x=>{
+          const xc=compact(x);
+          return xc===gc || (aliases[xc] && aliases[gc] && aliases[xc]===aliases[gc]) || (xc.length>2 && gc.includes(xc));
+        });
+        if(sub) return {major,middle,sub,source:"식품유형 자동매칭"};
       }
     }
 
@@ -1632,15 +1617,24 @@
   }
 
   function setupDateInput(sel,onApply){
-    const el=$(sel); if(!el) return; el.type="text"; el.placeholder="YYYY-MM-DD";
-    el.addEventListener("change",()=>{ if(/^\d{4}-\d{2}-\d{2}$/.test(el.value)) onApply(); });
+    const el=$(sel); if(!el) return;
+    el.type="text"; el.placeholder="YYYY-MM-DD";
+    const valid=()=>/^\d{4}-\d{2}-\d{2}$/.test(el.value);
+    el.addEventListener("change",()=>{ if(valid()) onApply(); });
     el.addEventListener("keydown",e=>{
-      if(e.key==="Enter" && /^\d{4}-\d{2}-\d{2}$/.test(el.value)){ e.preventDefault(); onApply(); }
-      if(e.key==="ArrowDown" && e.altKey){e.preventDefault();openDatePicker(el,onApply);}
+      if(e.key==="Enter" && valid()){ e.preventDefault(); onApply(); }
+      if(e.key==="ArrowDown" && e.altKey){ e.preventDefault(); openDatePicker(el,onApply); }
     });
-    if(!el.nextElementSibling?.classList?.contains("date-picker-open")){
-      const b=document.createElement("button"); b.type="button"; b.className="date-picker-open"; b.textContent="▣"; b.title="달력에서 날짜 선택"; b.onclick=()=>openDatePicker(el,onApply); el.insertAdjacentElement("afterend",b);
+    let b=el.nextElementSibling;
+    if(!b?.classList?.contains("date-picker-open")){
+      b=document.createElement("button");
+      b.type="button"; b.className="date-picker-open"; b.textContent="▣";
+      el.insertAdjacentElement("afterend",b);
     }
+    b.type="button";
+    b.title="달력에서 날짜 선택";
+    b.setAttribute("aria-label","달력에서 날짜 선택");
+    b.onclick=(e)=>{ e.preventDefault(); e.stopPropagation(); openDatePicker(el,onApply); };
   }
   function openDatePicker(el,onApply){
     datePickerState.target=el; datePickerState.onApply=onApply; datePickerState.selected=el.value||keyDate(today()); datePickerState.month=parseDate(datePickerState.selected); renderDatePicker(); $("#datePickerDialog").showModal();
@@ -1724,8 +1718,17 @@
     ["#perfPlatform","#perfStatus","#perfHotOnly","#perfNewOnly"].forEach(s=>$(s).addEventListener("input",renderPerformance));
     ["#perfMajor","#perfMiddle","#perfSub"].forEach(sel=>$(sel).addEventListener("change",()=>{ if(sel==="#perfMajor") refreshPerfCategoryChildren(); if(sel==="#perfMiddle") refreshPerfCategoryChildren(); renderPerformance(); }));
     $("#perfSearch").addEventListener("input",debouncedPerf);
-    $("#channelDetailSelect")?.addEventListener("change",()=>renderPerformance());
-    $("#productDetailSelect")?.addEventListener("change",()=>renderPerformance());
+    const bindSectionToggle=(buttonSel,bodySel)=>{
+      const btn=$(buttonSel), body=$(bodySel); if(!btn||!body) return;
+      btn.onclick=()=>{
+        const open=body.classList.contains("hidden");
+        body.classList.toggle("hidden",!open);
+        btn.textContent=open?"접기 ▴":"펼치기 ▾";
+        btn.setAttribute("aria-expanded",String(open));
+      };
+    };
+    bindSectionToggle("#channelDetailToggle","#channelAccordion");
+    bindSectionToggle("#productDetailToggle","#productAccordion");
     $("#resetPerf").onclick=()=>setPerfRange("yesterday");
     $$(".review-state-filter button").forEach(b=>b.onclick=()=>setReviewFilter(b.dataset.reviewFilter));
     const debouncedReview=debounce(renderReview,180);
