@@ -28,6 +28,55 @@
     }
   };
 
+
+  const CATEGORY_TREE = {
+    "일반식품": {
+      "과자류, 빵류 또는 떡류": ["과자", "캔디류", "추잉껌", "빵류", "떡류"],
+      "코코아가공품류 또는 초콜릿류": ["코코아가공품류", "초콜릿류"],
+      "잼류": ["잼", "기타 잼류"],
+      "설탕류": ["백설탕", "갈색설탕", "기타설탕"],
+      "포도당": ["액상포도당", "분말·결정포도당"],
+      "과당류": ["과당", "기타과당"],
+      "엿류": ["물엿", "기타엿"],
+      "당시럽류": ["당시럽류"],
+      "올리고당류": ["프락토올리고당", "이소말토올리고당", "갈락토올리고당", "기타올리고당"],
+      "식육 또는 알함유가공품": ["식육함유가공품", "알함유가공품"],
+      "어육가공품": ["어육살", "연육", "어육반제품", "어묵", "기타 어육가공품"],
+      "두부류 또는 묵류": ["두부", "전두부", "유바", "가공두부", "묵류"],
+      "식용유지류": ["콩기름", "옥수수기름", "채종유", "미강유", "참기름", "들기름", "홍화유", "해바라기유", "목화씨유", "땅콩기름", "올리브유", "팜유", "야자유", "고추씨기름", "기타식용유지"],
+      "면류": ["생면", "숙면", "건면", "유탕면"],
+      "다류": ["침출차", "액상차", "고형차"],
+      "커피": ["볶은커피", "인스턴트커피", "조제커피", "액상커피"],
+      "음료류": ["과·채주스", "과·채음료", "탄산음료", "탄산수", "두유류", "발효음료", "인삼·홍삼음료", "혼합음료", "음료베이스"],
+      "특수영양식품": ["조제유류", "영아용 조제식", "성장기용 조제식", "영·유아용 이유식", "체중조절용 조제식품", "임산·수유부용 식품"],
+      "특수의료용도식품": ["환자용식품", "선천성대사질환자용식품", "유단백 알레르기 영·유아용 조제식품", "영·유아용 특수조제식품"],
+      "장류": ["메주", "한식간장", "양조간장", "산분해간장", "효소분해간장", "혼합간장", "한식된장", "된장", "고추장", "춘장", "청국장", "혼합장", "기타장류"],
+      "조미식품": ["식초", "소스", "토마토케첩", "카레", "고춧가루 또는 실고추", "향신료가공품", "복합조미식품"],
+      "절임류 또는 조림류": ["김치", "절임식품", "조림류"],
+      "주류": ["탁주", "약주", "청주", "맥주", "과실주", "소주", "위스키", "브랜디", "일반증류주", "리큐르", "기타주류"],
+      "농산가공식품류": ["전분류", "밀가루류", "땅콩 또는 견과류가공품류", "시리얼류", "찐쌀", "효소식품", "기타 농산가공품"],
+      "식육가공품 및 포장육": ["햄류", "소시지류", "베이컨류", "건조저장육류", "양념육류", "식육추출가공품", "식육함유가공품", "포장육"],
+      "알가공품류": ["전란액", "난황액", "난백액", "전란분", "난황분", "난백분", "알가열제품", "피단", "기타알가공품"],
+      "유가공품": ["우유류", "가공유류", "산양유", "발효유류", "버터유", "농축유류", "유크림류", "버터류", "치즈류", "분유류", "유청류", "유당", "유단백가수분해식품", "조제유류", "아이스크림류"],
+      "수산가공식품류": ["젓갈류", "건포류", "조미김", "한천", "기타 수산가공품"],
+      "동물성가공식품류": ["추출가공식품", "동물성유지", "기타 동물성가공품"],
+      "벌꿀 및 화분가공품류": ["벌꿀", "사양벌꿀", "화분가공식품"],
+      "즉석식품류": ["생식류", "즉석섭취·편의식품류", "만두류"],
+      "기타식품류": ["효모식품", "기타가공품"]
+    },
+    "건강식품": {
+      "고시형원료": ["영양성분", "인삼", "홍삼", "엽록소 함유 식물", "클로렐라", "스피루리나", "프로폴리스추출물", "코엔자임Q10", "대두이소플라본", "구아바잎추출물", "바나바잎추출물", "은행잎추출물", "밀크씨슬추출물", "옥타코사놀 함유 유지", "매실추출물", "공액리놀레산", "가르시니아캄보지아 추출물", "루테인", "헤마토코쿠스 추출물", "쏘팔메토 열매 추출물", "포스파티딜세린", "글루코사민", "N-아세틸글루코사민", "뮤코다당·단백", "알로에 겔", "영지버섯 자실체 추출물", "키토산/키토올리고당", "프락토올리고당", "프로바이오틱스", "홍국", "대두단백", "테아닌", "엠에스엠(MSM)", "폴리감마글루탐산", "히알루론산", "홍경천 추출물", "빌베리 추출물", "마리골드꽃추출물", "EPA 및 DHA 함유 유지"],
+      "개별인정형원료": ["개별인정형 기능성원료"]
+    },
+    "신선식품": {
+      "농산물": [],
+      "수산물": [],
+      "축산물": []
+    }
+  };
+
+  const datePickerState = { target:null, selected:"", month:new Date() };
+
   const $ = s => document.querySelector(s);
   const $$ = s => [...document.querySelectorAll(s)];
   const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -62,11 +111,12 @@
   // V2.8.7 HOTFIX: 기존 코드 전반에서 사용하던 norm() 별칭을 명시적으로 정의
   // 이 별칭이 없으면 표준상품 검색/선택 시 ReferenceError가 발생한다.
   const norm = normalize;
+  const productNameKey = v => clean(v).toLowerCase().replace(/\s+/g, "");
 
   function getProductName(r){
     return clean(r.standard_product_name || r.normalized_title || r.raw_title || "미분류");
   }
-  function getRawTitle(r){ return clean(r.raw_title || r.normalized_title || r.standard_product_name || ""); }
+  function getRawTitle(r){ return clean(r.raw_title_corrected || r.raw_title || r.normalized_title || r.standard_product_name || ""); }
   function getPlatform(r){ return clean(r.platform_name || r.platform || r.channel || "미확인"); }
   function getDate(r){ return clean(r.broadcast_date || r.start_datetime || "").slice(0,10); }
   function getHour(r){
@@ -220,6 +270,11 @@
         brand: o.brand || r.brand,
         product_group: o.product_group || r.product_group,
         main_ingredient: o.main_ingredient || r.main_ingredient,
+        category_major: o.category_major || r.category_major,
+        category_middle: o.category_middle || r.category_middle,
+        category_sub: o.category_sub || r.category_sub,
+        manual_lock: o.manual_lock || "Y",
+        raw_title_corrected: o.raw_title_corrected || r.raw_title_corrected,
         review_status: o.review_status || "confirmed",
         enabled: o.enabled || "Y",
         occurrence_override: "Y"
@@ -240,6 +295,12 @@
       brand: m.brand || r.brand,
       product_group: m.product_group || r.product_group,
       main_ingredient: m.main_ingredient || r.main_ingredient,
+      category_major: m.category_major || r.category_major,
+      category_middle: m.category_middle || r.category_middle,
+      category_sub: m.category_sub || r.category_sub,
+      classification_source: m.classification_source || r.classification_source,
+      classification_score: m.classification_score || r.classification_score,
+      manual_lock: m.manual_lock || r.manual_lock,
       review_status: m.review_status || r.review_status,
       enabled: m.enabled || r.enabled
     };
@@ -394,11 +455,13 @@
   }
 
   function perfRows(){
-    const s=$("#perfStart").value, e=$("#perfEnd").value, p=$("#perfPlatform").value, g=$("#perfGroup").value, q=normalize($("#perfSearch").value), st=$("#perfStatus").value;
+    const s=$("#perfStart").value, e=$("#perfEnd").value, p=$("#perfPlatform").value, major=$("#perfMajor").value, middle=$("#perfMiddle").value, sub=$("#perfSub").value, q=normalize($("#perfSearch").value), st=$("#perfStatus").value;
     let rows=visibleRows().filter(r=>{
       const d=getDate(r); if(s&&d<s||e&&d>e) return false;
       if(p&&getPlatform(r)!==p) return false;
-      if(g&&clean(r.product_group)!==g) return false;
+      if(major&&clean(r.category_major)!==major) return false;
+      if(middle&&clean(r.category_middle)!==middle) return false;
+      if(sub&&clean(r.category_sub)!==sub) return false;
       if(q&&!normalize(`${getProductName(r)} ${getRawTitle(r)} ${r.brand||""}`).includes(q)) return false;
       if(st==="confirmed"&&!performanceOk(r)) return false;
       if(st==="missing"&&performanceOk(r)) return false;
@@ -525,7 +588,7 @@
     const occurrence=buildOccurrenceMap(), out=[];
     const groups=masterProductGroups();
 
-    if(filter==="pending" || filter==="all"){
+    if(filter==="pending" || filter==="auto" || filter==="all"){
       for(const x of occurrence.values()){
         const sample=x.rows.at(-1), m=findMasterForRow(sample);
         const dynamic=!!dynamicRuleForRow(sample);
@@ -535,13 +598,19 @@
 
         // Dynamic titles remain reviewable until every occurrence in the selected range is overridden.
         if(dynamic){
-          const inRange=reviewOccurrences(x.rows);
-          const unresolved=inRange.filter(r=>!occurrenceRuleForRow(r));
-          if(unresolved.length){
-            out.push({kind:"dynamic",raw_title:x.raw,standard_product_name:"",master:null,occurrences:x.rows});
+          if(filter!=="auto"){
+            const inRange=reviewOccurrences(x.rows);
+            const unresolved=inRange.filter(r=>!occurrenceRuleForRow(r));
+            if(unresolved.length){
+              out.push({kind:"dynamic",raw_title:x.raw,standard_product_name:"",master:null,occurrences:x.rows});
+            }
           }
         } else if(!m || (!confirmed&&!excluded)){
-          out.push({kind:"pending",raw_title:x.raw,standard_product_name:m?.standard_product_name||"",master:m||null,occurrences:x.rows});
+          const sampleStatus=clean(sample?.review_status||"");
+          const auto=sampleStatus==="자동분류" || clean(sample?.classification_source)==="auto_similarity";
+          if(filter==="auto" && !auto) continue;
+          if(filter==="pending" && auto) continue;
+          out.push({kind:auto?"auto":"pending",raw_title:x.raw,standard_product_name:sample?.standard_product_name||m?.standard_product_name||"",master:m||sample||null,occurrences:x.rows});
         }
       }
     }
@@ -594,12 +663,14 @@
     const all=getReviewItems(state.reviewFilter), items=all.filter(reviewFilterMatch);
     const pending=getReviewItems("pending").filter(reviewFilterMatch).length;
     const confirmed=getReviewItems("confirmed").filter(reviewFilterMatch).length;
+    const auto=getReviewItems("auto").filter(reviewFilterMatch).length;
     const dynamic=getReviewItems("dynamic").filter(reviewFilterMatch).length;
     const excluded=getReviewItems("excluded").filter(reviewFilterMatch).length;
 
     $("#reviewSummary").innerHTML=`
       <span class="summary-chip clickable ${state.reviewFilter==="pending"?"active":""}" data-summary-filter="pending">미확인 ${pending}건</span>
       <span class="summary-chip clickable ${state.reviewFilter==="confirmed"?"active":""}" data-summary-filter="confirmed">분류완료 ${confirmed}개</span>
+      <span class="summary-chip clickable ${state.reviewFilter==="auto"?"active":""}" data-summary-filter="auto">자동분류 ${auto}개</span>
       <span class="summary-chip clickable ${state.reviewFilter==="dynamic"?"active":""}" data-summary-filter="dynamic">가변방송 ${dynamic}개</span>
       <span class="summary-chip clickable ${state.reviewFilter==="excluded"?"active":""}" data-summary-filter="excluded">제외 ${excluded}개</span>
       <span class="summary-chip">현재 표시 ${items.length}건</span>`;
@@ -615,13 +686,20 @@
       return;
     }
 
-    $("#reviewList").innerHTML=items.slice(0,700).map(item=>{
+    const sortedItems=[...items].sort((a,b)=>{
+      const ar=reviewOccurrences(a.occurrences||[]); const br=reviewOccurrences(b.occurrences||[]);
+      const aa=(ar.length?ar:a.occurrences||[]).map(r=>clean(r.start_datetime)).filter(Boolean).sort()[0]||"9999";
+      const bb=(br.length?br:b.occurrences||[]).map(r=>clean(r.start_datetime)).filter(Boolean).sort()[0]||"9999";
+      return aa.localeCompare(bb) || clean(a.standard_product_name||a.raw_title).localeCompare(clean(b.standard_product_name||b.raw_title),"ko");
+    });
+    $("#reviewList").innerHTML=sortedItems.slice(0,700).map(item=>{
       const allOcc=[...item.occurrences].sort((a,b)=>clean(b.start_datetime).localeCompare(clean(a.start_datetime)));
       const occ=reviewOccurrences(allOcc);
       const displayOcc=occ.length?occ:allOcc;
       const last=displayOcc[0], aliasCount=item.aliases?.length||0;
       const periodLabel=($("#reviewStart").value||$("#reviewEnd").value||$("#reviewPlatform").value)?"선택기간":"전체";
       const badge=item.kind==="pending"?'<span class="badge warn">확인필요</span>':
+        item.kind==="auto"?'<span class="badge new">자동분류</span>':
         item.kind==="dynamic"?'<span class="badge dynamic">가변방송</span>':
         item.kind==="excluded"?'<span class="badge hot">제외</span>':'<span class="badge good">분류완료</span>';
 
@@ -630,12 +708,15 @@
         ${item.raw_title&&item.standard_product_name?`<div class="small">원본: ${esc(item.raw_title)}</div>`:""}
         <div class="review-meta">${last?`${periodLabel} 최근 방송 ${getDate(last)} ${getTime(last)} · ${esc(getPlatform(last))}`:"방송 이력 없음"}${displayOcc.length?` · ${periodLabel} 방송 ${displayOcc.length}회`:""}${aliasCount?` · 연결 원본명 ${aliasCount}개`:""}</div>
         ${item.kind==="dynamic"?'<div class="dynamic-note">이 제목은 방송마다 실제 상품이 달라질 수 있어 자동 대표상품으로 묶지 않습니다.</div>':""}
+        ${item.kind==="auto"?`<div class="dynamic-note">자동분류 신뢰도 ${Math.round(num(item.master?.classification_score)*100)}% · 확인 후 영구규칙으로 저장할 수 있습니다.</div>`:""}
       </div><div class="review-actions">
+        ${item.kind==="auto"?`<button class="btn good-action" data-confirm-auto="${esc(item.raw_title)}">자동분류 확정</button>`:""}
         ${allOcc.length?`<button class="btn" data-history="${esc(item.standard_product_name||item.raw_title)}" data-kind="${item.kind}">방송이력</button>`:""}
         <button class="btn primary" data-edit-review="${esc(item.standard_product_name||item.raw_title)}" data-kind="${item.kind}">관리</button>
       </div></div>`;
     }).join("")||'<div class="card muted">조건에 맞는 상품이 없습니다.</div>';
 
+    $$("[data-confirm-auto]").forEach(b=>b.onclick=()=>confirmAutoClassification(b.dataset.confirmAuto));
     $$("[data-edit-review]").forEach(b=>b.onclick=()=>openProductDialog(b.dataset.editReview,b.dataset.kind));
     $$("[data-history]").forEach(b=>b.onclick=()=>openHistoryDialog(b.dataset.history,b.dataset.kind));
   }
@@ -687,11 +768,12 @@
           <b>${esc(getTime(r))}</b>
           <span>${esc(getPlatform(r))}</span>
           <span>${esc(getRawTitle(r))}${o?`<div class="small">지정상품: ${esc(o.standard_product_name)}</div>`:""}</span>
-          <button type="button" class="btn ${o?"":"primary"}" data-occurrence-edit="${esc(r.hsshow_id||"")}">${o?"수정":"이 방송 분류"}</button>
+          <span class="history-actions"><button type="button" class="btn" data-override-edit="${esc(r.hsshow_id||"")}">실적/원본명 수정</button><button type="button" class="btn ${o?"":"primary"}" data-occurrence-edit="${esc(r.hsshow_id||"")}">${o?"분류 수정":"이 방송 분류"}</button></span>
         </div>`;
       }).join("")}`;
     $("#historyBackBtn").onclick=()=>openHistoryDialog(state.historyContext.name,state.historyContext.kind);
     $$("[data-occurrence-edit]").forEach(b=>b.onclick=()=>openOccurrenceEditor(b.dataset.occurrenceEdit));
+    $$("[data-override-edit]").forEach(b=>b.onclick=()=>openOverrideEditor(b.dataset.overrideEdit));
   }
 
   function openOccurrenceEditor(id){
@@ -704,12 +786,15 @@
     const o=occurrenceRuleForRow(r)||{};
     $("#editStandardName").value=o.standard_product_name||"";
     $("#editBrand").value=o.brand||""; $("#editGroup").value=o.product_group||""; $("#editIngredient").value=o.main_ingredient||"";
+    setCategoryValues(o.category_major||r.category_major||"",o.category_middle||r.category_middle||"",o.category_sub||r.category_sub||"");
     $("#editAction").value="save_occurrence";
     $("#productForm").dataset.occurrenceId=clean(r.hsshow_id);
     $("#productForm").dataset.sourceAliases="[]";
     $("#editBroadcastInfo").textContent=`${getDate(r)} ${getTime(r)} · ${getPlatform(r)} · 이 방송 1건에만 적용`;
     $("#aliasPreview").innerHTML="이 저장은 같은 제목의 다른 방송에는 영향을 주지 않습니다.";
     $("#bulkAliasTools").classList.add("hidden");
+    $("#sameSlotWrap")?.classList.remove("hidden");
+    $("#applySameSlot").checked=false;
     renderSimilarSuggestions(getRawTitle(r));
     $("#productDialog").showModal();
     toggleMergeTarget();
@@ -734,12 +819,12 @@
   function enrichedMasterProduct(product){
     if(!product) return null;
 
-    const target=norm(product.standard_product_name);
+    const target=productNameKey(product.standard_product_name);
     const adminRows=(state.adminMaster?.admin_rows||[]).filter(
-      r=>norm(r.standard_product_name)===target
+      r=>productNameKey(r.standard_product_name)===target
     );
     const effectiveRows=(state.adminMaster?.rows||[]).filter(
-      r=>norm(r.standard_product_name)===target
+      r=>productNameKey(r.standard_product_name)===target
     );
 
     const pick=(field)=>{
@@ -757,7 +842,10 @@
       ...product,
       brand:pick("brand"),
       product_group:pick("product_group"),
-      main_ingredient:pick("main_ingredient")
+      main_ingredient:pick("main_ingredient"),
+      category_major:pick("category_major"),
+      category_middle:pick("category_middle"),
+      category_sub:pick("category_sub")
     };
   }
 
@@ -997,7 +1085,7 @@
       if(clean(row.enabled||"Y").toUpperCase()==="N") continue;
       if(clean(row.review_status||"").toLowerCase()==="exclude") continue;
 
-      const key=norm(name);
+      const key=productNameKey(name);
       let group=groups.get(key);
 
       if(!group){
@@ -1006,6 +1094,7 @@
           brand:"",
           product_group:"",
           main_ingredient:"",
+          category_major:"", category_middle:"", category_sub:"",
           alias_count:0,
           aliases:[]
         };
@@ -1023,30 +1112,31 @@
         group.product_group=clean(row.product_group);
       }
 
-      if(!group.main_ingredient && clean(row.main_ingredient)){
-        group.main_ingredient=clean(row.main_ingredient);
-      }
+      if(!group.main_ingredient && clean(row.main_ingredient)){ group.main_ingredient=clean(row.main_ingredient); }
+      if(!group.category_major && clean(row.category_major)){ group.category_major=clean(row.category_major); }
+      if(!group.category_middle && clean(row.category_middle)){ group.category_middle=clean(row.category_middle); }
+      if(!group.category_sub && clean(row.category_sub)){ group.category_sub=clean(row.category_sub); }
     }
 
     return [...groups.values()].map(enrichedMasterProduct);
   }
 
   function getMasterProductByName(name){
-    const target=norm(name);
+    const target=productNameKey(name);
 
     if(!target) return null;
 
     return buildAdminSearchProducts().find(
-      p=>norm(p.standard_product_name)===target
+      p=>productNameKey(p.standard_product_name)===target
     )||null;
   }
 
   function setMasterMetaLocked(locked){
     ["#editBrand","#editGroup","#editIngredient"].forEach(sel=>{
-      const el=$(sel);
-      if(!el) return;
-      el.readOnly=!!locked;
-      el.classList.toggle("master-meta-locked",!!locked);
+      const el=$(sel); if(!el) return; el.readOnly=!!locked; el.classList.toggle("master-meta-locked",!!locked);
+    });
+    ["#editCategoryMajor","#editCategoryMiddle","#editCategorySub"].forEach(sel=>{
+      const el=$(sel); if(!el) return; el.disabled=!!locked || (sel==="#editCategorySub" && $("#editCategoryMajor")?.value==="신선식품"); el.classList.toggle("master-meta-locked",!!locked);
     });
     $("#masterEditTools")?.classList.toggle("hidden",!locked);
   }
@@ -1069,6 +1159,7 @@
     $("#editBrand").value=clean(product.brand||"");
     $("#editGroup").value=clean(product.product_group||"");
     $("#editIngredient").value=clean(product.main_ingredient||"");
+    setCategoryValues(product.category_major||"",product.category_middle||"",product.category_sub||"");
     $("#productForm").dataset.selectedMaster=product.standard_product_name||"";
     $("#productSaveError").textContent="";
 
@@ -1082,6 +1173,7 @@
         <span>브랜드: ${esc(product.brand||"-")}</span>
         <span>상품군: ${esc(product.product_group||"-")}</span>
         <span>주원료: ${esc(product.main_ingredient||"-")}</span>
+        <span>분류: ${esc([product.category_major,product.category_middle,product.category_sub].filter(Boolean).join(" > ")||"-")}</span>
         <span>연결 원본명: ${Number(product.alias_count||0).toLocaleString()}개</span>`;
       meta.classList.remove("hidden");
     }
@@ -1166,14 +1258,17 @@
     const last=[...item.occurrences].sort((a,b)=>clean(b.start_datetime).localeCompare(clean(a.start_datetime)))[0];
     const m=item.master||item.aliases?.[0]||{};
     delete $("#productForm").dataset.occurrenceId;
+    $("#productForm").dataset.rawOccurrenceId=clean(last?.hsshow_id||"");
 
-    $("#productDialogTitle").textContent=kind==="pending"?"미확인 상품 분류":kind==="dynamic"?"가변형 방송명 관리":"기존 상품 관리";
+    $("#productDialogTitle").textContent=kind==="pending"?"미확인 상품 분류":kind==="auto"?"자동분류 확인":kind==="dynamic"?"가변형 방송명 관리":"기존 상품 관리";
     $("#editRawTitle").value=item.raw_title||m.match_keyword||"";
     $("#editRawDisplay").value=item.raw_title||m.match_keyword||"(표준 상품 전체)";
     $("#editSourceStandard").value=item.standard_product_name||m.standard_product_name||"";
     $("#editStandardName").value=item.standard_product_name||m.standard_product_name||"";
     $("#editBrand").value=m.brand||""; $("#editGroup").value=m.product_group||""; $("#editIngredient").value=m.main_ingredient||"";
-    $("#editAction").value=kind==="pending"?"link_existing":kind==="dynamic"?"mark_dynamic_title":kind==="excluded"?"restore":"update_product";
+    setCategoryValues(m.category_major||last?.category_major||"",m.category_middle||last?.category_middle||"",m.category_sub||last?.category_sub||"");
+    $("#editRawDisplay").disabled=true; $("#unlockRawTitleBtn").textContent="원본명 수정"; $("#sameSlotWrap")?.classList.add("hidden");
+    $("#editAction").value=(kind==="pending"||kind==="auto")?"link_existing":kind==="dynamic"?"mark_dynamic_title":kind==="excluded"?"restore":"update_product";
     clearExistingProductSelection();
     $("#editBroadcastInfo").textContent=last?`최근 방송: ${getDate(last)} ${getTime(last)} · ${getPlatform(last)} · 전체 ${item.occurrences.length}회`:"방송 이력 없음";
 
@@ -1232,7 +1327,7 @@
 
     if(action==="link_existing"){
       const selectedAdmin=buildAdminSearchProducts().find(
-        p=>norm(p.standard_product_name)===norm(standard)
+        p=>productNameKey(p.standard_product_name)===productNameKey(standard)
       );
       if(!selectedAdmin){
         $("#productSaveError").textContent=
@@ -1250,7 +1345,11 @@
       source_aliases:sourceAliases,
       brand:$("#editBrand").value,
       product_group:$("#editGroup").value,
-      main_ingredient:$("#editIngredient").value
+      main_ingredient:$("#editIngredient").value,
+      category_major:$("#editCategoryMajor").value,
+      category_middle:$("#editCategoryMiddle").value,
+      category_sub:$("#editCategorySub").value,
+      manual_lock:"Y"
     };
 
     if(action==="merge_product"){ body.source_standard_product_name=source; body.target_standard_product_name=$("#mergeTarget").value; }
@@ -1264,6 +1363,12 @@
         body.start_datetime=clean(r.start_datetime);
         body.platform_name=getPlatform(r);
         body.raw_title=getRawTitle(r);
+        body.raw_title_original=clean(r.raw_title_original||r.raw_title||"");
+        body.raw_title_corrected=$("#editRawDisplay").disabled?clean(r.raw_title_corrected||""):clean($("#editRawDisplay").value);
+        if($("#applySameSlot")?.checked){
+          body.action="save_occurrence_batch";
+          body.hsshow_ids=state.rows.filter(x=>getDate(x)===getDate(r)&&getTime(x)===getTime(r)&&getPlatform(x)===getPlatform(r)).map(x=>clean(x.hsshow_id)).filter(Boolean);
+        }
       }
     }
 
@@ -1272,6 +1377,15 @@
       const r=await fetch(`${API}/save`,{method:"POST",headers:{"Content-Type":"application/json","X-Admin-Password":state.adminPassword},body:JSON.stringify(body)});
       const data=await r.json();
       if(!r.ok||!data.ok) throw new Error(data.error||`HTTP ${r.status}`);
+
+      const rawDisplay=$("#editRawDisplay");
+      const rawOccurrenceId=$("#productForm").dataset.rawOccurrenceId||"";
+      if(action!=="save_occurrence" && action!=="save_occurrence_batch" && rawOccurrenceId && rawDisplay && !rawDisplay.disabled && clean(rawDisplay.value)!==clean(raw)){
+        const rr=await fetch(`${API}/save`,{method:"POST",headers:{"Content-Type":"application/json","X-Admin-Password":state.adminPassword},body:JSON.stringify({action:"save_raw_title_override",hsshow_id:rawOccurrenceId,raw_title_corrected:clean(rawDisplay.value),note:"상품확인 화면 원본명 수동 수정"})});
+        const rd=await rr.json(); if(!rr.ok||!rd.ok) throw new Error(rd.error||`원본명 수정 HTTP ${rr.status}`);
+        const local=state.rows.find(x=>clean(x.hsshow_id)===clean(rawOccurrenceId));
+        if(local){local.raw_title_original=local.raw_title_original||local.raw_title||"";local.raw_title_corrected=clean(rawDisplay.value);}
+      }
       $("#productDialog").close();
       showStatus("저장 완료 · 최신 분류정보를 동기화하고 있습니다.");
 
@@ -1299,6 +1413,98 @@
     }catch(e){ $("#productSaveError").textContent=e.message; }
   }
 
+
+  function categoryOptions(select,values,value=""){
+    const el=typeof select==="string"?$(select):select; if(!el) return;
+    el.innerHTML='<option value="">전체</option>'+[...new Set(values.filter(Boolean))].map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join("");
+    if(value && [...el.options].some(o=>o.value===value)) el.value=value;
+  }
+
+  function setCategoryValues(major="",middle="",sub=""){
+    categoryOptions("#editCategoryMajor",Object.keys(CATEGORY_TREE),major);
+    const mids=major?Object.keys(CATEGORY_TREE[major]||{}):[]; categoryOptions("#editCategoryMiddle",mids,middle);
+    const subs=major&&middle?(CATEGORY_TREE[major]?.[middle]||[]):[]; categoryOptions("#editCategorySub",subs,sub);
+    $("#editCategorySub").disabled=major==="신선식품" || !subs.length;
+  }
+  function refreshEditCategoryChildren(level){
+    const major=$("#editCategoryMajor").value, middle=level==="major"?"":$("#editCategoryMiddle").value;
+    setCategoryValues(major,middle,"");
+  }
+  function fillCategoryFilterOptions(){
+    const rows=visibleRows();
+    const majors=[...new Set([...Object.keys(CATEGORY_TREE),...rows.map(r=>clean(r.category_major)).filter(Boolean)])];
+    const keepMajor=$("#perfMajor")?.value||""; categoryOptions("#perfMajor",majors,keepMajor);
+    refreshPerfCategoryChildren();
+  }
+  function refreshPerfCategoryChildren(){
+    const rows=visibleRows(), major=$("#perfMajor").value, keepMiddle=$("#perfMiddle")?.value||"", keepSub=$("#perfSub")?.value||"";
+    const mids=[...new Set([...(major?Object.keys(CATEGORY_TREE[major]||{}):[]),...rows.filter(r=>!major||clean(r.category_major)===major).map(r=>clean(r.category_middle)).filter(Boolean)])];
+    categoryOptions("#perfMiddle",mids,keepMiddle);
+    const middle=$("#perfMiddle").value;
+    const subs=[...new Set([...(major&&middle?(CATEGORY_TREE[major]?.[middle]||[]):[]),...rows.filter(r=>(!major||clean(r.category_major)===major)&&(!middle||clean(r.category_middle)===middle)).map(r=>clean(r.category_sub)).filter(Boolean)])];
+    categoryOptions("#perfSub",subs,keepSub);
+    $("#perfSub").disabled=major==="신선식품" || !subs.length;
+  }
+
+  async function confirmAutoClassification(raw){
+    if(!state.adminPassword){ adminLogin(); return; }
+    const item=getReviewItems("auto").find(x=>x.raw_title===raw); if(!item) return;
+    const sample=item.occurrences?.[0]||{};
+    const body={action:"link_existing",raw_title:raw,match_keyword:raw,standard_product_name:item.standard_product_name||sample.standard_product_name,brand:sample.brand||item.master?.brand||"",product_group:sample.product_group||item.master?.product_group||"",main_ingredient:sample.main_ingredient||item.master?.main_ingredient||"",category_major:sample.category_major||item.master?.category_major||"",category_middle:sample.category_middle||item.master?.category_middle||"",category_sub:sample.category_sub||item.master?.category_sub||"",manual_lock:"Y"};
+    try{ const r=await fetch(`${API}/save`,{method:"POST",headers:{"Content-Type":"application/json","X-Admin-Password":state.adminPassword},body:JSON.stringify(body)}); const data=await r.json(); if(!r.ok||!data.ok) throw new Error(data.error||`HTTP ${r.status}`); await loadAdminMaster(); renderReview(); showStatus("자동분류를 영구 규칙으로 확정했습니다."); }catch(e){ showStatus(e.message,"error"); }
+  }
+
+  function openOverrideEditor(id){
+    if(!state.adminPassword){ adminLogin(); return; }
+    const r=state.rows.find(x=>clean(x.hsshow_id)===clean(id)); if(!r) return;
+    $("#historyDialog").close(); $("#overrideForm").dataset.hsshowId=clean(id);
+    $("#overrideInfo").textContent=`${getDate(r)} ${getTime(r)} · ${getPlatform(r)} · ${getProductName(r)}`;
+    $("#overrideSalesCnt").value=clean(r.sales_cnt||""); $("#overrideSalesAmt").value=clean(r.sales_amt||"");
+    $("#overrideRawTitle").value=clean(r.raw_title_corrected||""); $("#overrideNote").value=""; $("#overrideError").textContent="";
+    $("#overrideDialog").showModal();
+  }
+  async function saveOverride(){
+    const id=$("#overrideForm").dataset.hsshowId||""; if(!id) return;
+    const body={action:"save_performance_override",hsshow_id:id,sales_cnt:$("#overrideSalesCnt").value,sales_amt:$("#overrideSalesAmt").value,raw_title_corrected:$("#overrideRawTitle").value,note:$("#overrideNote").value};
+    try{
+      const r=await fetch(`${API}/save`,{method:"POST",headers:{"Content-Type":"application/json","X-Admin-Password":state.adminPassword},body:JSON.stringify(body)});
+      const data=await r.json(); if(!r.ok||!data.ok) throw new Error(data.error||`HTTP ${r.status}`);
+      const row=state.rows.find(x=>clean(x.hsshow_id)===clean(id));
+      if(row){
+        if(clean(body.sales_cnt)!=="") row.sales_cnt=body.sales_cnt;
+        if(clean(body.sales_amt)!=="") row.sales_amt=body.sales_amt;
+        if(clean(body.raw_title_corrected)!==""){ row.raw_title_original=row.raw_title_original||row.raw_title||""; row.raw_title_corrected=body.raw_title_corrected; }
+        row.performance_status="manual"; row.performance_source="manual_override";
+      }
+      invalidateDerived(); $("#overrideDialog").close(); renderGlobalKpis(); renderActiveTab();
+      showStatus("수동 보정값을 저장했습니다. 화면에는 즉시 반영되며 다음 자동수집 이후에도 유지됩니다.");
+    }catch(e){ $("#overrideError").textContent=e.message; }
+  }
+
+  function setupDateInput(sel,onApply){
+    const el=$(sel); if(!el) return; el.type="text"; el.placeholder="YYYY-MM-DD";
+    el.addEventListener("change",()=>{ if(/^\d{4}-\d{2}-\d{2}$/.test(el.value)) onApply(); });
+    el.addEventListener("keydown",e=>{
+      if(e.key==="Enter" && /^\d{4}-\d{2}-\d{2}$/.test(el.value)){ e.preventDefault(); onApply(); }
+      if(e.key==="ArrowDown" && e.altKey){e.preventDefault();openDatePicker(el,onApply);}
+    });
+    if(!el.nextElementSibling?.classList?.contains("date-picker-open")){
+      const b=document.createElement("button"); b.type="button"; b.className="date-picker-open"; b.textContent="▣"; b.title="달력에서 날짜 선택"; b.onclick=()=>openDatePicker(el,onApply); el.insertAdjacentElement("afterend",b);
+    }
+  }
+  function openDatePicker(el,onApply){
+    datePickerState.target=el; datePickerState.onApply=onApply; datePickerState.selected=el.value||keyDate(today()); datePickerState.month=parseDate(datePickerState.selected); renderDatePicker(); $("#datePickerDialog").showModal();
+  }
+  function closeDatePicker(){ $("#datePickerDialog").close(); }
+  function renderDatePicker(){
+    const m=datePickerState.month, y=m.getFullYear(), mo=m.getMonth(); $("#datePickerMonth").textContent=`${y}년 ${mo+1}월`;
+    const first=new Date(y,mo,1), start=addDays(first,-first.getDay());
+    let html=['일','월','화','수','목','금','토'].map(x=>`<b class="dow">${x}</b>`).join('');
+    for(let i=0;i<42;i++){ const d=addDays(start,i), k=keyDate(d), other=d.getMonth()!==mo; html+=`<button type="button" class="date-cell ${other?'other':''} ${k===datePickerState.selected?'selected':''}" data-date-cell="${k}">${d.getDate()}</button>`; }
+    $("#datePickerGrid").innerHTML=html; $$("[data-date-cell]").forEach(b=>b.onclick=()=>{datePickerState.selected=b.dataset.dateCell; renderDatePicker();});
+  }
+  function confirmDatePicker(){ if(datePickerState.target){ datePickerState.target.value=datePickerState.selected; } closeDatePicker(); if(datePickerState.onApply) datePickerState.onApply(); }
+
   function renderWatch(){
     $("#watchKeywords").innerHTML=state.watchKeywords.map(k=>`<span class="chip">${esc(k)}<button data-rm-watch="${esc(k)}">✕</button></span>`).join("")||'<span class="muted">등록된 키워드가 없습니다.</span>';
     $$("[data-rm-watch]").forEach(b=>b.onclick=()=>{state.watchKeywords=state.watchKeywords.filter(k=>k!==b.dataset.rmWatch);saveWatch();renderWatch();});
@@ -1312,7 +1518,7 @@
     fillSelect("#calendarPlatform",rows.map(getPlatform));
     fillSelect("#perfPlatform",rows.map(getPlatform));
     fillSelect("#reviewPlatform",state.rows.map(getPlatform));
-    fillSelect("#perfGroup",rows.map(r=>clean(r.product_group)));
+    fillCategoryFilterOptions();
   }
 
   function renderActiveTab(){
@@ -1365,12 +1571,13 @@
     $("#calendarSearch").addEventListener("input",debouncedCalendar);
     $$(".quick-range button").forEach(b=>b.onclick=()=>setPerfRange(b.dataset.range));
     const debouncedPerf=debounce(renderPerformance,180);
-    ["#perfStart","#perfEnd","#perfPlatform","#perfGroup","#perfStatus","#perfHotOnly","#perfNewOnly"].forEach(s=>$(s).addEventListener("input",renderPerformance));
+    ["#perfPlatform","#perfStatus","#perfHotOnly","#perfNewOnly"].forEach(s=>$(s).addEventListener("input",renderPerformance));
+    ["#perfMajor","#perfMiddle","#perfSub"].forEach(sel=>$(sel).addEventListener("change",()=>{ if(sel==="#perfMajor") refreshPerfCategoryChildren(); if(sel==="#perfMiddle") refreshPerfCategoryChildren(); renderPerformance(); }));
     $("#perfSearch").addEventListener("input",debouncedPerf);
     $("#resetPerf").onclick=()=>setPerfRange("yesterday");
     $$(".review-state-filter button").forEach(b=>b.onclick=()=>setReviewFilter(b.dataset.reviewFilter));
     const debouncedReview=debounce(renderReview,180);
-    ["#reviewPlatform","#reviewStart","#reviewEnd"].forEach(s=>$(s).addEventListener("input",renderReview));
+    $("#reviewPlatform").addEventListener("input",renderReview);
     $("#reviewSearch").addEventListener("input",debouncedReview);
     $("#adminBtn").onclick=()=>state.adminPassword?logoutAdmin():adminLogin();
     $("#adminLoginSubmit").onclick=async e=>{e.preventDefault();const pw=$("#adminPasswordInput").value;try{if(!await verifyAdmin(pw)) throw new Error("관리자 비밀번호가 올바르지 않습니다.");state.adminPassword=pw;sessionStorage.setItem("hsfm_admin_password",pw);await loadAdminMaster();$("#adminDialog").close();fillCommonFilters();renderGlobalKpis();renderActiveTab();showStatus("관리자 모드로 로그인했습니다.");}catch(err){$("#adminLoginError").textContent=err.message;}};
@@ -1392,7 +1599,7 @@
 
       // 사용자가 기존 선택값을 다시 타이핑하면 이전 자동입력 상태 해제
       const selected=clean($("#productForm").dataset.selectedMaster||"");
-      if(selected && norm(selected)!==norm($("#editStandardName").value)){
+      if(selected && productNameKey(selected)!==productNameKey($("#editStandardName").value)){
         clearExistingProductSelection();
       }
 
@@ -1434,6 +1641,20 @@
       $("#unlockMasterMetaBtn").textContent="정보 수정 중";
       $("#unlockMasterMetaBtn").disabled=true;
     };
+    $("#editCategoryMajor").addEventListener("change",()=>refreshEditCategoryChildren("major"));
+    $("#editCategoryMiddle").addEventListener("change",()=>refreshEditCategoryChildren("middle"));
+    $("#unlockRawTitleBtn").onclick=()=>{
+      const el=$("#editRawDisplay"); el.disabled=!el.disabled;
+      $("#unlockRawTitleBtn").textContent=el.disabled?"원본명 수정":"수정 취소";
+      if(el.disabled) el.value=$("#editRawTitle").value;
+    };
+    setupDateInput("#perfStart",renderPerformance); setupDateInput("#perfEnd",renderPerformance);
+    setupDateInput("#reviewStart",renderReview); setupDateInput("#reviewEnd",renderReview);
+    $("#overrideSaveBtn").onclick=e=>{e.preventDefault();saveOverride();};
+    $("#datePickerClose").onclick=closeDatePicker; $("#datePickerCancel").onclick=closeDatePicker;
+    $("#datePickerConfirm").onclick=confirmDatePicker;
+    $("#datePrevMonth").onclick=()=>{datePickerState.month=new Date(datePickerState.month.getFullYear(),datePickerState.month.getMonth()-1,1);renderDatePicker();};
+    $("#dateNextMonth").onclick=()=>{datePickerState.month=new Date(datePickerState.month.getFullYear(),datePickerState.month.getMonth()+1,1);renderDatePicker();};
     $("#productSaveBtn").onclick=e=>{e.preventDefault();saveProductAdmin();};
     $("#productDialog").addEventListener("close",hideMasterSearchDropdown);
     $("#bulkAliasMoveBtn").onclick=bulkMoveAliases;
