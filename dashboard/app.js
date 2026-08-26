@@ -510,18 +510,51 @@
   }
 
   function renderAccordions(rows){
+    // V2.9.1: 긴 목록 대신 하나의 드롭다운에서 선택한 대상만 표시한다.
     const byChannel=new Map();
     rows.forEach(r=>{const k=getPlatform(r); (byChannel.get(k)||byChannel.set(k,[]).get(k)).push(r);});
-    $("#channelAccordion").innerHTML=[...byChannel].sort((a,b)=>metricsForRows(b[1]).sales-metricsForRows(a[1]).sales).map(([k,rs])=>accordion(k,rs)).join("");
+    const channelEntries=[...byChannel].sort((a,b)=>metricsForRows(b[1]).sales-metricsForRows(a[1]).sales);
+    const channelSelect=$("#channelDetailSelect");
+    const keepChannel=channelSelect?.value||"";
+    if(channelSelect){
+      channelSelect.innerHTML='<option value="">선택하세요</option>'+channelEntries.map(([k,rs])=>`<option value="${esc(k)}">${esc(k)} · ${rs.length}회 · ${money(metricsForRows(rs).sales)}</option>`).join("");
+      if(channelEntries.some(([k])=>k===keepChannel)) channelSelect.value=keepChannel;
+    }
+    renderDetailDropdown("channel",channelEntries,channelSelect?.value||"");
+
     const byProd=new Map();
     rows.forEach(r=>{const k=getProductName(r); (byProd.get(k)||byProd.set(k,[]).get(k)).push(r);});
-    $("#productAccordion").innerHTML=[...byProd].sort((a,b)=>metricsForRows(b[1]).sales-metricsForRows(a[1]).sales).slice(0,100).map(([k,rs])=>accordion(k,rs)).join("");
-    $$(".accordion-head").forEach(b=>b.onclick=()=>b.parentElement.classList.toggle("open"));
+    const productEntries=[...byProd].sort((a,b)=>metricsForRows(b[1]).sales-metricsForRows(a[1]).sales);
+    const productSelect=$("#productDetailSelect");
+    const keepProduct=productSelect?.value||"";
+    if(productSelect){
+      productSelect.innerHTML='<option value="">선택하세요</option>'+productEntries.map(([k,rs])=>`<option value="${esc(k)}">${esc(k)} · ${rs.length}회 · ${money(metricsForRows(rs).sales)}</option>`).join("");
+      if(productEntries.some(([k])=>k===keepProduct)) productSelect.value=keepProduct;
+    }
+    renderDetailDropdown("product",productEntries,productSelect?.value||"");
   }
 
-  function accordion(name,rs){
+  function renderDetailDropdown(type, entries, selected){
+    const target=type==="channel"?$("#channelAccordion"):$("#productAccordion");
+    if(!target) return;
+    if(!selected){
+      target.innerHTML=`<div class="muted detail-empty">${type==="channel"?"홈쇼핑사를":"상품을"} 선택하세요.</div>`;
+      return;
+    }
+    const hit=entries.find(([name])=>name===selected);
+    if(!hit){ target.innerHTML='<div class="muted detail-empty">선택한 항목의 실적이 없습니다.</div>'; return; }
+    target.innerHTML=detailBreakdown(hit[0],hit[1]);
+  }
+
+  function detailBreakdown(name,rs){
     const m=metricsForRows(rs);
-    return `<div class="accordion-item"><button class="accordion-head"><b>${esc(name)}</b><span>${rs.length}회</span><span class="money">${money(m.sales)}</span><span>평균 ${money(m.avg)}</span></button><div class="accordion-body">${rs.sort((a,b)=>clean(b.start_datetime).localeCompare(clean(a.start_datetime))).map(r=>`<div class="broadcast-mini"><span>${getDate(r)} ${getTime(r)}</span><span>${esc(getPlatform(r))}</span><span>${esc(getProductName(r))}</span><span>${cnt(salesCount(r))}</span><span class="money">${performanceOk(r)?money(sales(r)):"-"}</span></div>`).join("")}</div></div>`;
+    const sorted=[...rs].sort((a,b)=>rowChronoKey(a).localeCompare(rowChronoKey(b)));
+    return `<div class="detail-summary"><b>${esc(name)}</b><span>${rs.length}회</span><span class="money">${money(m.sales)}</span><span>평균 ${money(m.avg)}</span></div>
+      <div class="detail-broadcast-list">${sorted.map(r=>`<div class="broadcast-mini"><span>${getDate(r)} ${getTime(r)}</span><span>${esc(getPlatform(r))}</span><span>${esc(getProductName(r))}</span><span>${cnt(salesCount(r))}</span><span class="money">${performanceOk(r)?money(sales(r)):"-"}</span></div>`).join("")}</div>`;
+  }
+
+  function rowChronoKey(r){
+    return `${getDate(r)||"9999-99-99"}T${getTime(r)||"99:99"}`;
   }
 
   function occurrenceInReviewRange(r){
@@ -572,12 +605,29 @@
     return groups;
   }
 
-  function occurrencesForAliases(aliases){
+  function occurrencesForAliases(aliases,standardName=""){
     const keys=(aliases||[]).map(a=>normalize(a.match_keyword)).filter(Boolean);
-    return state.rows.filter(r=>{
+    const target=productNameKey(standardName);
+    const found=new Map();
+
+    // 원본명 alias 매칭
+    for(const r of state.rows){
       const raw=normalize(getRawTitle(r));
-      return keys.some(k=>raw===k || raw.includes(k) || k.includes(raw));
-    });
+      if(keys.some(k=>raw===k || raw.includes(k) || k.includes(raw))){
+        found.set(clean(r.hsshow_id)||rowChronoKey(r)+raw,r);
+      }
+    }
+
+    // V2.9.1: 관리자 오버레이 결과의 표준상품명이 같은 방송도 포함.
+    // product_master_admin.csv에는 연결되어 있지만 CSV 원본 표준명이 아직 예전 값인 경우를 보완한다.
+    if(target){
+      for(const r of visibleRows()){
+        if(productNameKey(getProductName(r))===target){
+          found.set(clean(r.hsshow_id)||rowChronoKey(r)+normalize(getRawTitle(r)),r);
+        }
+      }
+    }
+    return [...found.values()];
   }
 
   function getReviewItems(filter){
@@ -621,7 +671,7 @@
         if(filter==="confirmed"&&excluded) continue;
         if(filter==="excluded"&&!excluded) continue;
         g.kind=excluded?"excluded":"confirmed";
-        g.occurrences=occurrencesForAliases(g.aliases);
+        g.occurrences=occurrencesForAliases(g.aliases,g.standard_product_name);
         out.push(g);
       }
     }
@@ -686,18 +736,23 @@
       return;
     }
 
+    const reviewRangeActive=!!($("#reviewStart").value||$("#reviewEnd").value||$("#reviewPlatform").value);
     const sortedItems=[...items].sort((a,b)=>{
+      // V2.9.1: 선택기간이 있으면 방송시간 오름차순, 전체 조회는 최근 방송 우선.
       const ar=reviewOccurrences(a.occurrences||[]); const br=reviewOccurrences(b.occurrences||[]);
-      const aa=(ar.length?ar:a.occurrences||[]).map(r=>clean(r.start_datetime)).filter(Boolean).sort()[0]||"9999";
-      const bb=(br.length?br:b.occurrences||[]).map(r=>clean(r.start_datetime)).filter(Boolean).sort()[0]||"9999";
-      return aa.localeCompare(bb) || clean(a.standard_product_name||a.raw_title).localeCompare(clean(b.standard_product_name||b.raw_title),"ko");
+      const aKeys=(ar.length?ar:(a.occurrences||[])).map(rowChronoKey).sort();
+      const bKeys=(br.length?br:(b.occurrences||[])).map(rowChronoKey).sort();
+      const aa=reviewRangeActive?(aKeys[0]||"9999-99-99T99:99"):(aKeys.at(-1)||"");
+      const bb=reviewRangeActive?(bKeys[0]||"9999-99-99T99:99"):(bKeys.at(-1)||"");
+      const byTime=reviewRangeActive?aa.localeCompare(bb):bb.localeCompare(aa);
+      return byTime || clean(a.standard_product_name||a.raw_title).localeCompare(clean(b.standard_product_name||b.raw_title),"ko");
     });
     $("#reviewList").innerHTML=sortedItems.slice(0,700).map(item=>{
-      const allOcc=[...item.occurrences].sort((a,b)=>clean(b.start_datetime).localeCompare(clean(a.start_datetime)));
+      const allOcc=[...(item.occurrences||[])].sort((a,b)=>rowChronoKey(a).localeCompare(rowChronoKey(b)));
       const occ=reviewOccurrences(allOcc);
       const displayOcc=occ.length?occ:allOcc;
-      const last=displayOcc[0], aliasCount=item.aliases?.length||0;
-      const periodLabel=($("#reviewStart").value||$("#reviewEnd").value||$("#reviewPlatform").value)?"선택기간":"전체";
+      const last=reviewRangeActive?displayOcc[0]:displayOcc.at(-1), aliasCount=item.aliases?.length||0;
+      const periodLabel=reviewRangeActive?"선택기간":"전체";
       const badge=item.kind==="pending"?'<span class="badge warn">확인필요</span>':
         item.kind==="auto"?'<span class="badge new">자동분류</span>':
         item.kind==="dynamic"?'<span class="badge dynamic">가변방송</span>':
@@ -706,7 +761,7 @@
       return `<div class="review-card"><div>
         <h4>${badge}${esc(item.standard_product_name||item.raw_title)}</h4>
         ${item.raw_title&&item.standard_product_name?`<div class="small">원본: ${esc(item.raw_title)}</div>`:""}
-        <div class="review-meta">${last?`${periodLabel} 최근 방송 ${getDate(last)} ${getTime(last)} · ${esc(getPlatform(last))}`:"방송 이력 없음"}${displayOcc.length?` · ${periodLabel} 방송 ${displayOcc.length}회`:""}${aliasCount?` · 연결 원본명 ${aliasCount}개`:""}</div>
+        <div class="review-meta">${last?`${periodLabel} ${reviewRangeActive?"첫":"최근"} 방송 ${getDate(last)} ${getTime(last)} · ${esc(getPlatform(last))}`:"방송 이력 없음"}${displayOcc.length?` · ${periodLabel} 방송 ${displayOcc.length}회`:""}${aliasCount?` · 연결 원본명 ${aliasCount}개`:""}</div>
         ${item.kind==="dynamic"?'<div class="dynamic-note">이 제목은 방송마다 실제 상품이 달라질 수 있어 자동 대표상품으로 묶지 않습니다.</div>':""}
         ${item.kind==="auto"?`<div class="dynamic-note">자동분류 신뢰도 ${Math.round(num(item.master?.classification_score)*100)}% · 확인 후 영구규칙으로 저장할 수 있습니다.</div>`:""}
       </div><div class="review-actions">
@@ -728,7 +783,10 @@
   }
 
   function findReviewItem(name,kind){
-    return getReviewItems(kind==="dynamic"?"dynamic":"all").find(x=>(x.standard_product_name||x.raw_title)===name) ||
+    // V2.9.1: 동일 표준명이 여러 상태에 존재할 때 다른 그룹을 집어오는 문제 방지.
+    const exactPool=getReviewItems(kind||"all");
+    return exactPool.find(x=>(x.standard_product_name||x.raw_title)===name) ||
+           getReviewItems("all").find(x=>x.kind===kind && (x.standard_product_name||x.raw_title)===name) ||
            getReviewItems("all").find(x=>(x.standard_product_name||x.raw_title)===name);
   }
 
@@ -787,6 +845,7 @@
     $("#editStandardName").value=o.standard_product_name||"";
     $("#editBrand").value=o.brand||""; $("#editGroup").value=o.product_group||""; $("#editIngredient").value=o.main_ingredient||"";
     setCategoryValues(o.category_major||r.category_major||"",o.category_middle||r.category_middle||"",o.category_sub||r.category_sub||"");
+    if(!(o.category_major||r.category_major) || !(o.category_middle||r.category_middle)) applyCategoryFromProductGroup(); else updateCategoryUiFromCurrent("현재 등록 분류");
     $("#editAction").value="save_occurrence";
     $("#productForm").dataset.occurrenceId=clean(r.hsshow_id);
     $("#productForm").dataset.sourceAliases="[]";
@@ -794,6 +853,7 @@
     $("#aliasPreview").innerHTML="이 저장은 같은 제목의 다른 방송에는 영향을 주지 않습니다.";
     $("#bulkAliasTools").classList.add("hidden");
     $("#sameSlotWrap")?.classList.remove("hidden");
+    if($("#sameSlotWrap")) $("#sameSlotWrap").lastChild.textContent=" 같은 날짜·같은 시간·같은 홈쇼핑사의 방송행 전체를 이 표준상품으로 강제 통일";
     $("#applySameSlot").checked=false;
     renderSimilarSuggestions(getRawTitle(r));
     $("#productDialog").showModal();
@@ -1132,11 +1192,11 @@
   }
 
   function setMasterMetaLocked(locked){
-    ["#editBrand","#editGroup","#editIngredient"].forEach(sel=>{
+    ["#editBrand","#editGroup","#editIngredient","#editCategorySubFresh"].forEach(sel=>{
       const el=$(sel); if(!el) return; el.readOnly=!!locked; el.classList.toggle("master-meta-locked",!!locked);
     });
     ["#editCategoryMajor","#editCategoryMiddle","#editCategorySub"].forEach(sel=>{
-      const el=$(sel); if(!el) return; el.disabled=!!locked || (sel==="#editCategorySub" && $("#editCategoryMajor")?.value==="신선식품"); el.classList.toggle("master-meta-locked",!!locked);
+      const el=$(sel); if(!el) return; el.disabled=!!locked; el.classList.toggle("master-meta-locked",!!locked);
     });
     $("#masterEditTools")?.classList.toggle("hidden",!locked);
   }
@@ -1160,6 +1220,7 @@
     $("#editGroup").value=clean(product.product_group||"");
     $("#editIngredient").value=clean(product.main_ingredient||"");
     setCategoryValues(product.category_major||"",product.category_middle||"",product.category_sub||"");
+    updateCategoryUiFromCurrent("기존 표준상품");
     $("#productForm").dataset.selectedMaster=product.standard_product_name||"";
     $("#productSaveError").textContent="";
 
@@ -1270,6 +1331,8 @@
     $("#editRawDisplay").disabled=true; $("#unlockRawTitleBtn").textContent="원본명 수정"; $("#sameSlotWrap")?.classList.add("hidden");
     $("#editAction").value=(kind==="pending"||kind==="auto")?"link_existing":kind==="dynamic"?"mark_dynamic_title":kind==="excluded"?"restore":"update_product";
     clearExistingProductSelection();
+    if((m.category_major||last?.category_major) && (m.category_middle||last?.category_middle)) updateCategoryUiFromCurrent("현재 등록 분류");
+    else applyCategoryFromProductGroup();
     $("#editBroadcastInfo").textContent=last?`최근 방송: ${getDate(last)} ${getTime(last)} · ${getPlatform(last)} · 전체 ${item.occurrences.length}회`:"방송 이력 없음";
 
     const aliases=item.aliases||[];
@@ -1348,7 +1411,7 @@
       main_ingredient:$("#editIngredient").value,
       category_major:$("#editCategoryMajor").value,
       category_middle:$("#editCategoryMiddle").value,
-      category_sub:$("#editCategorySub").value,
+      category_sub:categorySubValue(),
       manual_lock:"Y"
     };
 
@@ -1420,12 +1483,99 @@
     if(value && [...el.options].some(o=>o.value===value)) el.value=value;
   }
 
+  function categorySubValue(){
+    return $("#editCategoryMajor")?.value==="신선식품"
+      ? clean($("#editCategorySubFresh")?.value||"")
+      : clean($("#editCategorySub")?.value||"");
+  }
+
   function setCategoryValues(major="",middle="",sub=""){
     categoryOptions("#editCategoryMajor",Object.keys(CATEGORY_TREE),major);
-    const mids=major?Object.keys(CATEGORY_TREE[major]||{}):[]; categoryOptions("#editCategoryMiddle",mids,middle);
-    const subs=major&&middle?(CATEGORY_TREE[major]?.[middle]||[]):[]; categoryOptions("#editCategorySub",subs,sub);
-    $("#editCategorySub").disabled=major==="신선식품" || !subs.length;
+    const mids=major?Object.keys(CATEGORY_TREE[major]||{}):[];
+    categoryOptions("#editCategoryMiddle",mids,middle);
+    const fresh=major==="신선식품";
+    const subs=major&&middle?(CATEGORY_TREE[major]?.[middle]||[]):[];
+    categoryOptions("#editCategorySub",subs,fresh?"":sub);
+    $("#editCategorySubSelectWrap")?.classList.toggle("hidden",fresh);
+    $("#editCategorySubFreshWrap")?.classList.toggle("hidden",!fresh);
+    if($("#editCategorySubFresh")) $("#editCategorySubFresh").value=fresh?clean(sub):"";
+    if($("#editCategorySub")) $("#editCategorySub").disabled=!fresh && !subs.length;
   }
+
+  function categoryTupleFromGroup(group,ingredient=""){
+    const g=normalize(group), ing=normalize(ingredient);
+    if(!g) return null;
+
+    // 1) 이미 관리자/마스터/방송 데이터에 확정된 같은 기존상품군이 있으면 가장 많이 쓰인 분류를 재사용한다.
+    const pool=[...(state.adminMaster?.rows||[]),...(state.masterPublic||[]),...(state.rows||[])];
+    const counts=new Map();
+    for(const r of pool){
+      if(normalize(r.product_group)!==g) continue;
+      const major=clean(r.category_major), middle=clean(r.category_middle), sub=clean(r.category_sub);
+      if(!major||!middle) continue;
+      const key=JSON.stringify([major,middle,sub]);
+      counts.set(key,(counts.get(key)||0)+1);
+    }
+    if(counts.size){
+      const [key]=[...counts].sort((a,b)=>b[1]-a[1])[0];
+      const [major,middle,sub]=JSON.parse(key);
+      return {major,middle,sub,source:"기존 등록상품군"};
+    }
+
+    // 2) 식품공전/건강식품 분류표의 중분류·소분류와 기존상품군명이 직접 일치하는 경우.
+    for(const [major,middles] of Object.entries(CATEGORY_TREE)){
+      for(const [middle,subs] of Object.entries(middles)){
+        if(normalize(middle)===g || normalize(middle).includes(g) || g.includes(normalize(middle))){
+          return {major,middle,sub:"",source:"분류 기준 자동매칭"};
+        }
+        const sub=(subs||[]).find(x=>normalize(x)===g || (normalize(x).length>1 && g.includes(normalize(x))));
+        if(sub) return {major,middle,sub,source:"분류 기준 자동매칭"};
+      }
+    }
+
+    // 3) 대표적인 기존 상품군 명칭 보정.
+    if(g.includes("건강기능식품") || g.includes("건강식품")){
+      const std=CATEGORY_TREE["건강식품"]["고시형원료"]||[];
+      const sub=std.find(x=>ing && (ing.includes(normalize(x)) || normalize(x).includes(ing)));
+      return {major:"건강식품",middle:sub?"고시형원료":"",sub:sub||"",source:"건강식품 자동분류"};
+    }
+    if(g.includes("농산")) return {major:"신선식품",middle:"농산물",sub:"",source:"신선식품 자동분류"};
+    if(g.includes("수산")) return {major:"신선식품",middle:"수산물",sub:"",source:"신선식품 자동분류"};
+    if(g.includes("축산")) return {major:"신선식품",middle:"축산물",sub:"",source:"신선식품 자동분류"};
+    return null;
+  }
+
+  function showCategoryAutoSummary(tuple){
+    const box=$("#categoryAutoSummary"), wrap=$("#manualCategoryWrap");
+    if(!box||!wrap) return;
+    if(!tuple || !tuple.major || !tuple.middle){
+      box.classList.add("hidden");
+      wrap.classList.remove("hidden");
+      return;
+    }
+    box.innerHTML=`<div><b>상품군 기준 자동 분류</b><span>${esc(tuple.major)} › ${esc(tuple.middle)}${tuple.sub?` › ${esc(tuple.sub)}`:""}</span><small>${esc(tuple.source||"")}</small></div><button type="button" class="btn" id="categoryManualOverrideBtn">분류 직접 수정</button>`;
+    box.classList.remove("hidden");
+    wrap.classList.add("hidden");
+    $("#categoryManualOverrideBtn").onclick=()=>{ box.classList.add("hidden"); wrap.classList.remove("hidden"); };
+  }
+
+  function updateCategoryUiFromCurrent(source="현재 분류"){
+    const major=clean($("#editCategoryMajor")?.value), middle=clean($("#editCategoryMiddle")?.value), sub=categorySubValue();
+    if(major&&middle) showCategoryAutoSummary({major,middle,sub,source});
+    else showCategoryAutoSummary(null);
+  }
+
+  function applyCategoryFromProductGroup(){
+    const tuple=categoryTupleFromGroup($("#editGroup")?.value||"",$("#editIngredient")?.value||"");
+    if(tuple && tuple.major && tuple.middle){
+      setCategoryValues(tuple.major,tuple.middle,tuple.sub||"");
+      showCategoryAutoSummary(tuple);
+      return true;
+    }
+    showCategoryAutoSummary(null);
+    return false;
+  }
+
   function refreshEditCategoryChildren(level){
     const major=$("#editCategoryMajor").value, middle=level==="major"?"":$("#editCategoryMiddle").value;
     setCategoryValues(major,middle,"");
@@ -1574,6 +1724,8 @@
     ["#perfPlatform","#perfStatus","#perfHotOnly","#perfNewOnly"].forEach(s=>$(s).addEventListener("input",renderPerformance));
     ["#perfMajor","#perfMiddle","#perfSub"].forEach(sel=>$(sel).addEventListener("change",()=>{ if(sel==="#perfMajor") refreshPerfCategoryChildren(); if(sel==="#perfMiddle") refreshPerfCategoryChildren(); renderPerformance(); }));
     $("#perfSearch").addEventListener("input",debouncedPerf);
+    $("#channelDetailSelect")?.addEventListener("change",()=>renderPerformance());
+    $("#productDetailSelect")?.addEventListener("change",()=>renderPerformance());
     $("#resetPerf").onclick=()=>setPerfRange("yesterday");
     $$(".review-state-filter button").forEach(b=>b.onclick=()=>setReviewFilter(b.dataset.reviewFilter));
     const debouncedReview=debounce(renderReview,180);
@@ -1641,8 +1793,12 @@
       $("#unlockMasterMetaBtn").textContent="정보 수정 중";
       $("#unlockMasterMetaBtn").disabled=true;
     };
-    $("#editCategoryMajor").addEventListener("change",()=>refreshEditCategoryChildren("major"));
-    $("#editCategoryMiddle").addEventListener("change",()=>refreshEditCategoryChildren("middle"));
+    $("#editCategoryMajor").addEventListener("change",()=>{refreshEditCategoryChildren("major"); $("#categoryAutoSummary")?.classList.add("hidden"); $("#manualCategoryWrap")?.classList.remove("hidden");});
+    $("#editCategoryMiddle").addEventListener("change",()=>{refreshEditCategoryChildren("middle"); $("#categoryAutoSummary")?.classList.add("hidden"); $("#manualCategoryWrap")?.classList.remove("hidden");});
+    const debouncedCategoryFromGroup=debounce(()=>applyCategoryFromProductGroup(),120);
+    $("#editGroup").addEventListener("input",debouncedCategoryFromGroup);
+    $("#editGroup").addEventListener("change",applyCategoryFromProductGroup);
+    $("#editIngredient").addEventListener("change",()=>{ if(!$("#editCategoryMajor").value || !$("#editCategoryMiddle").value) applyCategoryFromProductGroup(); });
     $("#unlockRawTitleBtn").onclick=()=>{
       const el=$("#editRawDisplay"); el.disabled=!el.disabled;
       $("#unlockRawTitleBtn").textContent=el.disabled?"원본명 수정":"수정 취소";

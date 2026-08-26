@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>홈쇼핑 식품 모니터 V2.9.0</title>
-  <link rel="stylesheet" href="./styles.css?v=2.9.0">
+  <title>홈쇼핑 식품 모니터 V2.9.1</title>
+  <link rel="stylesheet" href="./styles.css?v=2.9.1">
 </head>
 <body>
   <main class="shell">
@@ -71,26 +71,30 @@
         <span class="muted">기본값은 전일 실적입니다.</span>
       </div>
 
-      <div class="toolbar perf-toolbar">
-        <div class="quick-range">
-          <button data-range="today">당일</button>
-          <button data-range="yesterday" class="active">전일</button>
-          <button data-range="7">최근 7일</button>
-          <button data-range="30">최근 30일</button>
-          <button data-range="month">이번달</button>
-          <button data-range="all">전체</button>
+      <div class="toolbar perf-toolbar perf-toolbar-v291">
+        <div class="perf-filter-row perf-filter-row-1">
+          <div class="quick-range">
+            <button data-range="today">당일</button>
+            <button data-range="yesterday" class="active">전일</button>
+            <button data-range="7">최근 7일</button>
+            <button data-range="30">최근 30일</button>
+            <button data-range="month">이번달</button>
+            <button data-range="all">전체</button>
+          </div>
+          <label>시작일<input id="perfStart" type="text" inputmode="numeric" placeholder="YYYY-MM-DD" autocomplete="off"></label>
+          <label>종료일<input id="perfEnd" type="text" inputmode="numeric" placeholder="YYYY-MM-DD" autocomplete="off"></label>
+          <label>홈쇼핑사<select id="perfPlatform"><option value="">전체</option></select></label>
+          <label>실적 상태<select id="perfStatus"><option value="">전체</option><option value="confirmed">실적 확인</option><option value="missing">실적 미확인</option></select></label>
         </div>
-        <label>시작일<input id="perfStart" type="date"></label>
-        <label>종료일<input id="perfEnd" type="date"></label>
-        <label>홈쇼핑사<select id="perfPlatform"><option value="">전체</option></select></label>
-        <label>대분류<select id="perfMajor"><option value="">전체</option></select></label>
-        <label>중분류<select id="perfMiddle"><option value="">전체</option></select></label>
-        <label>소분류<select id="perfSub"><option value="">전체</option></select></label>
-        <label class="grow">상품/키워드<input id="perfSearch" type="search" placeholder="예: 흑염소, 콘드로이친"></label>
-        <label>실적 상태<select id="perfStatus"><option value="">전체</option><option value="confirmed">실적 확인</option><option value="missing">실적 미확인</option></select></label>
-        <label class="check"><input id="perfHotOnly" type="checkbox"> HOT만</label>
-        <label class="check"><input id="perfNewOnly" type="checkbox"> NEW만</label>
-        <button id="resetPerf" class="btn">필터 초기화</button>
+        <div class="perf-filter-row perf-filter-row-2">
+          <label>대분류<select id="perfMajor"><option value="">전체</option></select></label>
+          <label>중분류<select id="perfMiddle"><option value="">전체</option></select></label>
+          <label>소분류<select id="perfSub"><option value="">전체</option></select></label>
+          <label class="grow">상품/키워드<input id="perfSearch" type="search" placeholder="예: 흑염소, 콘드로이친"></label>
+          <label class="check"><input id="perfHotOnly" type="checkbox"> HOT만</label>
+          <label class="check"><input id="perfNewOnly" type="checkbox"> NEW만</label>
+          <button id="resetPerf" class="btn">필터 초기화</button>
+        </div>
       </div>
 
       <div id="autoBrief" class="brief-card"></div>
@@ -118,20 +122,26 @@
         </article>
       </div>
 
-      <article class="card">
+      <article class="card detail-dropdown-card">
         <div class="card-head">
           <h3>홈쇼핑사별 실적</h3>
-          <span class="muted">방송사명을 누르면 상세가 열립니다.</span>
+          <span class="muted">홈쇼핑사를 선택하면 해당 방송만 펼쳐집니다.</span>
         </div>
-        <div id="channelAccordion"></div>
+        <label class="detail-select-label">홈쇼핑사 선택
+          <select id="channelDetailSelect"><option value="">선택하세요</option></select>
+        </label>
+        <div id="channelAccordion" class="detail-dropdown-body"><div class="muted">홈쇼핑사를 선택하세요.</div></div>
       </article>
 
-      <article class="card">
+      <article class="card detail-dropdown-card">
         <div class="card-head">
           <h3>상품별 실적</h3>
-          <span class="muted">상품명을 눌러 방송 내역을 확인합니다.</span>
+          <span class="muted">상품을 선택하면 해당 방송만 펼쳐집니다.</span>
         </div>
-        <div id="productAccordion"></div>
+        <label class="detail-select-label">상품 선택
+          <select id="productDetailSelect"><option value="">선택하세요</option></select>
+        </label>
+        <div id="productAccordion" class="detail-dropdown-body"><div class="muted">상품을 선택하세요.</div></div>
       </article>
     </section>
 
@@ -186,7 +196,7 @@
       <div id="watchResults"></div>
     </section>
 
-    <footer>홈쇼핑 식품 모니터 V2.9.0 · 관리자 영구 상품 마스터</footer>
+    <footer>홈쇼핑 식품 모니터 V2.9.1 · 관리자 영구 상품 마스터</footer>
   </main>
 
   <dialog id="adminDialog">
@@ -225,9 +235,15 @@
         <label>브랜드<input id="editBrand"></label>
         <label>기존 상품군<input id="editGroup" placeholder="기존 호환용"></label>
         <label>주원료<input id="editIngredient"></label>
-        <label>대분류<select id="editCategoryMajor"><option value="">선택</option></select></label>
-        <label>중분류<select id="editCategoryMiddle"><option value="">선택</option></select></label>
-        <label>소분류<select id="editCategorySub"><option value="">선택</option></select></label>
+        <div id="categoryAutoSummary" class="full category-auto-summary hidden"></div>
+        <div id="manualCategoryWrap" class="full category-manual-wrap">
+          <div class="form-grid category-grid-inner">
+            <label>대분류<select id="editCategoryMajor"><option value="">선택</option></select></label>
+            <label>중분류<select id="editCategoryMiddle"><option value="">선택</option></select></label>
+            <label id="editCategorySubSelectWrap">소분류<select id="editCategorySub"><option value="">선택</option></select></label>
+            <label id="editCategorySubFreshWrap" class="hidden">소분류 직접입력<input id="editCategorySubFresh" placeholder="예: 쌀, 고등어, 한우"></label>
+          </div>
+        </div>
         <div id="existingProductMeta" class="full existing-product-meta hidden"></div>
         <div id="masterEditTools" class="full master-edit-tools hidden">
           <button type="button" id="unlockMasterMetaBtn" class="btn">정보 수정</button>
@@ -303,7 +319,7 @@
     </div>
   </dialog>
 
-  <script src="./config.js?v=2.9.0"></script>
-  <script src="./app.js?v=2.9.0"></script>
+  <script src="./config.js?v=2.9.1"></script>
+  <script src="./app.js?v=2.9.1"></script>
 </body>
 </html>

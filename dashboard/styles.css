@@ -278,3 +278,26 @@ footer{font-size:10px;color:var(--muted);margin-top:18px}
 .history-occ-row{grid-template-columns:64px 130px minmax(280px,1fr) auto}
 @media(max-width:900px){.history-occ-row{grid-template-columns:60px 100px 1fr}.history-actions{grid-column:1/-1}.perf-toolbar{grid-template-columns:1fr 1fr}}
 .date-picker-open{margin-left:-32px;width:28px;height:28px;border:0;background:transparent;color:#567;cursor:pointer;vertical-align:middle}
+
+/* =========================================================
+   V2.9.1 usability fixes
+   ========================================================= */
+.perf-toolbar-v291{display:block!important;padding:12px}
+.perf-filter-row{display:grid;gap:10px;align-items:end;width:100%}
+.perf-filter-row-1{grid-template-columns:minmax(360px,auto) minmax(135px,1fr) minmax(135px,1fr) minmax(140px,1fr) minmax(140px,1fr)}
+.perf-filter-row-2{grid-template-columns:minmax(130px,1fr) minmax(170px,1.15fr) minmax(140px,1fr) minmax(260px,2fr) auto auto auto;margin-top:10px}
+.perf-filter-row label{min-width:0}.perf-filter-row input,.perf-filter-row select{width:100%;min-width:0}
+.perf-filter-row .quick-range{display:flex;gap:6px;flex-wrap:nowrap;align-items:center}
+.perf-filter-row .quick-range button{white-space:nowrap}
+.perf-filter-row .check{align-self:center;white-space:nowrap;padding-bottom:8px}
+
+.detail-dropdown-card{margin-top:14px}.detail-select-label{display:grid;grid-template-columns:120px minmax(240px,520px);gap:10px;align-items:center;margin:8px 0 12px;font-size:12px;font-weight:700}.detail-select-label select{width:100%;border:1px solid var(--line);border-radius:8px;padding:9px 10px;background:#fff}.detail-dropdown-body{border-top:1px solid #edf0f5;padding-top:10px}.detail-empty{padding:14px 4px}.detail-summary{display:grid;grid-template-columns:minmax(220px,1fr) 80px 130px 120px;gap:12px;align-items:center;background:#f7f9fc;border:1px solid var(--line);border-radius:9px;padding:10px 12px;margin-bottom:8px}.detail-broadcast-list{max-height:360px;overflow:auto;border:1px solid #edf0f5;border-radius:9px}.detail-broadcast-list .broadcast-mini{padding:9px 10px}
+
+.category-auto-summary{border:1px solid #b8cff9;background:#f2f6ff;border-radius:10px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:12px}.category-auto-summary>div{display:flex;flex-direction:column;gap:3px}.category-auto-summary span{font-weight:700;color:#234f9f}.category-auto-summary small{color:var(--muted)}.category-grid-inner{margin:0}.category-manual-wrap{border:1px dashed #d7deea;border-radius:10px;padding:10px}.category-manual-wrap.hidden,.category-auto-summary.hidden{display:none!important}
+
+.history-dialog{width:min(920px,94vw);max-width:94vw;max-height:82vh;overflow-y:auto;overflow-x:hidden}
+.history-date-row{grid-template-columns:105px minmax(0,1fr) 64px 70px;min-width:0}.history-date-row>*{min-width:0;overflow-wrap:anywhere}
+.history-occurrence-list{min-width:0;overflow-x:hidden}.history-occ-row{grid-template-columns:60px 110px minmax(0,1fr) minmax(185px,auto);width:100%;min-width:0}.history-occ-row>*{min-width:0}.history-occ-row>span:nth-child(3){overflow-wrap:anywhere;word-break:break-word}.history-actions{display:flex;gap:6px;justify-content:flex-end;white-space:normal;flex-wrap:wrap}.history-actions .btn{white-space:nowrap;padding:7px 9px}
+
+@media(max-width:1180px){.perf-filter-row-1{grid-template-columns:1fr 1fr 1fr}.perf-filter-row-1 .quick-range{grid-column:1/-1}.perf-filter-row-2{grid-template-columns:1fr 1fr 1fr}.perf-filter-row-2 .grow{grid-column:1/-1}.perf-filter-row-2 .check{padding-bottom:0}.detail-summary{grid-template-columns:1fr auto auto}}
+@media(max-width:760px){.perf-filter-row-1,.perf-filter-row-2{grid-template-columns:1fr 1fr}.perf-filter-row-1 .quick-range,.perf-filter-row-2 .grow{grid-column:1/-1}.history-occ-row{grid-template-columns:60px minmax(0,1fr)}.history-occ-row>span:nth-child(2){display:block}.history-actions{grid-column:1/-1;justify-content:flex-start}.detail-select-label{grid-template-columns:1fr}.detail-summary{grid-template-columns:1fr 1fr}.broadcast-mini{grid-template-columns:110px 1fr!important}}
