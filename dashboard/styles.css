@@ -263,3 +263,18 @@ footer{font-size:10px;color:var(--muted);margin-top:18px}
 }
 
 /* V2.8.7 admin-master fuzzy search */
+
+/* =========================================================
+   V2.9.0 UX / admin extensions
+   ========================================================= */
+.inline-edit-row{display:flex;gap:8px;align-items:center}.inline-edit-row input{flex:1}
+.history-actions{display:flex;gap:6px;justify-content:flex-end;white-space:nowrap}
+.good-action{border-color:#9adbb6;background:#effcf4;color:#147a43}
+.date-picker-card{width:min(430px,92vw)}
+.date-picker-nav{display:grid;grid-template-columns:44px 1fr 44px;align-items:center;text-align:center;margin:10px 0}
+.date-picker-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}.date-picker-grid .dow{text-align:center;font-size:12px;color:#667085;padding:6px 0}.date-cell{height:38px;border:1px solid #e3e8ef;border-radius:8px;background:#fff;cursor:pointer}.date-cell.other{color:#a9b2c0;background:#f8fafc}.date-cell.selected{outline:2px solid #3267e3;background:#edf3ff;font-weight:700;color:#1747b8}.date-cell:hover{background:#f1f5ff}
+#perfSub:disabled,#editCategorySub:disabled{background:#f3f5f8;color:#8b95a5}
+.review-card .dynamic-note{margin-top:6px}
+.history-occ-row{grid-template-columns:64px 130px minmax(280px,1fr) auto}
+@media(max-width:900px){.history-occ-row{grid-template-columns:60px 100px 1fr}.history-actions{grid-column:1/-1}.perf-toolbar{grid-template-columns:1fr 1fr}}
+.date-picker-open{margin-left:-32px;width:28px;height:28px;border:0;background:transparent;color:#567;cursor:pointer;vertical-align:middle}
