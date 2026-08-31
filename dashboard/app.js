@@ -22,9 +22,6 @@
       firstSeen: null,
       occurrenceMap: null,
       masterGroups: null,
-      masterCandidates: null,
-      adminSearchProducts: null,
-      adminSearchIndex: null,
       masterMatch: new Map(),
       occurrenceRuleMap: null,
       dynamicRules: null
@@ -32,7 +29,7 @@
   };
 
 
-  // V2.9.6: 식품 분류 체계
+  // V2.10.0: 기존 분류 유지 + 일반식품 > 축산물 추가
   // - 건강식품: 영양성분(5개 군) / 고시형원료(69개) / 개별인정형원료(직접입력)
   // - 신선식품: 농산물/수산물/축산물 + 식품유형 직접입력
   const CATEGORY_TREE = {
@@ -60,7 +57,9 @@
       "동물성가공식품류": ["기타식육 또는 기타알","기타동물성가공식품","곤충가공식품","자라분말","자라분말제품","자라유제품","추출가공식품"],
       "벌꿀 및 화분가공품": ["벌집꿀","벌꿀","사양벌집꿀","사양벌꿀","로열젤리","로열젤리제품","가공화분","화분함유제품"],
       "즉석식품류": ["생식제품","생식함유제품","즉석섭취식품","신선편의식품","즉석조리식품","간편조리세트","만두","만두피"],
-      "기타식품류": ["효모식품","기타가공품"]
+      "기타식품류": ["효모식품","기타가공품"],
+      // V2.10.0: 기존 일반식품 분류는 유지하고 축산물 중분류만 추가
+      "축산물": ["분쇄가공육제품","갈비가공품","식육추출가공품","식육간편조리세트","기타"]
     },
     "건강식품": {
       "영양성분": ["비타민", "무기질", "식이섬유", "단백질", "필수지방산"],
@@ -180,9 +179,6 @@
     state.derived.firstSeen = null;
     state.derived.occurrenceMap = null;
     state.derived.masterGroups = null;
-    state.derived.masterCandidates = null;
-    state.derived.adminSearchProducts = null;
-    state.derived.adminSearchIndex = null;
     state.derived.masterMatch = new Map();
     state.derived.occurrenceRuleMap = null;
     state.derived.dynamicRules = null;
@@ -201,8 +197,6 @@
   // product_master_admin.csv에는 confirmed로 저장된 경우, 예전 코드는
   // 배열에서 먼저 만난 확인필요 행을 집어 계속 미확인으로 보일 수 있었다.
   function masterCandidates(){
-    if(Array.isArray(state.derived.masterCandidates)) return state.derived.masterCandidates;
-
     const adminRows=Array.isArray(state.adminMaster?.admin_rows) ? state.adminMaster.admin_rows : [];
     const effectiveRows=Array.isArray(state.adminMaster?.rows) ? state.adminMaster.rows : [];
     const publicRows=Array.isArray(state.masterPublic) ? state.masterPublic : [];
@@ -210,7 +204,7 @@
 
     const seen=new Set();
     const ranked=[...source].sort((a,b)=>masterRulePriority(b)-masterRulePriority(a));
-    state.derived.masterCandidates=ranked.filter(m=>{
+    return ranked.filter(m=>{
       const k=normalize(m.match_keyword || m.raw_title || m.normalized_title || m.standard_product_name || "");
       if(!k) return false;
       const sig=`${k}__${productNameKey(m.standard_product_name||"")}`;
@@ -218,7 +212,6 @@
       seen.add(sig);
       return true;
     });
-    return state.derived.masterCandidates;
   }
 
   function masterRulePriority(m){
@@ -1155,12 +1148,10 @@
   }
 
   function buildAdminSearchProducts(){
-    if(Array.isArray(state.derived.adminSearchProducts)) return state.derived.adminSearchProducts;
     const direct=state.adminMaster?.admin_products;
 
     if(Array.isArray(direct) && direct.length){
-      state.derived.adminSearchProducts=direct.map(enrichedMasterProduct);
-      return state.derived.adminSearchProducts;
+      return direct.map(enrichedMasterProduct);
     }
 
     const rows=state.adminMaster?.admin_rows||[];
@@ -1206,20 +1197,17 @@
       if(!group.category_sub && clean(row.category_sub)){ group.category_sub=clean(row.category_sub); }
     }
 
-    state.derived.adminSearchProducts=[...groups.values()].map(enrichedMasterProduct);
-    return state.derived.adminSearchProducts;
+    return [...groups.values()].map(enrichedMasterProduct);
   }
 
   function getMasterProductByName(name){
     const target=productNameKey(name);
+
     if(!target) return null;
 
-    if(!(state.derived.adminSearchIndex instanceof Map)){
-      state.derived.adminSearchIndex=new Map(
-        buildAdminSearchProducts().map(p=>[productNameKey(p.standard_product_name),p])
-      );
-    }
-    return state.derived.adminSearchIndex.get(target)||null;
+    return buildAdminSearchProducts().find(
+      p=>productNameKey(p.standard_product_name)===target
+    )||null;
   }
 
   function setMasterMetaLocked(locked){
@@ -1318,15 +1306,12 @@
     if(!state.adminPassword) return;
     const r=await fetch(`${API}/master`,{headers:{"X-Admin-Password":state.adminPassword},cache:"no-store"});
     if(!r.ok) throw new Error(`관리자 마스터 조회 실패 ${r.status}`);
-    const next=await r.json();
-    const prevSig=state.adminMaster?`${state.adminMaster.product_count||0}:${state.adminMaster.admin_rule_count||state.adminMaster.admin_rows?.length||0}`:"";
-    const nextSig=`${next.product_count||0}:${next.admin_rule_count||next.admin_rows?.length||0}`;
-    state.adminMaster=next;
+    state.adminMaster=await r.json();
     invalidateDerived();
     $("#adminState").textContent=`관리자 모드 · ${state.adminMaster.product_count||0}개 상품`;
     $("#adminState").classList.add("on");
     $("#adminBtn").textContent="관리자 로그아웃";
-    if(prevSig!==nextSig || !$("#masterProductNames")?.children?.length) renderMasterDatalist();
+    renderMasterDatalist();
   }
 
   function renderMasterDatalist(){
@@ -1530,12 +1515,19 @@
   }
 
   function categoryUsesFreeText(major="", middle=""){
-    return major==="신선식품" || (major==="건강식품" && middle==="개별인정형원료");
+    // 기존 직접입력 분류는 그대로 유지.
+    // V2.10.0: 일반식품 > 축산물 > 기타도 직접입력으로 사용.
+    return major==="신선식품"
+      || (major==="건강식품" && middle==="개별인정형원료")
+      || (major==="일반식품" && middle==="축산물" && clean($("#editCategorySub")?.value)==="기타");
   }
 
   function categorySubValue(){
     const major=$("#editCategoryMajor")?.value||"";
     const middle=$("#editCategoryMiddle")?.value||"";
+    if(major==="일반식품" && middle==="축산물" && clean($("#editCategorySub")?.value)==="기타"){
+      return clean($("#editCategorySubFresh")?.value||"");
+    }
     return categoryUsesFreeText(major,middle)
       ? clean($("#editCategorySubFresh")?.value||"")
       : clean($("#editCategorySub")?.value||"");
@@ -1545,19 +1537,31 @@
     categoryOptions("#editCategoryMajor",Object.keys(CATEGORY_TREE),major);
     const mids=major?Object.keys(CATEGORY_TREE[major]||{}):[];
     categoryOptions("#editCategoryMiddle",mids,middle);
-    const freeText=categoryUsesFreeText(major,middle);
     const subs=major&&middle?(CATEGORY_TREE[major]?.[middle]||[]):[];
-    categoryOptions("#editCategorySub",subs,freeText?"":sub);
-    $("#editCategorySubSelectWrap")?.classList.toggle("hidden",freeText);
+    // 축산물은 '기타' 선택 시에만 직접입력, 나머지 4개는 고정 선택.
+    const livestockOther =
+      major==="일반식품" &&
+      middle==="축산물" &&
+      clean(sub)==="기타";
+    const freeText =
+      major==="신선식품" ||
+      (major==="건강식품" && middle==="개별인정형원료") ||
+      livestockOther;
+    categoryOptions("#editCategorySub",subs,freeText && !livestockOther ? "" : sub);
+    $("#editCategorySubSelectWrap")?.classList.remove("hidden");
     $("#editCategorySubFreshWrap")?.classList.toggle("hidden",!freeText);
     const direct=$("#editCategorySubFresh");
     if(direct){
-      direct.value=freeText?clean(sub):"";
-      direct.placeholder=(major==="건강식품" && middle==="개별인정형원료")
-        ? "예: 저분자콜라겐펩타이드, 루바브뿌리추출물"
-        : "예: 사과, 쌀, 고등어, 한우";
+      direct.value=freeText?clean(sub==="기타" ? "" : sub):"";
+      direct.placeholder=(major==="일반식품" && middle==="축산물")
+        ? "기타 축산물 소분류를 직접 입력"
+        : (major==="건강식품" && middle==="개별인정형원료"
+          ? "예: 저분자콜라겐펩타이드, 루바브뿌리추출물"
+          : "예: 사과, 쌀, 고등어, 한우");
     }
-    if($("#editCategorySub")) $("#editCategorySub").disabled=!freeText && !subs.length;
+    if($("#editCategorySub")){
+      $("#editCategorySub").disabled=!subs.length;
+    }
   }
 
   function groupSearchCandidates(query){
@@ -1778,6 +1782,26 @@
     const major=$("#editCategoryMajor").value, middle=level==="major"?"":$("#editCategoryMiddle").value;
     setCategoryValues(major,middle,"");
   }
+
+  function refreshLivestockOtherInput(){
+    const major=clean($("#editCategoryMajor")?.value);
+    const middle=clean($("#editCategoryMiddle")?.value);
+    const sub=clean($("#editCategorySub")?.value);
+    if(major!=="일반식품" || middle!=="축산물") return;
+    const wrap=$("#editCategorySubFreshWrap");
+    const direct=$("#editCategorySubFresh");
+    if(!wrap || !direct) return;
+    const other=sub==="기타";
+    wrap.classList.toggle("hidden",!other);
+    direct.placeholder="기타 축산물 소분류를 직접 입력";
+    if(!other) direct.value="";
+  }
+  document.addEventListener("change", e=>{
+    if(e.target?.id==="editCategorySub"){
+      refreshLivestockOtherInput();
+    }
+  });
+
   function fillCategoryFilterOptions(){
     const rows=visibleRows();
     const majors=[...new Set([...Object.keys(CATEGORY_TREE),...rows.map(r=>clean(r.category_major)).filter(Boolean)])];
