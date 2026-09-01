@@ -24,7 +24,12 @@
       masterGroups: null,
       masterMatch: new Map(),
       occurrenceRuleMap: null,
-      dynamicRules: null
+      dynamicRules: null,
+      // V3.1: 성능 최적화용 캐시
+      masterCandidates: null,
+      masterExactIndex: null,
+      reviewItemsCache: null,
+      productNameIndex: null
     }
   };
 
@@ -181,6 +186,11 @@
     state.derived.masterMatch = new Map();
     state.derived.occurrenceRuleMap = null;
     state.derived.dynamicRules = null;
+    // V3.1: 성능 최적화용 캐시도 함께 초기화한다.
+    state.derived.masterCandidates = null;
+    state.derived.masterExactIndex = null;
+    state.derived.reviewItemsCache = null;
+    state.derived.productNameIndex = null;
   }
 
   function debounce(fn, wait=180){
@@ -196,6 +206,14 @@
   // product_master_admin.csv에는 confirmed로 저장된 경우, 예전 코드는
   // 배열에서 먼저 만난 확인필요 행을 집어 계속 미확인으로 보일 수 있었다.
   function masterCandidates(){
+    // V3.1: 이 정렬+중복제거 계산이 findMasterForRow()의 캐시-미스마다
+    // (즉, 방송마다) 통째로 다시 실행되고 있었다. 상품 마스터가 1,500건
+    // 가까이 쌓이면서 방송 5,300여 건 × 매번 O(n log n) 재정렬이 겹쳐
+    // '상품확인' 탭이 매우 느려지는 가장 큰 원인이었다.
+    // adminMaster가 바뀌지 않는 한(=invalidateDerived 호출 전까지) 결과가
+    // 항상 같으므로 한 번만 계산해서 재사용한다.
+    if(state.derived.masterCandidates) return state.derived.masterCandidates;
+
     const adminRows=Array.isArray(state.adminMaster?.admin_rows) ? state.adminMaster.admin_rows : [];
     const effectiveRows=Array.isArray(state.adminMaster?.rows) ? state.adminMaster.rows : [];
     const publicRows=Array.isArray(state.masterPublic) ? state.masterPublic : [];
@@ -203,7 +221,7 @@
 
     const seen=new Set();
     const ranked=[...source].sort((a,b)=>masterRulePriority(b)-masterRulePriority(a));
-    return ranked.filter(m=>{
+    const result=ranked.filter(m=>{
       const k=normalize(m.match_keyword || m.raw_title || m.normalized_title || m.standard_product_name || "");
       if(!k) return false;
       const sig=`${k}__${productNameKey(m.standard_product_name||"")}`;
@@ -211,6 +229,23 @@
       seen.add(sig);
       return true;
     });
+
+    state.derived.masterCandidates=result;
+    return result;
+  }
+
+  function masterExactIndex(){
+    // V3.1: 원본명이 등록된 alias와 '완전히' 같은 절대다수의 경우를
+    // O(1)로 처리하기 위한 색인. masterCandidates()가 이미 우선순위순으로
+    // 정렬돼 있으므로 먼저 만난(=우선순위가 높은) 항목만 저장하면 된다.
+    if(state.derived.masterExactIndex) return state.derived.masterExactIndex;
+    const idx=new Map();
+    for(const m of masterCandidates()){
+      const k=normalize(m.match_keyword || m.raw_title || m.normalized_title || "");
+      if(k && !idx.has(k)) idx.set(k,m);
+    }
+    state.derived.masterExactIndex=idx;
+    return idx;
   }
 
   function masterRulePriority(m){
@@ -235,9 +270,17 @@
       return state.derived.masterMatch.get(raw);
     }
 
+    // V3.1: 이미 정확히 등록된 원본명(가장 흔한 경우)은 색인에서 O(1)로 찾는다.
+    // 부분일치가 필요한 나머지 소수 케이스만 아래의 느린 스캔으로 처리한다.
+    const exact=masterExactIndex().get(raw);
+    if(exact){
+      state.derived.masterMatch.set(raw,exact);
+      return exact;
+    }
+
     const matches=masterCandidates().filter(m=>{
       const k=normalize(m.match_keyword || m.raw_title || m.normalized_title || "");
-      return k && (raw===k || raw.includes(k) || k.includes(raw));
+      return k && (raw.includes(k) || k.includes(raw));
     });
 
     matches.sort((a,b)=>{
@@ -623,24 +666,46 @@
     return groups;
   }
 
+  function productNameIndex(){
+    // V3.1: occurrencesForAliases()가 표준상품명이 일치하는 방송을 찾으려고
+    // visibleRows() 전체(5,000건 이상)를 상품 그룹마다 매번 다시 훑고 있었다.
+    // 상품명 -> 방송목록 색인을 한 번만 만들어 재사용한다.
+    if(state.derived.productNameIndex) return state.derived.productNameIndex;
+    const idx=new Map();
+    for(const r of visibleRows()){
+      const key=productNameKey(getProductName(r));
+      if(!key) continue;
+      const bucket=idx.get(key);
+      if(bucket) bucket.push(r); else idx.set(key,[r]);
+    }
+    state.derived.productNameIndex=idx;
+    return idx;
+  }
+
   function occurrencesForAliases(aliases,standardName=""){
-    const keys=(aliases||[]).map(a=>normalize(a.match_keyword)).filter(Boolean);
-    const target=productNameKey(standardName);
+    // V3.1: 그룹(=표준상품)마다 전체 방송(state.rows, visibleRows)을
+    // 스캔하던 부분을 buildOccurrenceMap()/productNameIndex() 색인 조회로
+    // 바꿔 O(방송수) -> O(1) 조회로 줄였다. '분류완료/제외/전체' 탭이나
+    // 방송이력/관리 다이얼로그를 열 때 느려지던 가장 큰 원인이었다.
+    const occMap=buildOccurrenceMap();
     const found=new Map();
 
-    // 원본명 alias 매칭
-    for(const r of state.rows){
-      const raw=normalize(getRawTitle(r));
-      if(keys.some(k=>raw===k || raw.includes(k) || k.includes(raw))){
-        found.set(clean(r.hsshow_id)||rowChronoKey(r)+raw,r);
+    for(const a of (aliases||[])){
+      const k=normalize(a.match_keyword);
+      if(!k) continue;
+      const bucket=occMap.get(k);
+      if(!bucket) continue;
+      for(const r of bucket.rows){
+        found.set(clean(r.hsshow_id)||rowChronoKey(r)+k, r);
       }
     }
 
     // V2.9.3: 관리자 오버레이 결과의 표준상품명이 같은 방송도 포함.
-    // product_master_admin.csv에는 연결되어 있지만 CSV 원본 표준명이 아직 예전 값인 경우를 보완한다.
+    const target=productNameKey(standardName);
     if(target){
-      for(const r of visibleRows()){
-        if(productNameKey(getProductName(r))===target){
+      const bucket=productNameIndex().get(target);
+      if(bucket){
+        for(const r of bucket){
           found.set(clean(r.hsshow_id)||rowChronoKey(r)+normalize(getRawTitle(r)),r);
         }
       }
@@ -649,6 +714,18 @@
   }
 
   function getReviewItems(filter){
+    // V3.1: renderReview()가 상단 요약 칩(미확인/분류완료/자동분류/가변방송/
+    // 제외) 개수를 매번 각각 다시 계산하느라 같은 필터를 렌더링당
+    // 5~6번씩 반복 호출하고 있었다. adminMaster가 바뀌기 전까지는 결과가
+    // 항상 같으므로 필터별로 캐시해 재사용한다.
+    if(!state.derived.reviewItemsCache) state.derived.reviewItemsCache=new Map();
+    if(state.derived.reviewItemsCache.has(filter)) return state.derived.reviewItemsCache.get(filter);
+    const result=computeReviewItems(filter);
+    state.derived.reviewItemsCache.set(filter,result);
+    return result;
+  }
+
+  function computeReviewItems(filter){
     if(filter==="audit"){
       return (state.adminMaster?.audit || []).map(x=>({kind:"audit",audit:x}));
     }
