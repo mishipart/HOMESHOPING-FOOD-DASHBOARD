@@ -22,10 +22,6 @@
       firstSeen: null,
       occurrenceMap: null,
       masterGroups: null,
-      masterCandidates: null,
-      reviewItemIndex: null,
-      adminSearchProducts: null,
-      adminSearchIndex: null,
       masterMatch: new Map(),
       occurrenceRuleMap: null,
       dynamicRules: null
@@ -33,35 +29,36 @@
   };
 
 
-  // V3.0.0: 식품 분류 체계
+  // V2.10.0: 기존 분류 유지 + 일반식품 > 축산물 추가
   // - 건강식품: 영양성분(5개 군) / 고시형원료(69개) / 개별인정형원료(직접입력)
   // - 신선식품: 농산물/수산물/축산물 + 식품유형 직접입력
   const CATEGORY_TREE = {
     "일반식품": {
       "과자류, 빵류 또는 떡류": ["과자","캔디류","추잉껌","빵류","떡류"],
-      "빙과류": ["빙과","식용얼음","어업용얼음"],
+      "빙과류": ["아이스크림","저지방아이스크림","아이스밀크","샤베트","비유지방아이스크림","아이스크림믹스","저지방아이스크림믹스","아이스밀크믹스","샤베트믹스","비유지방아이스크림믹스","빙과","식용얼음","어업용얼음"],
       "코코아가공품류 또는 초콜릿류": ["코코아매스","코코아버터","코코아분말","기타코코아가공품","초콜릿","밀크초콜릿","화이트초콜릿","준초콜릿","초콜릿가공품"],
       "당류": ["설탕","기타설탕","당시럽류","올리고당","올리고당가공품","포도당","과당","기타과당","물엿","기타엿","덱스트린","당류가공품"],
       "잼류": ["잼","기타잼"],
       "두부류 또는 묵류": ["두부","유바","가공두부","묵류"],
-      "식용유지류": ["콩기름(대두유)","옥수수기름(옥배유)","채종유(유채유 또는 카놀라유)","미강유(현미유)","참기름","추출참깨유","들기름","추출들깨유","홍화유(사플라워유 또는 잇꽃유)","해바라기유","목화씨기름(면실유)","땅콩기름(낙화생유)","올리브유","팜유류","야자유","고추씨기름","기타식물성유지","어유","기타동물성유지","혼합식용유","향미유","가공유지","쇼트닝","마가린","모조치즈","식물성크림","기타식용유지가공품"],
+      "식용유지류": ["콩기름(대두유)","옥수수기름(옥배유)","채종유(유채유 또는 카놀라유)","미강유(현미유)","참기름","추출참깨유","들기름","추출들깨유","홍화유(사플라워유 또는 잇꽃유)","해바라기유","목화씨기름(면실유)","땅콩기름(낙화생유)","올리브유","팜유류","야자유","고추씨기름","기타식물성유지","식용우지","식용돈지","원료우지","원료돈지","어유","기타동물성유지","혼합식용유","향미유","가공유지","쇼트닝","마가린","모조치즈","식물성크림","기타식용유지가공품"],
       "면류": ["생면","숙면","건면","유탕면"],
       "음료류": ["침출차","액상차","고형차","커피","농축과채즙(또는 과채분)","과채주스","과채음료","탄산음료","탄산수","원액두유","가공두유","유산균음료","효모음료","기타발효음료","인삼홍삼음료","혼합음료","음료베이스"],
-      "특수영양식품": ["영아전기용 조제식","영아후기용 조제식","유아기용 조제식","영유아용 이유식","체중조절용 조제식품","임산수유부용식품","고령자용 영양조제식품"],
-      "특수의료용도식품": ["일반 환자용 균형영양조제식품","당뇨환자용 영양조제식품","신장질환자용 영양조제식품","장질환자용 단백가수분해 영양조제식품","암환자용 영양조제식품","고혈압환자용 영양조제식품","폐질환자용 영양조제식품","간경변환자용 영양조제식품","열량 및 영양공급용 식품","연하곤란자용 점도조절 식품","수분 및 전해질 보충용 조제식품","선천성대사질환자용조제식품","영유아용 특수조제식품","기타환자용 영양조제식품","당뇨환자용 식단형 식품","신장질환자용 식단형 식품","암환자용 식단형 식품","고혈압환자용 식단형 식품"],
+      "특수영양식품": ["영아전기용조제유","영아후기용조제유","유아기용조제유","성장기용조제유","영아용조제식","영아전기용조제식","영아후기용조제식","유아기용 조제식","성장기용조제식","영유아용이유식","체중조절용조제식품","임산수유부용식품","고령자용 영양조제식품"],
+      "특수의료용도식품": ["일반환자용균형영양조제식품","당뇨환자용영양조제식품","신장질환자용영양조제식품","장질환자용단백가수분해영양조제식품","암환자용영양조제식품","고혈압환자용영양조제식품","폐질환자용영양조제식품","간경변환자용영양조제식품","열량및영양공급용식품","연하곤란자용점도조절식품","수분및전해질보충용조제식품","선천성대사질환자용조제식품","영유아용특수조제식품","기타환자용영양조제식품","당뇨환자용식단형식품","신장질환자용식단형식품","암환자용식단형식품","고혈압환자용식단형식품"],
       "장류": ["한식메주","개량메주","한식간장","양조간장","산분해간장","효소분해간장","혼합간장","한식된장","된장","고추장","춘장","청국장","혼합장","기타장류"],
       "조미식품": ["발효식초","희석초산","소스","마요네즈","토마토케첩","복합조미식품","카레(커리)분","카레(커리)","고춧가루","실고추","천연향신료","향신료조제품","천일염","재제소금(재제조소금)","태움용융소금","정제소금","기타소금","가공소금"],
       "절임류 또는 조림류": ["김치","김칫속","절임식품","당절임","조림류"],
       "주류": ["탁주","약주","청주","맥주","과실주","소주","위스키","브랜디","일반증류주","리큐르","기타주류","주정"],
-      "농산가공식품류": ["전분","전분가공품","밀가루","영양강화 밀가루","땅콩버터","땅콩 또는 견과류가공품","시리얼류","찐쌀","효소식품","과채가공품","곡류가공품","두류가공품","서류가공품","기타 농산가공품"],
-      "식육가공품 및 포장육": ["식육함유가공품"],
-      "알가공품류": ["알함유가공품"],
-      "유함유가공품": ["유함유가공품"],
-      "수산가공식품류": ["어육살","연육","어육반제품","어묵","어육소시지","기타 어육가공품","젓갈","양념젓갈","액젓","조미액젓","조미건어포","건어포","기타 건포류","가공김(조미김 또는 구운김)","한천","기타 수산물가공품"],
-      "동물성가공식품류": ["기타식육 또는 기타알","기타동물성가공식품","곤충가공식품","자라분말","자라분말제품","자라유제품","추출가공식품"],
+      "농산가공식품류": ["전분","전분가공품","밀가루","영양강화밀가루","땅콩버터","땅콩또는견과류가공품","시리얼류","찐쌀","효소식품","과채가공품","곡류가공품","두류가공품","서류가공품","기타농산가공품"],
+      "식육가공품 및 포장육": ["햄","생햄","프레스햄","소시지","발효소시지","혼합소시지","베이컨류","건조저장육류","양념육","분쇄가공육제품","갈비가공품","식육케이싱","식육추출가공품","식육간편조리세트","식육함유가공품","포장육"],
+      "알가공품류": ["전란액","난황액","난백액","전란분","난황분","난백분","알가열제품","피란","알함유가공품"],
+      "유함유가공품": ["우유","환원유","강화우유","유산균첨가우유","유당분해우유","가공유","산양유","발효유","농후발효유","크림발효유","농후크림발효유","발효버터유","발효유분말","버터유","농축우유","탈지농축우유","가당연유","가당탈지연유","가공연유","유크림","가공유크림","버터","가공버터","버터오일","치즈","가공치즈","전지분유","탈지분유","가당분유","혼합분유","유청","농축유청","유청단백분말","유당","유단백가수분해식품","유함유가공품"],
+      "수산가공식품류": ["어육살","연육","어육반제품","어묵","어육소시지","기타어육가공품","젓갈","양념젓갈","액젓","조미액젓","조미건어포","건어포","기타건포류","가공김(조미김 또는 구운김)","한천","기타수산물가공품"],
+      "동물성가공식품류": ["기타식육또는기타알","기타동물성가공식품","곤충가공식품","자라분말","자라분말제품","자라유제품","추출가공식품"],
       "벌꿀 및 화분가공품": ["벌집꿀","벌꿀","사양벌집꿀","사양벌꿀","로열젤리","로열젤리제품","가공화분","화분함유제품"],
       "즉석식품류": ["생식제품","생식함유제품","즉석섭취식품","신선편의식품","즉석조리식품","간편조리세트","만두","만두피"],
-      "기타식품류": ["효모식품","기타가공품"]
+      "기타식품류": ["효모식품","기타가공품"],
+      // V2.10.0: 기존 일반식품 분류는 유지하고 축산물 중분류만 추가 했으나 실제 식품공전 하분류를 개선하여 해당 내용 삭제
     },
     "건강식품": {
       "영양성분": ["비타민", "무기질", "식이섬유", "단백질", "필수지방산"],
@@ -181,10 +178,6 @@
     state.derived.firstSeen = null;
     state.derived.occurrenceMap = null;
     state.derived.masterGroups = null;
-    state.derived.masterCandidates = null;
-    state.derived.reviewItemIndex = null;
-    state.derived.adminSearchProducts = null;
-    state.derived.adminSearchIndex = null;
     state.derived.masterMatch = new Map();
     state.derived.occurrenceRuleMap = null;
     state.derived.dynamicRules = null;
@@ -198,13 +191,11 @@
     };
   }
 
-  // V3.0.0: 관리자 영구 규칙을 기본/자동등록 행보다 항상 우선한다.
+  // V2.9.6: 관리자 영구 규칙을 기본/자동등록 행보다 항상 우선한다.
   // 같은 match_keyword가 product_master.csv에 확인필요로 남아 있고
   // product_master_admin.csv에는 confirmed로 저장된 경우, 예전 코드는
   // 배열에서 먼저 만난 확인필요 행을 집어 계속 미확인으로 보일 수 있었다.
   function masterCandidates(){
-    if(Array.isArray(state.derived.masterCandidates)) return state.derived.masterCandidates;
-
     const adminRows=Array.isArray(state.adminMaster?.admin_rows) ? state.adminMaster.admin_rows : [];
     const effectiveRows=Array.isArray(state.adminMaster?.rows) ? state.adminMaster.rows : [];
     const publicRows=Array.isArray(state.masterPublic) ? state.masterPublic : [];
@@ -212,7 +203,7 @@
 
     const seen=new Set();
     const ranked=[...source].sort((a,b)=>masterRulePriority(b)-masterRulePriority(a));
-    state.derived.masterCandidates=ranked.filter(m=>{
+    return ranked.filter(m=>{
       const k=normalize(m.match_keyword || m.raw_title || m.normalized_title || m.standard_product_name || "");
       if(!k) return false;
       const sig=`${k}__${productNameKey(m.standard_product_name||"")}`;
@@ -220,7 +211,6 @@
       seen.add(sig);
       return true;
     });
-    return state.derived.masterCandidates;
   }
 
   function masterRulePriority(m){
@@ -602,11 +592,8 @@
     if(state.derived.occurrenceMap) return state.derived.occurrenceMap;
 
     const map=new Map();
-    const byId=new Map();
     for(const r of state.rows){
       const raw=getRawTitle(r), k=normalize(raw);
-      const id=clean(r.hsshow_id);
-      if(id) byId.set(id,r);
       if(!k) continue;
       const x=map.get(k)||{raw,rows:[]};
       x.rows.push(r);
@@ -614,7 +601,6 @@
     }
 
     state.derived.occurrenceMap=map;
-    state.derived.occurrenceRowsById=byId;
     return map;
   }
 
@@ -638,33 +624,20 @@
   }
 
   function occurrencesForAliases(aliases,standardName=""){
-    const occurrence=buildOccurrenceMap();
     const keys=(aliases||[]).map(a=>normalize(a.match_keyword)).filter(Boolean);
     const target=productNameKey(standardName);
     const found=new Map();
 
-    // V3.0: 정확한 alias는 Map에서 바로 가져온다.
-    for(const key of keys){
-      const exact=occurrence.get(key);
-      if(exact){
-        for(const r of exact.rows){
-          found.set(clean(r.hsshow_id)||rowChronoKey(r)+key,r);
-        }
+    // 원본명 alias 매칭
+    for(const r of state.rows){
+      const raw=normalize(getRawTitle(r));
+      if(keys.some(k=>raw===k || raw.includes(k) || k.includes(raw))){
+        found.set(clean(r.hsshow_id)||rowChronoKey(r)+raw,r);
       }
     }
 
-    // 부분일치가 필요한 기존 동작은 유지하되, raw title Map의 key만 순회한다.
-    if(keys.length){
-      for(const [rawKey,x] of occurrence){
-        if(keys.some(k=>rawKey.includes(k)||k.includes(rawKey))){
-          for(const r of x.rows){
-            found.set(clean(r.hsshow_id)||rowChronoKey(r)+rawKey,r);
-          }
-        }
-      }
-    }
-
-    // 관리자 오버레이 결과의 표준상품명 보완.
+    // V2.9.3: 관리자 오버레이 결과의 표준상품명이 같은 방송도 포함.
+    // product_master_admin.csv에는 연결되어 있지만 CSV 원본 표준명이 아직 예전 값인 경우를 보완한다.
     if(target){
       for(const r of visibleRows()){
         if(productNameKey(getProductName(r))===target){
@@ -761,8 +734,6 @@
     const auto=getReviewItems("auto").filter(reviewFilterMatch).length;
     const dynamic=getReviewItems("dynamic").filter(reviewFilterMatch).length;
     const excluded=getReviewItems("excluded").filter(reviewFilterMatch).length;
-    // V3.0: 관리 버튼에서 전체 상품목록을 다시 계산하지 않도록 Index를 미리 만든다.
-    buildReviewItemIndex();
 
     $("#reviewSummary").innerHTML=`
       <span class="summary-chip clickable ${state.reviewFilter==="pending"?"active":""}" data-summary-filter="pending">미확인 ${pending}건</span>
@@ -829,29 +800,12 @@
     renderReview();
   }
 
-  function buildReviewItemIndex(){
-    if(state.derived.reviewItemIndex) return state.derived.reviewItemIndex;
-    const index=new Map();
-    const filters=["all","pending","confirmed","auto","dynamic","excluded"];
-    for(const filter of filters){
-      for(const item of getReviewItems(filter)){
-        const name=item.standard_product_name||item.raw_title||"";
-        if(!name) continue;
-        const key=`${filter}::${name}`;
-        if(!index.has(key)) index.set(key,item);
-        const allKey=`all::${name}`;
-        if(!index.has(allKey)) index.set(allKey,item);
-      }
-    }
-    state.derived.reviewItemIndex=index;
-    return index;
-  }
-
   function findReviewItem(name,kind){
-    const index=buildReviewItemIndex();
-    const exact=index.get(`${kind||"all"}::${name}`);
-    if(exact) return exact;
-    return index.get(`all::${name}`)||null;
+    // V2.9.3: 동일 표준명이 여러 상태에 존재할 때 다른 그룹을 집어오는 문제 방지.
+    const exactPool=getReviewItems(kind||"all");
+    return exactPool.find(x=>(x.standard_product_name||x.raw_title)===name) ||
+           getReviewItems("all").find(x=>x.kind===kind && (x.standard_product_name||x.raw_title)===name) ||
+           getReviewItems("all").find(x=>(x.standard_product_name||x.raw_title)===name);
   }
 
   function openHistoryDialog(name,kind){
@@ -1193,12 +1147,10 @@
   }
 
   function buildAdminSearchProducts(){
-    if(Array.isArray(state.derived.adminSearchProducts)) return state.derived.adminSearchProducts;
     const direct=state.adminMaster?.admin_products;
 
     if(Array.isArray(direct) && direct.length){
-      state.derived.adminSearchProducts=direct.map(enrichedMasterProduct);
-      return state.derived.adminSearchProducts;
+      return direct.map(enrichedMasterProduct);
     }
 
     const rows=state.adminMaster?.admin_rows||[];
@@ -1244,20 +1196,17 @@
       if(!group.category_sub && clean(row.category_sub)){ group.category_sub=clean(row.category_sub); }
     }
 
-    state.derived.adminSearchProducts=[...groups.values()].map(enrichedMasterProduct);
-    return state.derived.adminSearchProducts;
+    return [...groups.values()].map(enrichedMasterProduct);
   }
 
   function getMasterProductByName(name){
     const target=productNameKey(name);
+
     if(!target) return null;
 
-    if(!(state.derived.adminSearchIndex instanceof Map)){
-      state.derived.adminSearchIndex=new Map(
-        buildAdminSearchProducts().map(p=>[productNameKey(p.standard_product_name),p])
-      );
-    }
-    return state.derived.adminSearchIndex.get(target)||null;
+    return buildAdminSearchProducts().find(
+      p=>productNameKey(p.standard_product_name)===target
+    )||null;
   }
 
   function setMasterMetaLocked(locked){
@@ -1356,15 +1305,12 @@
     if(!state.adminPassword) return;
     const r=await fetch(`${API}/master`,{headers:{"X-Admin-Password":state.adminPassword},cache:"no-store"});
     if(!r.ok) throw new Error(`관리자 마스터 조회 실패 ${r.status}`);
-    const next=await r.json();
-    const prevSig=state.adminMaster?`${state.adminMaster.product_count||0}:${state.adminMaster.admin_rule_count||state.adminMaster.admin_rows?.length||0}`:"";
-    const nextSig=`${next.product_count||0}:${next.admin_rule_count||next.admin_rows?.length||0}`;
-    state.adminMaster=next;
+    state.adminMaster=await r.json();
     invalidateDerived();
     $("#adminState").textContent=`관리자 모드 · ${state.adminMaster.product_count||0}개 상품`;
     $("#adminState").classList.add("on");
     $("#adminBtn").textContent="관리자 로그아웃";
-    if(prevSig!==nextSig || !$("#masterProductNames")?.children?.length) renderMasterDatalist();
+    renderMasterDatalist();
   }
 
   function renderMasterDatalist(){
@@ -1418,18 +1364,11 @@
       $("#unlockMasterMetaBtn").disabled=false;
       $("#unlockMasterMetaBtn").textContent="정보 수정";
     }
+    renderSimilarSuggestions(item.raw_title||item.standard_product_name||"");
     $("#mergeTarget").value="";
     $("#productSaveError").textContent="";
     $("#productDialog").showModal();
     toggleMergeTarget();
-
-    // V3.0: 관리창을 먼저 표시하고 유사상품 계산은 브라우저가 한숨 돌린 뒤 수행한다.
-    const similarRaw=item.raw_title||item.standard_product_name||"";
-    const runSimilar=()=>{
-      if($("#productDialog")?.open) renderSimilarSuggestions(similarRaw);
-    };
-    if("requestIdleCallback" in window) requestIdleCallback(runSimilar,{timeout:120});
-    else setTimeout(runSimilar,0);
   }
 
   function toggleMergeTarget(){
@@ -1528,8 +1467,8 @@
         const local=state.rows.find(x=>clean(x.hsshow_id)===clean(rawOccurrenceId));
         if(local){local.raw_title_original=local.raw_title_original||local.raw_title||"";local.raw_title_corrected=clean(rawDisplay.value);}
       }
-      // V2.9.5: GitHub/Worker 재조회가 수 초 지연돼도 방금 저장한 규칙을
-      // 현재 화면에 즉시 반영한다. 이후 loadAdminMaster()로 서버 상태와 다시 동기화한다.
+      // V3.0.1: GitHub/Worker 재조회 없이 방금 저장한 규칙을
+      // 현재 화면에 즉시 반영한다. 전체 데이터는 다음 새로고침 때 동기화한다.
       if(body.action!=="save_occurrence" && body.action!=="save_occurrence_batch" && body.action!=="exclude" && body.action!=="mark_dynamic_title") {
         state.adminMaster=state.adminMaster||{};
         const optimistic={...body,review_status:"confirmed",enabled:"Y",manual_lock:"Y"};
@@ -1541,17 +1480,13 @@
 
       $("#productDialog").close();
       if(state.activeTab==="review") renderReview();
-      showStatus("저장 완료 · 최신 분류정보를 동기화하고 있습니다.");
-
-      loadAdminMaster()
-        .then(()=>{
-          fillCommonFilters();
-          renderGlobalKpis();
-          if(state.activeTab==="review") renderReview();
-          else renderActiveTab();
-          showStatus("관리자 결정이 HOMESHOPING-MONITOR에 영구 저장되었습니다.");
-        })
-        .catch(err=>showStatus(`저장은 완료되었지만 화면 동기화 실패: ${err.message}`,"error"));
+      // V3.0.1: 저장 직후 /master 전체 재조회와 전체 렌더링을 하지 않는다.
+      // 위에서 적용한 로컬 변경만 현재 탭에 즉시 반영한다.
+      fillCommonFilters();
+      renderGlobalKpis();
+      if(state.activeTab==="review") renderReview();
+      else renderActiveTab();
+      showStatus("관리자 결정이 HOMESHOPING-MONITOR에 영구 저장되었습니다.");
     }catch(e){ $("#productSaveError").textContent=e.message; }
   }
 
@@ -1563,7 +1498,10 @@
     try{
       const r=await fetch(`${API}/save`,{method:"POST",headers:{"Content-Type":"application/json","X-Admin-Password":state.adminPassword},body:JSON.stringify({action:"bulk_move_aliases",aliases,target_standard_product_name:target})});
       const data=await r.json(); if(!r.ok||!data.ok) throw new Error(data.error||`HTTP ${r.status}`);
-      $("#productDialog").close(); await loadAdminMaster(); renderAll(); showStatus(`${aliases.length}개 원본명을 '${target}' 상품으로 이동했습니다.`);
+      // V3.0.1: 저장 뒤 전체 관리자 마스터 재조회와 renderAll()을 생략한다.
+      // 서버 저장은 완료되었으며 전체 관계는 다음 새로고침 때 동기화된다.
+      $("#productDialog").close();
+      showStatus(`${aliases.length}개 원본명을 '${target}' 상품으로 이동했습니다. 전체 관계는 다음 새로고침 때 반영됩니다.`);
     }catch(e){ $("#productSaveError").textContent=e.message; }
   }
 
@@ -1575,12 +1513,19 @@
   }
 
   function categoryUsesFreeText(major="", middle=""){
-    return major==="신선식품" || (major==="건강식품" && middle==="개별인정형원료");
+    // 기존 직접입력 분류는 그대로 유지.
+    // V2.10.0: 일반식품 > 축산물 > 기타도 직접입력으로 사용.
+    return major==="신선식품"
+      || (major==="건강식품" && middle==="개별인정형원료")
+      || (major==="일반식품" && middle==="축산물" && clean($("#editCategorySub")?.value)==="기타");
   }
 
   function categorySubValue(){
     const major=$("#editCategoryMajor")?.value||"";
     const middle=$("#editCategoryMiddle")?.value||"";
+    if(major==="일반식품" && middle==="축산물" && clean($("#editCategorySub")?.value)==="기타"){
+      return clean($("#editCategorySubFresh")?.value||"");
+    }
     return categoryUsesFreeText(major,middle)
       ? clean($("#editCategorySubFresh")?.value||"")
       : clean($("#editCategorySub")?.value||"");
@@ -1590,19 +1535,31 @@
     categoryOptions("#editCategoryMajor",Object.keys(CATEGORY_TREE),major);
     const mids=major?Object.keys(CATEGORY_TREE[major]||{}):[];
     categoryOptions("#editCategoryMiddle",mids,middle);
-    const freeText=categoryUsesFreeText(major,middle);
     const subs=major&&middle?(CATEGORY_TREE[major]?.[middle]||[]):[];
-    categoryOptions("#editCategorySub",subs,freeText?"":sub);
-    $("#editCategorySubSelectWrap")?.classList.toggle("hidden",freeText);
+    // 축산물은 '기타' 선택 시에만 직접입력, 나머지 4개는 고정 선택.
+    const livestockOther =
+      major==="일반식품" &&
+      middle==="축산물" &&
+      clean(sub)==="기타";
+    const freeText =
+      major==="신선식품" ||
+      (major==="건강식품" && middle==="개별인정형원료") ||
+      livestockOther;
+    categoryOptions("#editCategorySub",subs,freeText && !livestockOther ? "" : sub);
+    $("#editCategorySubSelectWrap")?.classList.remove("hidden");
     $("#editCategorySubFreshWrap")?.classList.toggle("hidden",!freeText);
     const direct=$("#editCategorySubFresh");
     if(direct){
-      direct.value=freeText?clean(sub):"";
-      direct.placeholder=(major==="건강식품" && middle==="개별인정형원료")
-        ? "예: 저분자콜라겐펩타이드, 루바브뿌리추출물"
-        : "예: 사과, 쌀, 고등어, 한우";
+      direct.value=freeText?clean(sub==="기타" ? "" : sub):"";
+      direct.placeholder=(major==="일반식품" && middle==="축산물")
+        ? "기타 축산물 소분류를 직접 입력"
+        : (major==="건강식품" && middle==="개별인정형원료"
+          ? "예: 저분자콜라겐펩타이드, 루바브뿌리추출물"
+          : "예: 사과, 쌀, 고등어, 한우");
     }
-    if($("#editCategorySub")) $("#editCategorySub").disabled=!freeText && !subs.length;
+    if($("#editCategorySub")){
+      $("#editCategorySub").disabled=!subs.length;
+    }
   }
 
   function groupSearchCandidates(query){
@@ -1823,6 +1780,26 @@
     const major=$("#editCategoryMajor").value, middle=level==="major"?"":$("#editCategoryMiddle").value;
     setCategoryValues(major,middle,"");
   }
+
+  function refreshLivestockOtherInput(){
+    const major=clean($("#editCategoryMajor")?.value);
+    const middle=clean($("#editCategoryMiddle")?.value);
+    const sub=clean($("#editCategorySub")?.value);
+    if(major!=="일반식품" || middle!=="축산물") return;
+    const wrap=$("#editCategorySubFreshWrap");
+    const direct=$("#editCategorySubFresh");
+    if(!wrap || !direct) return;
+    const other=sub==="기타";
+    wrap.classList.toggle("hidden",!other);
+    direct.placeholder="기타 축산물 소분류를 직접 입력";
+    if(!other) direct.value="";
+  }
+  document.addEventListener("change", e=>{
+    if(e.target?.id==="editCategorySub"){
+      refreshLivestockOtherInput();
+    }
+  });
+
   function fillCategoryFilterOptions(){
     const rows=visibleRows();
     const majors=[...new Set([...Object.keys(CATEGORY_TREE),...rows.map(r=>clean(r.category_major)).filter(Boolean)])];
@@ -1844,7 +1821,7 @@
     const item=getReviewItems("auto").find(x=>x.raw_title===raw); if(!item) return;
     const sample=item.occurrences?.[0]||{};
     const body={action:"link_existing",raw_title:raw,match_keyword:raw,standard_product_name:item.standard_product_name||sample.standard_product_name,brand:sample.brand||item.master?.brand||"",product_group:sample.product_group||item.master?.product_group||"",main_ingredient:sample.main_ingredient||item.master?.main_ingredient||"",category_major:sample.category_major||item.master?.category_major||"",category_middle:sample.category_middle||item.master?.category_middle||"",category_sub:sample.category_sub||item.master?.category_sub||"",manual_lock:"Y"};
-    try{ const r=await fetch(`${API}/save`,{method:"POST",headers:{"Content-Type":"application/json","X-Admin-Password":state.adminPassword},body:JSON.stringify(body)}); const data=await r.json(); if(!r.ok||!data.ok) throw new Error(data.error||`HTTP ${r.status}`); await loadAdminMaster(); renderReview(); showStatus("자동분류를 영구 규칙으로 확정했습니다."); }catch(e){ showStatus(e.message,"error"); }
+    try{ const r=await fetch(`${API}/save`,{method:"POST",headers:{"Content-Type":"application/json","X-Admin-Password":state.adminPassword},body:JSON.stringify(body)}); const data=await r.json(); if(!r.ok||!data.ok) throw new Error(data.error||`HTTP ${r.status}`); state.adminMaster=state.adminMaster||{}; const current=Array.isArray(state.adminMaster.admin_rows)?state.adminMaster.admin_rows:[]; const optimistic={...body,review_status:"confirmed",enabled:"Y",manual_lock:"Y"}; const key=normalize(raw); state.adminMaster.admin_rows=[optimistic,...current.filter(x=>normalize(x.match_keyword||x.raw_title||"")!==key)]; invalidateDerived(); renderReview(); showStatus("자동분류를 영구 규칙으로 확정했습니다."); }catch(e){ showStatus(e.message,"error"); }
   }
 
   function openOverrideEditor(id){
