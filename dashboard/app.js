@@ -767,6 +767,12 @@
         if(filter==="excluded"&&!excluded) continue;
         g.kind=excluded?"excluded":"confirmed";
         g.occurrences=occurrencesForAliases(g.aliases,g.standard_product_name);
+        // V3.2: 이 그룹에 실제로 "관리자 저장"을 거친 원본명이 하나라도
+        // 있는지 표시한다. 하나도 없으면 collector.py의 자동 매칭만으로
+        // '분류완료'가 된 것이라, 관리자가 한 번도 확인하지 않았어도
+        // 분류완료 목록에 섞여 들어가 있었다. 100개 넘는 항목을 전부
+        // 눌러보지 않아도 이 표시만으로 걸러볼 수 있게 한다.
+        g.verified=(g.aliases||[]).some(a=>clean(a.manual_lock).toUpperCase()==="Y");
         out.push(g);
       }
     }
@@ -805,16 +811,23 @@
   }
 
   function renderReview(){
-    const all=getReviewItems(state.reviewFilter), items=all.filter(reviewFilterMatch);
+    const all=getReviewItems(state.reviewFilter);
+    // V3.2: "관리자 미검토(자동매칭)만 보기" 토글 - 분류완료 항목 중
+    // manual_lock이 하나도 없는(=관리자가 실제로 저장을 눌러본 적 없는)
+    // 것만 추려서 검토 대상을 줄인다.
+    const autoOnly=!!$("#reviewAutoOnlyToggle")?.checked;
+    let items=all.filter(reviewFilterMatch);
+    if(autoOnly) items=items.filter(x=>x.kind!=="confirmed"||x.verified===false);
     const pending=getReviewItems("pending").filter(reviewFilterMatch).length;
     const confirmed=getReviewItems("confirmed").filter(reviewFilterMatch).length;
+    const confirmedUnverified=getReviewItems("confirmed").filter(reviewFilterMatch).filter(x=>!x.verified).length;
     const auto=getReviewItems("auto").filter(reviewFilterMatch).length;
     const dynamic=getReviewItems("dynamic").filter(reviewFilterMatch).length;
     const excluded=getReviewItems("excluded").filter(reviewFilterMatch).length;
 
     $("#reviewSummary").innerHTML=`
       <span class="summary-chip clickable ${state.reviewFilter==="pending"?"active":""}" data-summary-filter="pending">미확인 ${pending}건</span>
-      <span class="summary-chip clickable ${state.reviewFilter==="confirmed"?"active":""}" data-summary-filter="confirmed">분류완료 ${confirmed}개</span>
+      <span class="summary-chip clickable ${state.reviewFilter==="confirmed"?"active":""}" data-summary-filter="confirmed">분류완료 ${confirmed}개${confirmedUnverified?` <b class="unverified-count">(자동매칭 ${confirmedUnverified})</b>`:""}</span>
       <span class="summary-chip clickable ${state.reviewFilter==="auto"?"active":""}" data-summary-filter="auto">자동분류 ${auto}개</span>
       <span class="summary-chip clickable ${state.reviewFilter==="dynamic"?"active":""}" data-summary-filter="dynamic">가변방송 ${dynamic}개</span>
       <span class="summary-chip clickable ${state.reviewFilter==="excluded"?"active":""}" data-summary-filter="excluded">제외 ${excluded}개</span>
@@ -851,7 +864,8 @@
       const badge=item.kind==="pending"?'<span class="badge warn">확인필요</span>':
         item.kind==="auto"?'<span class="badge new">자동분류</span>':
         item.kind==="dynamic"?'<span class="badge dynamic">가변방송</span>':
-        item.kind==="excluded"?'<span class="badge hot">제외</span>':'<span class="badge good">분류완료</span>';
+        item.kind==="excluded"?'<span class="badge hot">제외</span>':
+        item.verified===false?'<span class="badge warn">분류완료·자동매칭(미검토)</span>':'<span class="badge good">분류완료·관리자확인</span>';
 
       return `<div class="review-card"><div>
         <h4>${badge}${esc(item.standard_product_name||item.raw_title)}</h4>
@@ -2045,6 +2059,7 @@
     bindSectionToggle("#productDetailToggle","#productAccordion");
     $("#resetPerf").onclick=()=>setPerfRange("yesterday");
     $$(".review-state-filter button").forEach(b=>b.onclick=()=>setReviewFilter(b.dataset.reviewFilter));
+    $("#reviewAutoOnlyToggle").addEventListener("change",renderReview);
     const debouncedReview=debounce(renderReview,180);
     $("#reviewPlatform").addEventListener("input",renderReview);
     $("#reviewSearch").addEventListener("input",debouncedReview);

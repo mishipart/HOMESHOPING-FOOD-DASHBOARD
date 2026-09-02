@@ -478,3 +478,19 @@ footer{font-size:10px;color:var(--muted);margin-top:18px}
   #historyDialog .history-occ-row > span:nth-child(2){display:block!important;}
   #historyDialog .history-actions{grid-column:1/-1;justify-content:flex-start;}
 }
+
+/* V3.2 - 상품확인: 관리자 미검토(자동매칭) 필터 */
+.checkbox-inline{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-size:13px;
+  white-space:nowrap;
+  cursor:pointer;
+}
+.checkbox-inline input{
+  width:auto;
+}
+.unverified-count{
+  color:var(--warn);
+}
