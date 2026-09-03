@@ -511,7 +511,11 @@
     if(!pgmChannel || pgmChannel==="기타") return false;
     const aliases=(window.HSFM_PGM_CHANNEL_ALIASES||{})[pgmChannel]||[pgmChannel];
     const a=clean(actualChannel);
-    return aliases.some(alias=>a.includes(alias)||alias.includes(a));
+    // V3.6 FIX: 부분일치(includes)였던 탓에 "현대홈쇼핑 플러스샵"이
+    // "현대홈쇼핑" PGM과 잘못 매칭되는 등 라이브 채널 전용 PGM이
+    // 플러스샵/마이샵/원티비 등에도 잘못 붙는 문제가 있었다.
+    // 반드시 정확히 같은 채널명일 때만 매칭한다.
+    return aliases.some(alias=>a===alias);
   }
 
   function computePgmForRow(r){
@@ -526,6 +530,8 @@
     let best=null, bestDiff=Infinity;
     for(const p of list){
       if(p.day!==dayKey) continue;
+      // V3.6: 식품을 취급하지 않는 PGM(비식품)은 애초에 후보에서 제외한다.
+      if(p.grade==="nonfood" || p.grade==="unknown") continue;
       if(!pgmChannelMatches(p.channel,getPlatform(r))) continue;
       const pMin=pgmToMinutes(p.time);
       if(pMin===null) continue;
@@ -549,6 +555,14 @@
     if(!p) return "";
     const label=(window.HSFM_PGM_GRADE_LABEL||{})[p.grade]||"";
     return `<span class="badge pgm pgm-${esc(p.grade)}" title="${esc(p.name)} · ${esc(label)}">PGM</span>`;
+  }
+
+  // V3.6: 캘린더(주간/일간)는 칸이 좁아 PGM/HOT/NEW 전체 글자가 상품명을
+  // 가려버리는 문제가 있어, 여기서만 한 글자(P/H/N) 배지로 축소한다.
+  function calendarBadgesHtml(r,rows,firstMap){
+    const p=pgmForRow(r);
+    const label=p?`${p.name} · ${(window.HSFM_PGM_GRADE_LABEL||{})[p.grade]||""}`:"";
+    return `${p?`<span class="badge pgm-mini" title="${esc(label)}">P</span>`:""}${isHot(r,rows)?'<span class="badge hot-mini" title="HOT 실적">H</span>':""}${isNew(r,firstMap)?'<span class="badge new-mini" title="신규 상품">N</span>':""}`;
   }
 
   // V3.4: 방송 여러 건(occurrences)을 대표하는 카드/그룹에서 PGM 여부를
@@ -641,7 +655,7 @@
       for(const d of days){
         const slot=rows.filter(r=>getDate(r)===keyDate(d)&&getHour(r)===h).sort((a,b)=>clean(a.start_datetime).localeCompare(clean(b.start_datetime)));
         html+=`<div class="week-cell"><div class="week-events">${slot.slice(0,3).map(r=>{
-          const badges=`${pgmBadgeHtml(r)}${isHot(r,rows)?'<span class="badge hot">HOT</span>':""}${isNew(r,firstMap)?'<span class="badge new">NEW</span>':""}`;
+          const badges=calendarBadgesHtml(r,rows,firstMap);
           return `<button class="event-chip" data-show-id="${esc(r.hsshow_id||"")}"><span class="event-title">${badges}${esc(getTime(r))} ${esc(getProductName(r))}</span><span class="event-meta">${esc(getPlatform(r))}${performanceOk(r)?` · ${money(sales(r))}`:""}</span></button>`;
         }).join("")}${slot.length>3?`<div class="more-chip">+ ${slot.length-3}개 더보기</div>`:""}</div></div>`;
       }
@@ -714,7 +728,7 @@
                 <button type="button" class="star mini ${isWatched(r)?"on":""}" data-star="${esc(interestKey(r))}">★</button>
                 <button type="button" class="day-grid-event" data-show-id="${esc(r.hsshow_id||"")}" title="클릭하면 상세정보를 볼 수 있습니다">
                   <span class="day-grid-event-time">${esc(getTime(r))}</span>
-                  <span class="day-grid-event-name">${pgmBadgeHtml(r)}${isHot(r,rows)?'<span class="badge hot">HOT</span>':""}${isNew(r,firstMap)?'<span class="badge new">NEW</span>':""}${esc(getProductName(r))}</span>
+                  <span class="day-grid-event-name">${calendarBadgesHtml(r,rows,firstMap)}${esc(getProductName(r))}</span>
                   <span class="day-grid-event-money">${performanceOk(r)?money(sales(r)):"-"}</span>
                 </button>
               </div>`).join("")}${hidden>0?`<div class="day-grid-more">+ ${hidden}</div>`:""}</div>`;
@@ -1120,7 +1134,7 @@
         item.verified===false?'<span class="badge warn">분류완료·자동매칭(미검토)</span>':'<span class="badge good">분류완료·관리자확인</span>';
 
       return `<div class="review-card"><div>
-        <h4>${badge}${groupPgmBadge(allOcc)}${esc(item.standard_product_name||item.raw_title)}</h4>
+        <h4>${badge}${groupPgmBadge(displayOcc)}${esc(item.standard_product_name||item.raw_title)}</h4>
         ${item.raw_title&&item.standard_product_name?`<div class="small">원본: ${esc(item.raw_title)}</div>`:""}
         <div class="review-meta">${last?`${periodLabel} ${reviewRangeActive?"첫":"최근"} 방송 ${getDate(last)} ${getTime(last)} · ${esc(getPlatform(last))}`:"방송 이력 없음"}${displayOcc.length?` · ${periodLabel} 방송 ${displayOcc.length}회`:""}${aliasCount?` · 연결 원본명 ${aliasCount}개`:""}</div>
         ${item.kind==="dynamic"?'<div class="dynamic-note">이 제목은 방송마다 실제 상품이 달라질 수 있어 자동 대표상품으로 묶지 않습니다.</div>':""}
