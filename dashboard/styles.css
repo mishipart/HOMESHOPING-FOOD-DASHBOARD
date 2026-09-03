@@ -494,3 +494,113 @@ footer{font-size:10px;color:var(--muted);margin-top:18px}
 .unverified-count{
   color:var(--warn);
 }
+
+/* ============================================================
+   V3.3 - 일간 캘린더 표(홈쇼핑사 x 시간) + PGM(특화 편성) 뱃지
+   기존 styles.css 맨 끝에 그대로 붙여넣으세요.
+   ============================================================ */
+
+.day-grid-wrap{
+  overflow-x:auto;
+  border:1px solid #e3e6ee;
+  border-radius:12px;
+}
+
+.day-grid{
+  display:grid;
+  min-width:720px;
+}
+
+.day-grid-cell{
+  border-bottom:1px solid #eef0f6;
+  border-right:1px solid #eef0f6;
+  padding:6px 8px;
+  min-height:34px;
+  font-size:12px;
+}
+.day-grid-cell:last-child{ border-right:none; }
+
+.day-grid-head-row{
+  position:sticky;
+  top:0;
+  background:#f7f8fc;
+  font-weight:700;
+  z-index:2;
+}
+.day-grid-corner{ background:#f7f8fc; }
+
+.day-grid-hour{
+  font-weight:700;
+  color:#666;
+  background:#fafbfd;
+  text-align:center;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.day-grid-cell.has-events{
+  background:#fff;
+}
+
+.day-grid-event-row{
+  display:flex;
+  align-items:flex-start;
+  gap:4px;
+  margin-bottom:4px;
+}
+.day-grid-event-row:last-child{ margin-bottom:0; }
+
+.day-grid-event{
+  display:flex;
+  flex-direction:column;
+  gap:1px;
+  padding:4px 6px;
+  border-radius:8px;
+  background:#f3f5fb;
+  flex:1;
+  min-width:0;
+}
+.day-grid-event-time{
+  font-size:10px;
+  color:#888;
+  font-weight:700;
+}
+.day-grid-event-name{
+  font-size:12px;
+  font-weight:600;
+  word-break:break-all;
+}
+.day-grid-event-money{
+  font-size:11px;
+  color:#c0392b;
+  font-weight:700;
+}
+
+.day-grid-empty{
+  padding:24px;
+  text-align:center;
+}
+
+/* PGM(특화 편성) 뱃지 - 식품 취급 등급별 색상 구분 */
+.badge.pgm{
+  color:#6d3b00;
+  background:#ffe9c7;
+  font-weight:700;
+}
+.badge.pgm-food{
+  color:#0a5c2e;
+  background:#d3f4de;
+}
+.badge.pgm-food_mixed{
+  color:#6d3b00;
+  background:#ffe9c7;
+}
+.badge.pgm-nonfood{
+  color:#555;
+  background:#eaeaea;
+}
+.badge.pgm-unknown{
+  color:#555;
+  background:#eaeaea;
+}
