@@ -612,6 +612,14 @@
     $("#calendarRoot").innerHTML=html;
   }
 
+  // V3.4: 롯데원티비는 롯데홈쇼핑의 데이터(VOD) 채널일 뿐 별도
+  // 실시간 편성이 아니라서, 일간 표에서는 같은 열로 합쳐서 보여준다.
+  const DAY_GRID_CHANNEL_MERGE={"롯데원티비":"롯데홈쇼핑"};
+  function dayGridChannel(r){
+    const p=getPlatform(r);
+    return DAY_GRID_CHANNEL_MERGE[p]||p;
+  }
+
   function renderDay(){
     const k=keyDate(state.cursor), rows=filteredCalendarRows().filter(r=>getDate(r)===k).sort((a,b)=>clean(a.start_datetime).localeCompare(clean(b.start_datetime))), firstMap=firstSeenMap();
     $("#periodLabel").textContent=`${state.cursor.getFullYear()}년 ${state.cursor.getMonth()+1}월 ${state.cursor.getDate()}일`;
@@ -624,8 +632,12 @@
 
     // V3.3: 리스트 -> 표(가로축 홈쇼핑사 / 세로축 시간) 형태로 변경.
     // 어떤 홈쇼핑사가 몇 시에 무엇을 방송했는지 한눈에 비교할 수 있게 한다.
+    // V3.4: 채널 병합(롯데원티비→롯데홈쇼핑) + 칸이 너무 길어지지 않도록
+    // 상품명은 2줄까지만 보여주고(전체 이름은 title 툴팁), 칸당 최대
+    // 4건까지만 펼치고 나머지는 "+N개 더보기"로 접어서 한 화면에
+    // 더 많은 시간대가 보이도록 개선했다.
     const CANONICAL_CHANNELS=["롯데홈쇼핑","CJ온스타일","GS SHOP","현대홈쇼핑","NS홈쇼핑","신세계라이브쇼핑"];
-    const present=[...new Set(rows.map(getPlatform))];
+    const present=[...new Set(rows.map(dayGridChannel))];
     const channels=[
       ...CANONICAL_CHANNELS.filter(c=>present.includes(c)),
       ...present.filter(c=>!CANONICAL_CHANNELS.includes(c)).sort((a,b)=>a.localeCompare(b,"ko"))
@@ -636,26 +648,28 @@
     }else{
       const byHourChannel=new Map();
       for(const r of rows){
-        const key=`${getHour(r)}|${getPlatform(r)}`;
+        const key=`${getHour(r)}|${dayGridChannel(r)}`;
         const arr=byHourChannel.get(key)||[]; arr.push(r); byHourChannel.set(key,arr);
       }
+      const CELL_LIMIT=4;
 
-      html+=`<div class="day-grid-wrap"><div class="day-grid" style="grid-template-columns:64px repeat(${channels.length},1fr)">
+      html+=`<div class="day-grid-wrap"><div class="day-grid" style="grid-template-columns:52px repeat(${channels.length},minmax(110px,1fr))">
         <div class="day-grid-cell day-grid-corner day-grid-head-row">시간</div>
-        ${channels.map(c=>`<div class="day-grid-cell day-grid-head-cell day-grid-head-row">${esc(c)}</div>`).join("")}
+        ${channels.map(c=>`<div class="day-grid-cell day-grid-head-cell day-grid-head-row" title="${esc(c)}">${esc(c)}</div>`).join("")}
         ${Array.from({length:24},(_,h)=>h).map(h=>`
           <div class="day-grid-cell day-grid-hour">${pad(h)}시</div>
           ${channels.map(c=>{
             const cellRows=(byHourChannel.get(`${h}|${c}`)||[]).sort((a,b)=>getTime(a).localeCompare(getTime(b)));
-            return `<div class="day-grid-cell ${cellRows.length?"has-events":""}">${cellRows.map(r=>`
+            const shown=cellRows.slice(0,CELL_LIMIT), hidden=cellRows.length-shown.length;
+            return `<div class="day-grid-cell ${cellRows.length?"has-events":""}">${shown.map(r=>`
               <div class="day-grid-event-row">
                 <button class="star ${isWatched(r)?"on":""}" data-star="${esc(interestKey(r))}">★</button>
-                <div class="day-grid-event">
+                <div class="day-grid-event" title="${esc(getTime(r))} ${esc(getProductName(r))} · ${performanceOk(r)?money(sales(r)):"실적 미확인"}">
                   <span class="day-grid-event-time">${esc(getTime(r))}</span>
                   <span class="day-grid-event-name">${pgmBadgeHtml(r)}${isHot(r,rows)?'<span class="badge hot">HOT</span>':""}${isNew(r,firstMap)?'<span class="badge new">NEW</span>':""}${esc(getProductName(r))}</span>
                   <span class="day-grid-event-money">${performanceOk(r)?money(sales(r)):"-"}</span>
                 </div>
-              </div>`).join("")}</div>`;
+              </div>`).join("")}${hidden>0?`<div class="day-grid-more">+ ${hidden}개 더보기</div>`:""}</div>`;
           }).join("")}
         `).join("")}
       </div></div>`;
@@ -1134,53 +1148,74 @@
   // 작업이라 이 흐름은 전적으로 수동 확인 후 저장하는 용도다.
   // 별도의 새 화면 없이 입력창(prompt) 연속 입력으로 처리한다.
   // ============================================================
-  async function openSplitEditor(id){
+  // ============================================================
+  // V3.4 - 방송 1건 다중상품 분리 입력 (팝업 폼 방식으로 개선)
+  // prompt() 연속 입력은 라방바 상세페이지(다른 탭)에서 상품명을 복사해
+  // 오려고 창을 전환하면 입력 중이던 값이 통째로 사라지는 문제가 있어,
+  // 일반 다이얼로그 폼으로 바꿨다. 탭을 오가도 입력값이 유지된다.
+  // ============================================================
+  function splitRowHtml(p={}){
+    return `<div class="split-row" data-split-row>
+      <input type="text" class="split-name" placeholder="상품명 (상세페이지 상품명 그대로)" value="${esc(clean(p.standard_product_name||""))}">
+      <input type="text" inputmode="numeric" class="split-amt" placeholder="매출액(원)" value="${esc(clean(p.sales_amt||""))}">
+      <input type="text" inputmode="numeric" class="split-cnt" placeholder="판매량" value="${esc(clean(p.sales_cnt||""))}">
+      <button type="button" class="icon-btn split-remove-row" title="이 상품 삭제">✕</button>
+    </div>`;
+  }
+
+  function updateSplitTotal(){
+    const total=$$("#splitRows .split-row").reduce((sum,row)=>sum+num(row.querySelector(".split-amt").value),0);
+    $("#splitTotal").textContent=money(total);
+  }
+
+  function bindSplitRow(rowEl){
+    rowEl.querySelector(".split-amt").addEventListener("input",updateSplitTotal);
+    rowEl.querySelector(".split-remove-row").onclick=()=>{
+      if($$("#splitRows .split-row").length<=2){ showStatus("최소 2개 상품이 필요합니다.","error"); return; }
+      rowEl.remove();
+      updateSplitTotal();
+    };
+  }
+
+  function addSplitRow(prefill){
+    if($$("#splitRows .split-row").length>=5){ showStatus("상품은 최대 5개까지 입력할 수 있습니다.","error"); return; }
+    $("#splitRows").insertAdjacentHTML("beforeend",splitRowHtml(prefill||{}));
+    bindSplitRow($("#splitRows .split-row:last-child"));
+  }
+
+  function openSplitEditor(id){
     if(!state.adminPassword){ adminLogin(); return; }
     const r=state.rows.find(x=>clean(x.hsshow_id)===clean(id)); if(!r) return;
 
     const existing=splitMap().get(clean(id))||[];
-    const info=`${getDate(r)} ${getTime(r)} · ${getPlatform(r)} · ${esc(getRawTitle(r))}`;
+    $("#splitForm").dataset.hsshowId=clean(id);
+    $("#splitInfo").textContent=`${getDate(r)} ${getTime(r)} · ${getPlatform(r)} · ${getRawTitle(r)}`;
+    $("#splitError").textContent="";
+    $("#splitRemoveBtn").classList.toggle("hidden",!existing.length);
 
-    const countStr=prompt(
-      `[${info}]\n\n이 방송에 실제로 몇 개 상품이 섞여 있나요?\n` +
-      `라방바 상세페이지의 '판매상품' 개수를 그대로 입력하세요.\n` +
-      `(2~5, 이미 분리 입력을 해제하려면 0 입력)`,
-      String(existing.length||2)
-    );
-    if(countStr===null) return;
+    $("#splitRows").innerHTML="";
+    const seedRows=existing.length?existing:[{},{}];
+    seedRows.forEach(p=>{
+      $("#splitRows").insertAdjacentHTML("beforeend",splitRowHtml(p));
+    });
+    $$("#splitRows .split-row").forEach(bindSplitRow);
+    updateSplitTotal();
 
-    const count=parseInt(countStr,10);
+    $("#splitDialog").showModal();
+  }
 
-    if(!count){
-      if(existing.length && confirm("상품 분리 입력을 해제하고 다시 방송 전체 매출 하나로 되돌릴까요?")){
-        await deleteSplit(id);
-      }
-      return;
-    }
-    if(count<2 || count>5){
-      showStatus("2~5개 사이로 입력해주세요.","error");
-      return;
-    }
+  async function saveSplitEditor(){
+    const id=$("#splitForm").dataset.hsshowId||""; if(!id) return;
+    const r=state.rows.find(x=>clean(x.hsshow_id)===clean(id)); if(!r) return;
 
-    const products=[];
-    for(let i=0;i<count;i++){
-      const prev=existing[i]||{};
-      const name=prompt(`[${i+1}/${count}] 상품명 (라방바 상세페이지 상품명 그대로)`, prev.standard_product_name||"");
-      if(name===null) return;
-      if(!clean(name)){ showStatus("상품명은 비워둘 수 없습니다.","error"); return; }
-      const amt=prompt(`[${i+1}/${count}] "${clean(name)}" 매출액(원) — 상세페이지 매출액 숫자만`, clean(prev.sales_amt||""));
-      if(amt===null) return;
-      const cntv=prompt(`[${i+1}/${count}] "${clean(name)}" 판매량(개)`, clean(prev.sales_cnt||""));
-      if(cntv===null) return;
-      products.push({
-        standard_product_name:clean(name),
-        sales_amt:clean(amt).replace(/[^0-9]/g,"")||"0",
-        sales_cnt:clean(cntv).replace(/[^0-9]/g,"")||"0"
-      });
-    }
+    const products=$$("#splitRows .split-row").map(row=>({
+      standard_product_name:clean(row.querySelector(".split-name").value),
+      sales_amt:clean(row.querySelector(".split-amt").value).replace(/[^0-9]/g,"")||"0",
+      sales_cnt:clean(row.querySelector(".split-cnt").value).replace(/[^0-9]/g,"")||"0"
+    }));
 
-    const totalAmt=products.reduce((a,p)=>a+num(p.sales_amt),0);
-    if(!confirm(`아래 내용으로 저장할까요?\n\n${products.map(p=>`- ${p.standard_product_name}: ${money(num(p.sales_amt))} / ${p.sales_cnt}개`).join("\n")}\n\n합계: ${money(totalAmt)}`)) return;
+    if(products.length<2){ $("#splitError").textContent="상품은 최소 2개 이상 입력해야 합니다."; return; }
+    if(products.some(p=>!p.standard_product_name)){ $("#splitError").textContent="상품명이 비어있는 항목이 있습니다."; return; }
 
     const body={
       action:"save_occurrence_split",
@@ -1193,6 +1228,7 @@
       note:"상세페이지 확인 후 상품별 매출 분리 입력"
     };
 
+    $("#splitError").textContent="";
     try{
       const res=await fetch(`${API}/save`,{method:"POST",headers:{"Content-Type":"application/json","X-Admin-Password":state.adminPassword},body:JSON.stringify(body)});
       const data=await res.json();
@@ -1204,11 +1240,12 @@
       state.adminMaster.occurrence_splits=[...current.filter(x=>clean(x.hsshow_id)!==clean(id)),...optimistic];
       invalidateDerived();
 
+      $("#splitDialog").close();
       showStatus(`${products.length}개 상품으로 매출을 나눠 저장했습니다.`);
       if(state.historyContext) openHistoryDialog(state.historyContext.name,state.historyContext.kind);
       renderGlobalKpis();
       renderActiveTab();
-    }catch(e){ showStatus(e.message,"error"); }
+    }catch(e){ $("#splitError").textContent=e.message; }
   }
 
   async function deleteSplit(id){
@@ -1222,11 +1259,12 @@
       state.adminMaster.occurrence_splits=current.filter(x=>clean(x.hsshow_id)!==clean(id));
       invalidateDerived();
 
+      $("#splitDialog").close();
       showStatus("상품 분리 입력을 해제했습니다.");
       if(state.historyContext) openHistoryDialog(state.historyContext.name,state.historyContext.kind);
       renderGlobalKpis();
       renderActiveTab();
-    }catch(e){ showStatus(e.message,"error"); }
+    }catch(e){ $("#splitError").textContent=e.message; }
   }
 
   function openOccurrenceEditor(id){
@@ -1866,6 +1904,12 @@
         const optimistic={platform:body.platform||"",pattern:body.pattern,enabled:"Y"};
         const key=`${normalize(optimistic.platform)}|${normalize(optimistic.pattern)}`;
         state.adminMaster.dynamic_rules=[optimistic,...current.filter(x=>`${normalize(x.platform||"")}|${normalize(x.pattern||"")}`!==key)];
+        // V3.4 FIX: 서버가 이 원본명으로 남아있던 다른 상품의 alias를
+        // 같이 제거하므로, 화면에서도 새로고침 없이 즉시 지워서
+        // '분류완료'에 유령처럼 계속 보이던 문제를 없앤다.
+        const patternKey=normalize(body.pattern||"");
+        const adminRows=Array.isArray(state.adminMaster.admin_rows)?state.adminMaster.admin_rows:[];
+        state.adminMaster.admin_rows=adminRows.filter(x=>normalize(x.match_keyword||"")!==patternKey);
         invalidateDerived();
       }
 
@@ -2444,6 +2488,12 @@
     setupDateInput("#perfStart",renderPerformance); setupDateInput("#perfEnd",renderPerformance);
     setupDateInput("#reviewStart",renderReview); setupDateInput("#reviewEnd",renderReview);
     $("#overrideSaveBtn").onclick=e=>{e.preventDefault();saveOverride();};
+    $("#splitSaveBtn").onclick=e=>{e.preventDefault();saveSplitEditor();};
+    $("#splitAddRowBtn").onclick=()=>addSplitRow();
+    $("#splitRemoveBtn").onclick=()=>{
+      const id=$("#splitForm").dataset.hsshowId||"";
+      if(id && confirm("상품 분리 입력을 해제하고 방송 전체 매출 하나로 되돌릴까요?")) deleteSplit(id);
+    };
     $("#datePickerClose").onclick=closeDatePicker; $("#datePickerCancel").onclick=closeDatePicker;
     $("#datePickerConfirm").onclick=confirmDatePicker;
     $("#datePrevMonth").onclick=()=>{datePickerState.month=new Date(datePickerState.month.getFullYear(),datePickerState.month.getMonth()-1,1);renderDatePicker();};

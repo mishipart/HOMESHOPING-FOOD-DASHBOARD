@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>홈쇼핑 식품 모니터 V3.0.0</title>
-  <link rel="stylesheet" href="./styles.css?v=3.3.0">
+  <link rel="stylesheet" href="./styles.css?v=3.4.0">
 </head>
 <body>
   <main class="shell">
@@ -320,6 +320,23 @@
     </form>
   </dialog>
 
+  <dialog id="splitDialog">
+    <form method="dialog" class="dialog-card split-dialog-card" id="splitForm">
+      <div class="dialog-title-row"><h3>방송 1건 · 상품 분리 입력</h3><button value="cancel" class="icon-btn">✕</button></div>
+      <div id="splitInfo" class="mini-info"></div>
+      <div class="small">라방바 상세페이지의 '판매상품' 목록을 그대로 옮겨 입력하세요. 다른 탭에서 값을 복사해 와도 이 창은 닫히지 않습니다.</div>
+      <div id="splitRows" class="split-rows"></div>
+      <button type="button" id="splitAddRowBtn" class="btn">+ 상품 추가</button>
+      <div class="split-total">합계 매출: <b id="splitTotal">0원</b></div>
+      <div id="splitError" class="error-text"></div>
+      <div class="dialog-actions">
+        <button type="button" id="splitRemoveBtn" class="btn danger-outline">분리 해제</button>
+        <button value="cancel" class="btn">취소</button>
+        <button id="splitSaveBtn" value="default" class="btn primary">저장</button>
+      </div>
+    </form>
+  </dialog>
+
   <dialog id="datePickerDialog">
     <div class="dialog-card date-picker-card">
       <div class="dialog-title-row"><h3>날짜 선택</h3><button id="datePickerClose" type="button" class="icon-btn">✕</button></div>
@@ -329,8 +346,8 @@
     </div>
   </dialog>
 
-  <script src="./config.js?v=3.3.0"></script>
-  <script src="./pgm_schedule.js?v=3.3.0"></script>
-  <script src="./app.js?v=3.3.0"></script>
+  <script src="./config.js?v=3.4.0"></script>
+  <script src="./pgm_schedule.js?v=3.4.0"></script>
+  <script src="./app.js?v=3.4.0"></script>
 </body>
 </html>
