@@ -593,6 +593,44 @@
     $$("[data-open-day]").forEach(el=>el.onclick=()=>{state.cursor=parseDate(el.dataset.openDay); state.view="day"; renderCalendar();});
   }
 
+  // V3.4.1: 캘린더에서 방송을 클릭하면 상세정보(어떤 PGM에서 어떤 상품이
+  // 방송됐는지, 실적, 분리입력된 상품 등)를 팝업으로 보여준다.
+  // V3.5: index.html이 아직 최신본으로 안 올라간 경우에도 동작하도록,
+  // 다이얼로그가 없으면 그 자리에서 만들어 붙인다 (배포 누락에 안전).
+  function ensureEventDetailDialog(){
+    let dlg=document.getElementById("eventDetailDialog");
+    if(dlg) return dlg;
+    dlg=document.createElement("dialog");
+    dlg.id="eventDetailDialog";
+    dlg.innerHTML=`<div class="dialog-card">
+      <div class="dialog-title-row"><h3>방송 상세</h3><button id="eventDetailCloseBtn" type="button" class="icon-btn">✕</button></div>
+      <div id="eventDetailBody" class="mini-info"></div>
+    </div>`;
+    document.body.appendChild(dlg);
+    dlg.querySelector("#eventDetailCloseBtn").onclick=()=>dlg.close();
+    return dlg;
+  }
+
+  function openEventDetail(id){
+    const r=state.rows.find(x=>clean(x.hsshow_id)===clean(id)); if(!r) return;
+    const dlg=ensureEventDetailDialog();
+    const row=overlayRow(r);
+    const pgm=pgmForRow(r);
+    const pgmLine=pgm?`<div class="mini-row"><b>PGM</b> ${esc(pgm.name)} · ${esc((window.HSFM_PGM_GRADE_LABEL||{})[pgm.grade]||"")}</div>`:"";
+    const splitLine=(row.split_products&&row.split_products.length)
+      ?`<div class="mini-row"><b>분리입력 상품</b><br>${row.split_products.map(p=>`${esc(clean(p.standard_product_name))} — ${money(num(p.sales_amt))} / ${cnt(num(p.sales_cnt))}개`).join("<br>")}</div>`
+      :"";
+    dlg.querySelector("#eventDetailBody").innerHTML=`
+      <div class="mini-row"><b>${esc(getDate(r))} ${esc(getTime(r))}</b> · ${esc(getPlatform(r))}</div>
+      ${pgmLine}
+      <div class="mini-row" style="margin-top:6px"><b>${esc(getProductName(row))}</b></div>
+      <div class="mini-row small">원본명: ${esc(getRawTitle(r))}</div>
+      <div class="mini-row small">판매량 ${cnt(salesCount(row))} · 매출 ${performanceOk(row)?money(sales(row)):"미확인"}</div>
+      ${splitLine}
+    `;
+    dlg.showModal();
+  }
+
   function renderWeek(){
     const start=startOfWeek(state.cursor), days=Array.from({length:7},(_,i)=>addDays(start,i)), rows=filteredCalendarRows(), firstMap=firstSeenMap();
     $("#periodLabel").textContent=`${days[0].getMonth()+1}.${days[0].getDate()} – ${days[6].getMonth()+1}.${days[6].getDate()}`;
@@ -610,14 +648,21 @@
     }
     html+="</div>";
     $("#calendarRoot").innerHTML=html;
+    $$("[data-show-id]").forEach(b=>b.onclick=()=>openEventDetail(b.dataset.showId));
   }
 
-  // V3.4: 롯데원티비는 롯데홈쇼핑의 데이터(VOD) 채널일 뿐 별도
-  // 실시간 편성이 아니라서, 일간 표에서는 같은 열로 합쳐서 보여준다.
-  const DAY_GRID_CHANNEL_MERGE={"롯데원티비":"롯데홈쇼핑"};
-  function dayGridChannel(r){
-    const p=getPlatform(r);
-    return DAY_GRID_CHANNEL_MERGE[p]||p;
+  // V3.5: 라이브 방송사 / 데이터(VOD) 전용 채널 / 라이브+데이터 결합채널
+  // 세 그룹 순서로 배열한다. 실제 데이터에 쓰이는 표기가 조금씩 다를 수
+  // 있어 그룹당 여러 표기를 후보로 둔다.
+  const CHANNEL_GROUP_LIVE = ["CJ온스타일","롯데홈쇼핑","현대홈쇼핑","GS홈쇼핑","GS SHOP","NS홈쇼핑","홈앤쇼핑","공영쇼핑"];
+  const CHANNEL_GROUP_DATA = ["신세계쇼핑","신세계라이브쇼핑","SK스토아","KT알파쇼핑","쇼핑엔티"];
+  const CHANNEL_GROUP_LIVEDATA = ["CJ온스타일 플러스","GS홈쇼핑 마이샵","현대홈쇼핑 플러스샵","롯데원티비","NS홈쇼핑 샵플러스"];
+  const CHANNEL_GROUP_ORDER = [...CHANNEL_GROUP_LIVE, ...CHANNEL_GROUP_DATA, ...CHANNEL_GROUP_LIVEDATA];
+
+  function orderedChannels(present){
+    const known = CHANNEL_GROUP_ORDER.filter(c=>present.includes(c));
+    const rest = present.filter(c=>!known.includes(c)).sort((a,b)=>a.localeCompare(b,"ko"));
+    return [...known, ...rest];
   }
 
   function renderDay(){
@@ -630,53 +675,64 @@
       <span class="summary-chip">방송 ${rows.length}회</span><span class="summary-chip">실적 확인 ${m.confirmed}회</span><span class="summary-chip">매출 ${money(m.sales)}</span><span class="summary-chip">관심상품 ${rows.filter(isWatched).length}건</span>
     </div>`;
 
-    // V3.3: 리스트 -> 표(가로축 홈쇼핑사 / 세로축 시간) 형태로 변경.
-    // 어떤 홈쇼핑사가 몇 시에 무엇을 방송했는지 한눈에 비교할 수 있게 한다.
-    // V3.4: 채널 병합(롯데원티비→롯데홈쇼핑) + 칸이 너무 길어지지 않도록
-    // 상품명은 2줄까지만 보여주고(전체 이름은 title 툴팁), 칸당 최대
-    // 4건까지만 펼치고 나머지는 "+N개 더보기"로 접어서 한 화면에
-    // 더 많은 시간대가 보이도록 개선했다.
-    const CANONICAL_CHANNELS=["롯데홈쇼핑","CJ온스타일","GS SHOP","현대홈쇼핑","NS홈쇼핑","신세계라이브쇼핑"];
-    const present=[...new Set(rows.map(dayGridChannel))];
-    const channels=[
-      ...CANONICAL_CHANNELS.filter(c=>present.includes(c)),
-      ...present.filter(c=>!CANONICAL_CHANNELS.includes(c)).sort((a,b)=>a.localeCompare(b,"ko"))
-    ];
+    const allChannels = orderedChannels([...new Set(rows.map(getPlatform))]);
+
+    // V3.5: 채널 필터 - 처음 보면 전체 선택, 체크 해제한 채널만 숨긴다.
+    if(!state.dayGridHiddenChannels) state.dayGridHiddenChannels = new Set();
+    const channels = allChannels.filter(c=>!state.dayGridHiddenChannels.has(c));
+
+    if(allChannels.length){
+      html += `<div class="day-grid-filter">
+        <span class="small">채널 필터:</span>
+        ${allChannels.map(c=>`<label class="day-grid-filter-chip"><input type="checkbox" data-channel-toggle="${esc(c)}" ${state.dayGridHiddenChannels.has(c)?"":"checked"}>${esc(c)}</label>`).join("")}
+        <button type="button" class="btn small" id="dayGridShowAll">전체 보기</button>
+      </div>`;
+    }
 
     if(!channels.length){
-      html+='<div class="muted day-grid-empty">해당 일자에 방송 데이터가 없습니다.</div>';
+      html+='<div class="muted day-grid-empty">해당 일자에 방송 데이터가 없습니다 (또는 필터로 전부 숨겨짐).</div>';
     }else{
       const byHourChannel=new Map();
       for(const r of rows){
-        const key=`${getHour(r)}|${dayGridChannel(r)}`;
+        const key=`${getHour(r)}|${getPlatform(r)}`;
         const arr=byHourChannel.get(key)||[]; arr.push(r); byHourChannel.set(key,arr);
       }
       const CELL_LIMIT=4;
 
-      html+=`<div class="day-grid-wrap"><div class="day-grid" style="grid-template-columns:52px repeat(${channels.length},minmax(110px,1fr))">
+      // V3.5: 스크롤 없이 화면 안에 다 들어오도록 - 시간열/칸을 좁히고,
+      // 관심상품 별표는 상품명 위에 작게 배치해서 가로폭을 아낀다.
+      html+=`<div class="day-grid-wrap" style="overflow:visible;max-height:none"><div class="day-grid" style="grid-template-columns:34px repeat(${channels.length},minmax(0,1fr));overflow:visible">
         <div class="day-grid-cell day-grid-corner day-grid-head-row">시간</div>
         ${channels.map(c=>`<div class="day-grid-cell day-grid-head-cell day-grid-head-row" title="${esc(c)}">${esc(c)}</div>`).join("")}
         ${Array.from({length:24},(_,h)=>h).map(h=>`
-          <div class="day-grid-cell day-grid-hour">${pad(h)}시</div>
+          <div class="day-grid-cell day-grid-hour">${pad(h)}</div>
           ${channels.map(c=>{
             const cellRows=(byHourChannel.get(`${h}|${c}`)||[]).sort((a,b)=>getTime(a).localeCompare(getTime(b)));
             const shown=cellRows.slice(0,CELL_LIMIT), hidden=cellRows.length-shown.length;
             return `<div class="day-grid-cell ${cellRows.length?"has-events":""}">${shown.map(r=>`
-              <div class="day-grid-event-row">
-                <button class="star ${isWatched(r)?"on":""}" data-star="${esc(interestKey(r))}">★</button>
-                <div class="day-grid-event" title="${esc(getTime(r))} ${esc(getProductName(r))} · ${performanceOk(r)?money(sales(r)):"실적 미확인"}">
+              <div class="day-grid-event-wrap">
+                <button type="button" class="star mini ${isWatched(r)?"on":""}" data-star="${esc(interestKey(r))}">★</button>
+                <button type="button" class="day-grid-event" data-show-id="${esc(r.hsshow_id||"")}" title="클릭하면 상세정보를 볼 수 있습니다">
                   <span class="day-grid-event-time">${esc(getTime(r))}</span>
                   <span class="day-grid-event-name">${pgmBadgeHtml(r)}${isHot(r,rows)?'<span class="badge hot">HOT</span>':""}${isNew(r,firstMap)?'<span class="badge new">NEW</span>':""}${esc(getProductName(r))}</span>
                   <span class="day-grid-event-money">${performanceOk(r)?money(sales(r)):"-"}</span>
-                </div>
-              </div>`).join("")}${hidden>0?`<div class="day-grid-more">+ ${hidden}개 더보기</div>`:""}</div>`;
+                </button>
+              </div>`).join("")}${hidden>0?`<div class="day-grid-more">+ ${hidden}</div>`:""}</div>`;
           }).join("")}
         `).join("")}
       </div></div>`;
     }
 
     $("#calendarRoot").innerHTML=html;
-    $$("[data-star]").forEach(b=>b.onclick=()=>{ const key=b.dataset.star; state.interests.has(key)?state.interests.delete(key):state.interests.add(key); saveWatch(); renderDay(); });
+    $$("[data-star]").forEach(b=>b.onclick=(e)=>{ e.stopPropagation(); const key=b.dataset.star; state.interests.has(key)?state.interests.delete(key):state.interests.add(key); saveWatch(); renderDay(); });
+    $$("[data-show-id]").forEach(b=>b.onclick=()=>openEventDetail(b.dataset.showId));
+    $$("[data-channel-toggle]").forEach(cb=>cb.onchange=()=>{
+      const c=cb.dataset.channelToggle;
+      if(cb.checked) state.dayGridHiddenChannels.delete(c); else state.dayGridHiddenChannels.add(c);
+      renderDay();
+    });
+    const showAllBtn=$("#dayGridShowAll");
+    if(showAllBtn) showAllBtn.onclick=()=>{ state.dayGridHiddenChannels.clear(); renderDay(); };
   }
 
   function setPerfRange(kind){
@@ -938,7 +994,10 @@
         if(dynamic){
           if(filter!=="auto"){
             const inRange=reviewOccurrences(x.rows);
-            const unresolved=inRange.filter(r=>!occurrenceRuleForRow(r));
+            // V3.5 FIX: "상품 분리 입력"(split)으로 처리한 방송도 해결된
+            // 것으로 봐야 한다. occurrenceRuleForRow만 확인하면 분리입력을
+            // 해도 계속 '미확인'에 남는 문제가 있었다.
+            const unresolved=inRange.filter(r=>!occurrenceRuleForRow(r) && !splitMap().get(clean(r.hsshow_id)));
             if(unresolved.length){
               out.push({kind:"dynamic",raw_title:x.raw,standard_product_name:"",master:null,occurrences:x.rows});
             }
@@ -2488,12 +2547,14 @@
     setupDateInput("#perfStart",renderPerformance); setupDateInput("#perfEnd",renderPerformance);
     setupDateInput("#reviewStart",renderReview); setupDateInput("#reviewEnd",renderReview);
     $("#overrideSaveBtn").onclick=e=>{e.preventDefault();saveOverride();};
-    $("#splitSaveBtn").onclick=e=>{e.preventDefault();saveSplitEditor();};
-    $("#splitAddRowBtn").onclick=()=>addSplitRow();
-    $("#splitRemoveBtn").onclick=()=>{
+    if($("#splitSaveBtn")) $("#splitSaveBtn").onclick=e=>{e.preventDefault();saveSplitEditor();};
+    if($("#splitAddRowBtn")) $("#splitAddRowBtn").onclick=()=>addSplitRow();
+    if($("#splitRemoveBtn")) $("#splitRemoveBtn").onclick=()=>{
       const id=$("#splitForm").dataset.hsshowId||"";
       if(id && confirm("상품 분리 입력을 해제하고 방송 전체 매출 하나로 되돌릴까요?")) deleteSplit(id);
     };
+    // V3.5: eventDetailDialog는 이제 JS가 필요할 때 직접 만들어 붙이므로
+    // 여기서 정적 엘리먼트를 미리 찾을 필요가 없다 (없어도 에러 없이 통과).
     $("#datePickerClose").onclick=closeDatePicker; $("#datePickerCancel").onclick=closeDatePicker;
     $("#datePickerConfirm").onclick=confirmDatePicker;
     $("#datePrevMonth").onclick=()=>{datePickerState.month=new Date(datePickerState.month.getFullYear(),datePickerState.month.getMonth()-1,1);renderDatePicker();};
