@@ -191,6 +191,10 @@
     state.derived.masterExactIndex = null;
     state.derived.reviewItemsCache = null;
     state.derived.productNameIndex = null;
+    // V3.2: 방송 1건 다중상품 분리 캐시
+    state.derived.splitMap = null;
+    // V3.3: PGM(특화 편성) 매칭 캐시
+    state.derived.pgmMap = null;
   }
 
   function debounce(fn, wait=180){
@@ -334,7 +338,44 @@
     return hit?.row||null;
   }
 
+  // V3.2: 방송 1건(hsshow_id)에 상품이 여러 개 섞여있어 관리자가 상세페이지를
+  // 직접 보고 상품별로 매출을 나눠 입력한 경우의 색인.
+  function splitMap(){
+    if(state.derived.splitMap) return state.derived.splitMap;
+    const map=new Map();
+    for(const row of (state.adminMaster?.occurrence_splits||[])){
+      const id=clean(row.hsshow_id); if(!id) continue;
+      const arr=map.get(id)||[]; arr.push(row); map.set(id,arr);
+    }
+    for(const arr of map.values()) arr.sort((a,b)=>num(a.split_index)-num(b.split_index));
+    state.derived.splitMap=map;
+    return map;
+  }
+
   function overlayRow(r){
+    // V3.2 Priority 0: 방송 하나에 상품이 여러 개 섞여있어 상세페이지로
+    // 직접 확인해 나눠 입력한 경우. 사람이 상세페이지를 보고 입력한
+    // 값이라 다른 어떤 자동 매칭보다도 신뢰도가 높으므로 최우선 적용한다.
+    const splits=splitMap().get(clean(r.hsshow_id));
+    if(splits && splits.length){
+      const totalAmt=splits.reduce((a,s)=>a+num(s.sales_amt),0);
+      const totalCnt=splits.reduce((a,s)=>a+num(s.sales_cnt),0);
+      const names=splits.map(s=>clean(s.standard_product_name)).filter(Boolean);
+      return {
+        ...r,
+        standard_product_name: names.length>1?`${names[0]} 외 ${names.length-1}건`:(names[0]||r.standard_product_name),
+        sales_amt: totalAmt,
+        sales_cnt: totalCnt,
+        review_status: "confirmed",
+        enabled: "Y",
+        manual_lock: "Y",
+        performance_status: "manual_split",
+        performance_source: "manual_split",
+        occurrence_override: "Y",
+        split_products: splits
+      };
+    }
+
     // Priority 1: one specific broadcast occurrence
     const o = occurrenceRuleForRow(r);
     if(o){
@@ -451,6 +492,75 @@
     });
   }
 
+  // ============================================================
+  // V3.3 - 특화 PGM(고정 편성 프로그램) 매칭
+  // pgm_schedule.js에 정리해둔 요일·시간·홈쇼핑사 데이터와 실제 방송을
+  // 대조해서, 이 방송이 어떤 고정 PGM에 해당하는지 찾는다.
+  // 매주 편성 시각이 몇 분씩 밀리는 경우가 있어 완전히 같은 시각이
+  // 아니라 ±20분 이내면 같은 PGM으로 본다.
+  // ============================================================
+  const PGM_DAY_KEYS=["sun","mon","tue","wed","thu","fri","sat"];
+
+  function pgmToMinutes(hhmm){
+    const m=String(hhmm||"").match(/(\d{1,2}):(\d{2})/);
+    if(!m) return null;
+    return Number(m[1])*60+Number(m[2]);
+  }
+
+  function pgmChannelMatches(pgmChannel,actualChannel){
+    if(!pgmChannel || pgmChannel==="기타") return false;
+    const aliases=(window.HSFM_PGM_CHANNEL_ALIASES||{})[pgmChannel]||[pgmChannel];
+    const a=clean(actualChannel);
+    return aliases.some(alias=>a.includes(alias)||alias.includes(a));
+  }
+
+  function computePgmForRow(r){
+    const list=window.HSFM_PGM_SCHEDULE;
+    if(!Array.isArray(list)||!list.length) return null;
+    const d=parseDate(getDate(r));
+    if(!d) return null;
+    const dayKey=PGM_DAY_KEYS[d.getDay()];
+    const rowMin=pgmToMinutes(getTime(r));
+    if(rowMin===null) return null;
+
+    let best=null, bestDiff=Infinity;
+    for(const p of list){
+      if(p.day!==dayKey) continue;
+      if(!pgmChannelMatches(p.channel,getPlatform(r))) continue;
+      const pMin=pgmToMinutes(p.time);
+      if(pMin===null) continue;
+      const diff=Math.abs(pMin-rowMin);
+      if(diff<=20 && diff<bestDiff){ best=p; bestDiff=diff; }
+    }
+    return best;
+  }
+
+  function pgmForRow(r){
+    const key=clean(r.hsshow_id)||rowChronoKey(r);
+    const map=state.derived.pgmMap||(state.derived.pgmMap=new Map());
+    if(map.has(key)) return map.get(key);
+    const result=computePgmForRow(r);
+    map.set(key,result);
+    return result;
+  }
+
+  function pgmBadgeHtml(r){
+    const p=pgmForRow(r);
+    if(!p) return "";
+    const label=(window.HSFM_PGM_GRADE_LABEL||{})[p.grade]||"";
+    return `<span class="badge pgm pgm-${esc(p.grade)}" title="${esc(p.name)} · ${esc(label)}">PGM</span>`;
+  }
+
+  // V3.4: 방송 여러 건(occurrences)을 대표하는 카드/그룹에서 PGM 여부를
+  // 표시할 때 쓰는 요약 뱃지. 하나라도 PGM 방송이 섞여 있으면 표시하고,
+  // 몇 개 서로 다른 PGM이 섞여있는지 툴팁으로 보여준다.
+  function groupPgmBadge(rows){
+    const matched=(rows||[]).map(pgmForRow).filter(Boolean);
+    if(!matched.length) return "";
+    const names=[...new Set(matched.map(p=>p.name))];
+    return `<span class="badge pgm" title="${esc(names.join(", "))}">PGM${names.length>1?` ${names.length}`:""}</span>`;
+  }
+
   function renderCalendar(){
     $$(".segmented [data-view]").forEach(b=>b.classList.toggle("active",b.dataset.view===state.view));
     if(state.view==="month") renderMonth();
@@ -493,7 +603,7 @@
       for(const d of days){
         const slot=rows.filter(r=>getDate(r)===keyDate(d)&&getHour(r)===h).sort((a,b)=>clean(a.start_datetime).localeCompare(clean(b.start_datetime)));
         html+=`<div class="week-cell"><div class="week-events">${slot.slice(0,3).map(r=>{
-          const badges=`${isHot(r,rows)?'<span class="badge hot">HOT</span>':""}${isNew(r,firstMap)?'<span class="badge new">NEW</span>':""}`;
+          const badges=`${pgmBadgeHtml(r)}${isHot(r,rows)?'<span class="badge hot">HOT</span>':""}${isNew(r,firstMap)?'<span class="badge new">NEW</span>':""}`;
           return `<button class="event-chip" data-show-id="${esc(r.hsshow_id||"")}"><span class="event-title">${badges}${esc(getTime(r))} ${esc(getProductName(r))}</span><span class="event-meta">${esc(getPlatform(r))}${performanceOk(r)?` · ${money(sales(r))}`:""}</span></button>`;
         }).join("")}${slot.length>3?`<div class="more-chip">+ ${slot.length-3}개 더보기</div>`:""}</div></div>`;
       }
@@ -507,12 +617,52 @@
     $("#periodLabel").textContent=`${state.cursor.getFullYear()}년 ${state.cursor.getMonth()+1}월 ${state.cursor.getDate()}일`;
     $("#calendarTitle").textContent="일간 캘린더";
     const m=metricsForRows(rows);
-    $("#calendarRoot").innerHTML=`<div class="review-summary">
+
+    let html=`<div class="review-summary">
       <span class="summary-chip">방송 ${rows.length}회</span><span class="summary-chip">실적 확인 ${m.confirmed}회</span><span class="summary-chip">매출 ${money(m.sales)}</span><span class="summary-chip">관심상품 ${rows.filter(isWatched).length}건</span>
-    </div><div class="day-table"><div class="day-row head"><span>관심</span><span>시간</span><span>홈쇼핑사</span><span>상품</span><span>판매량</span><span>매출</span></div>
-      ${rows.map(r=>`<div class="day-row"><button class="star ${isWatched(r)?"on":""}" data-star="${esc(interestKey(r))}">★</button><b>${esc(getTime(r))}</b><span>${esc(getPlatform(r))}</span><span>${isHot(r,rows)?'<span class="badge hot">HOT</span>':""}${isNew(r,firstMap)?'<span class="badge new">NEW</span>':""}${esc(getProductName(r))}<div class="small">${esc(getRawTitle(r))}</div></span><span>${cnt(salesCount(r))}</span><span class="money">${performanceOk(r)?money(sales(r)):"-"}</span></div>`).join("")}
     </div>`;
-    $$("[data-star]").forEach(b=>b.onclick=()=>{ const k=b.dataset.star; state.interests.has(k)?state.interests.delete(k):state.interests.add(k); saveWatch(); renderDay(); });
+
+    // V3.3: 리스트 -> 표(가로축 홈쇼핑사 / 세로축 시간) 형태로 변경.
+    // 어떤 홈쇼핑사가 몇 시에 무엇을 방송했는지 한눈에 비교할 수 있게 한다.
+    const CANONICAL_CHANNELS=["롯데홈쇼핑","CJ온스타일","GS SHOP","현대홈쇼핑","NS홈쇼핑","신세계라이브쇼핑"];
+    const present=[...new Set(rows.map(getPlatform))];
+    const channels=[
+      ...CANONICAL_CHANNELS.filter(c=>present.includes(c)),
+      ...present.filter(c=>!CANONICAL_CHANNELS.includes(c)).sort((a,b)=>a.localeCompare(b,"ko"))
+    ];
+
+    if(!channels.length){
+      html+='<div class="muted day-grid-empty">해당 일자에 방송 데이터가 없습니다.</div>';
+    }else{
+      const byHourChannel=new Map();
+      for(const r of rows){
+        const key=`${getHour(r)}|${getPlatform(r)}`;
+        const arr=byHourChannel.get(key)||[]; arr.push(r); byHourChannel.set(key,arr);
+      }
+
+      html+=`<div class="day-grid-wrap"><div class="day-grid" style="grid-template-columns:64px repeat(${channels.length},1fr)">
+        <div class="day-grid-cell day-grid-corner day-grid-head-row">시간</div>
+        ${channels.map(c=>`<div class="day-grid-cell day-grid-head-cell day-grid-head-row">${esc(c)}</div>`).join("")}
+        ${Array.from({length:24},(_,h)=>h).map(h=>`
+          <div class="day-grid-cell day-grid-hour">${pad(h)}시</div>
+          ${channels.map(c=>{
+            const cellRows=(byHourChannel.get(`${h}|${c}`)||[]).sort((a,b)=>getTime(a).localeCompare(getTime(b)));
+            return `<div class="day-grid-cell ${cellRows.length?"has-events":""}">${cellRows.map(r=>`
+              <div class="day-grid-event-row">
+                <button class="star ${isWatched(r)?"on":""}" data-star="${esc(interestKey(r))}">★</button>
+                <div class="day-grid-event">
+                  <span class="day-grid-event-time">${esc(getTime(r))}</span>
+                  <span class="day-grid-event-name">${pgmBadgeHtml(r)}${isHot(r,rows)?'<span class="badge hot">HOT</span>':""}${isNew(r,firstMap)?'<span class="badge new">NEW</span>':""}${esc(getProductName(r))}</span>
+                  <span class="day-grid-event-money">${performanceOk(r)?money(sales(r)):"-"}</span>
+                </div>
+              </div>`).join("")}</div>`;
+          }).join("")}
+        `).join("")}
+      </div></div>`;
+    }
+
+    $("#calendarRoot").innerHTML=html;
+    $$("[data-star]").forEach(b=>b.onclick=()=>{ const key=b.dataset.star; state.interests.has(key)?state.interests.delete(key):state.interests.add(key); saveWatch(); renderDay(); });
   }
 
   function setPerfRange(kind){
@@ -544,7 +694,34 @@
     const firstMap=firstSeenMap();
     if($("#perfHotOnly").checked) rows=rows.filter(r=>isHot(r,rows));
     if($("#perfNewOnly").checked) rows=rows.filter(r=>isNew(r,firstMap));
+    if($("#perfPgmOnly")?.checked) rows=rows.filter(r=>pgmForRow(r));
     return rows;
+  }
+
+  // V3.2: 방송 하나가 상품 여러 개로 나뉜 경우, 방송 단위 집계(방송 횟수,
+  // 채널별 매출 등)는 그대로 1건으로 두되, "상품별" 집계에서만 나눠진
+  // 상품 각각을 별도 항목으로 펼쳐서 계산한다.
+  function expandForProducts(rows){
+    const out=[];
+    for(const r of rows){
+      if(r.split_products && r.split_products.length){
+        for(const sp of r.split_products){
+          out.push({
+            ...r,
+            standard_product_name: clean(sp.standard_product_name)||r.standard_product_name,
+            brand: sp.brand||r.brand,
+            product_group: sp.product_group||r.product_group,
+            main_ingredient: sp.main_ingredient||r.main_ingredient,
+            sales_amt: num(sp.sales_amt),
+            sales_cnt: num(sp.sales_cnt),
+            split_products: null
+          });
+        }
+      }else{
+        out.push(r);
+      }
+    }
+    return out;
   }
 
   function renderPerformance(){
@@ -560,14 +737,16 @@
     $("#perfKpis").innerHTML=[
       ["방송",`${cnt(m.broadcasts)}회`,""],["실적 확인",`${m.broadcasts?Math.round(m.confirmed/m.broadcasts*100):0}%`,`${m.confirmed}/${m.broadcasts}회`],
       ["총 매출",money(m.sales),""],["평균 매출",money(m.avg),""],["총 판매량",cnt(m.units),""],
-      ["HOT 방송",`${rows.filter(r=>isHot(r,rows)).length}건`,""],["NEW 방송",`${rows.filter(r=>isNew(r,firstMap)).length}건`,""],["상품수",`${new Set(rows.map(getProductName)).size}개`,""]
+      ["HOT 방송",`${rows.filter(r=>isHot(r,rows)).length}건`,""],["NEW 방송",`${rows.filter(r=>isNew(r,firstMap)).length}건`,""],
+      ["PGM 방송",`${rows.filter(r=>pgmForRow(r)).length}건`,"특화 편성"],
+      ["상품수",`${new Set(rows.map(getProductName)).size}개`,""]
     ].map(([a,b,c])=>`<div class="kpi"><div class="label">${a}</div><div class="value">${b}</div><div class="sub">${c}</div></div>`).join("");
 
     const prod=new Map();
-    for(const r of confirmed){ const k=getProductName(r), x=prod.get(k)||{sales:0,count:0}; x.sales+=sales(r); x.count++; prod.set(k,x); }
+    for(const r of expandForProducts(confirmed)){ const k=getProductName(r), x=prod.get(k)||{sales:0,count:0,pgm:false}; x.sales+=sales(r); x.count++; if(pgmForRow(r)) x.pgm=true; prod.set(k,x); }
     const tops=[...prod].sort((a,b)=>b[1].sales-a[1].sales).slice(0,20), max=tops[0]?.[1].sales||1;
     $("#topProductCount").textContent=`${prod.size}개 상품`;
-    $("#topProducts").innerHTML=tops.map(([name,x],i)=>`<div class="rank-row"><b>${i+1}</b><div><b>${esc(name)}</b><div class="small">${x.count}회 방송</div><div class="bar"><i style="width:${x.sales/max*100}%"></i></div></div><span class="money">${money(x.sales)}</span></div>`).join("")||'<div class="muted">실적이 없습니다.</div>';
+    $("#topProducts").innerHTML=tops.map(([name,x],i)=>`<div class="rank-row"><b>${i+1}</b><div><b>${x.pgm?'<span class="badge pgm">PGM</span>':""}${esc(name)}</b><div class="small">${x.count}회 방송</div><div class="bar"><i style="width:${x.sales/max*100}%"></i></div></div><span class="money">${money(x.sales)}</span></div>`).join("")||'<div class="muted">실적이 없습니다.</div>';
 
     const hourly=Array.from({length:24},(_,h)=>({h,rows:confirmed.filter(r=>getHour(r)===h)})).map(x=>({...x,s:x.rows.reduce((a,r)=>a+sales(r),0)}));
     const hmax=Math.max(1,...hourly.map(x=>x.s));
@@ -575,10 +754,10 @@
 
     const hot=confirmed.filter(r=>isHot(r,rows)).sort((a,b)=>sales(b)-sales(a)).slice(0,30);
     $("#hotCount").textContent=`HOT ${hot.length}건`;
-    $("#hotList").innerHTML=hot.map(r=>`<div class="list-row"><div><span class="badge hot">HOT</span><b>${esc(getProductName(r))}</b><div class="small">${getDate(r)} ${getTime(r)} · ${esc(getPlatform(r))}</div></div><span class="money">${money(sales(r))}</span></div>`).join("")||'<div class="muted">HOT 실적이 없습니다.</div>';
+    $("#hotList").innerHTML=hot.map(r=>`<div class="list-row"><div><span class="badge hot">HOT</span>${pgmBadgeHtml(r)}<b>${esc(getProductName(r))}</b><div class="small">${getDate(r)} ${getTime(r)} · ${esc(getPlatform(r))}</div></div><span class="money">${money(sales(r))}</span></div>`).join("")||'<div class="muted">HOT 실적이 없습니다.</div>';
     const newRows=rows.filter(r=>isNew(r,firstMap)).sort((a,b)=>getDate(b).localeCompare(getDate(a))).slice(0,40);
     $("#newCount").textContent=`NEW ${newRows.length}건`;
-    $("#newList").innerHTML=newRows.map(r=>`<div class="list-row"><div><span class="badge new">NEW</span><b>${esc(getProductName(r))}</b><div class="small">${getDate(r)} ${getTime(r)} · ${esc(getPlatform(r))}</div></div><span>${performanceOk(r)?money(sales(r)):"-"}</span></div>`).join("")||'<div class="muted">신규 상품이 없습니다.</div>';
+    $("#newList").innerHTML=newRows.map(r=>`<div class="list-row"><div><span class="badge new">NEW</span>${pgmBadgeHtml(r)}<b>${esc(getProductName(r))}</b><div class="small">${getDate(r)} ${getTime(r)} · ${esc(getPlatform(r))}</div></div><span>${performanceOk(r)?money(sales(r)):"-"}</span></div>`).join("")||'<div class="muted">신규 상품이 없습니다.</div>';
 
     renderAccordions(rows);
   }
@@ -596,13 +775,13 @@
     }
 
     const byProd=new Map();
-    rows.forEach(r=>{const k=getProductName(r); (byProd.get(k)||byProd.set(k,[]).get(k)).push(r);});
+    expandForProducts(rows).forEach(r=>{const k=getProductName(r); (byProd.get(k)||byProd.set(k,[]).get(k)).push(r);});
     const productEntries=[...byProd].sort((a,b)=>metricsForRows(b[1]).sales-metricsForRows(a[1]).sales);
     const productTarget=$("#productAccordion");
     if(productTarget){
       productTarget.innerHTML=productEntries.map(([name,rs])=>{
         const m=metricsForRows(rs);
-        return `<div class="detail-summary"><b>${esc(name)}</b><span>${rs.length}회</span><span class="money">${money(m.sales)}</span><span>평균 ${money(m.avg)}</span></div>`;
+        return `<div class="detail-summary"><b>${groupPgmBadge(rs)}${esc(name)}</b><span>${rs.length}회</span><span class="money">${money(m.sales)}</span><span>평균 ${money(m.avg)}</span></div>`;
       }).join("")||'<div class="muted detail-empty">해당 기간 상품 실적이 없습니다.</div>';
     }
   }
@@ -610,8 +789,8 @@
   function detailBreakdown(name,rs){
     const m=metricsForRows(rs);
     const sorted=[...rs].sort((a,b)=>rowChronoKey(a).localeCompare(rowChronoKey(b)));
-    return `<div class="detail-summary"><b>${esc(name)}</b><span>${rs.length}회</span><span class="money">${money(m.sales)}</span><span>평균 ${money(m.avg)}</span></div>
-      <div class="detail-broadcast-list">${sorted.map(r=>`<div class="broadcast-mini"><span>${getDate(r)} ${getTime(r)}</span><span>${esc(getPlatform(r))}</span><span>${esc(getProductName(r))}</span><span>${cnt(salesCount(r))}</span><span class="money">${performanceOk(r)?money(sales(r)):"-"}</span></div>`).join("")}</div>`;
+    return `<div class="detail-summary"><b>${groupPgmBadge(rs)}${esc(name)}</b><span>${rs.length}회</span><span class="money">${money(m.sales)}</span><span>평균 ${money(m.avg)}</span></div>
+      <div class="detail-broadcast-list">${sorted.map(r=>`<div class="broadcast-mini"><span>${getDate(r)} ${getTime(r)}</span><span>${esc(getPlatform(r))}</span><span>${pgmBadgeHtml(r)}${esc(getProductName(r))}</span><span>${cnt(salesCount(r))}</span><span class="money">${performanceOk(r)?money(sales(r)):"-"}</span></div>`).join("")}</div>`;
   }
 
   function rowChronoKey(r){
@@ -868,7 +1047,7 @@
         item.verified===false?'<span class="badge warn">분류완료·자동매칭(미검토)</span>':'<span class="badge good">분류완료·관리자확인</span>';
 
       return `<div class="review-card"><div>
-        <h4>${badge}${esc(item.standard_product_name||item.raw_title)}</h4>
+        <h4>${badge}${groupPgmBadge(allOcc)}${esc(item.standard_product_name||item.raw_title)}</h4>
         ${item.raw_title&&item.standard_product_name?`<div class="small">원본: ${esc(item.raw_title)}</div>`:""}
         <div class="review-meta">${last?`${periodLabel} ${reviewRangeActive?"첫":"최근"} 방송 ${getDate(last)} ${getTime(last)} · ${esc(getPlatform(last))}`:"방송 이력 없음"}${displayOcc.length?` · ${periodLabel} 방송 ${displayOcc.length}회`:""}${aliasCount?` · 연결 원본명 ${aliasCount}개`:""}</div>
         ${item.kind==="dynamic"?'<div class="dynamic-note">이 제목은 방송마다 실제 상품이 달라질 수 있어 자동 대표상품으로 묶지 않습니다.</div>':""}
@@ -931,16 +1110,123 @@
       <h4>${date}</h4>
       ${rows.map(r=>{
         const o=occurrenceRuleForRow(r);
+        const splits=splitMap().get(clean(r.hsshow_id));
+        const splitLabel=splits&&splits.length?`<div class="small">분리입력됨: ${splits.map(s=>esc(clean(s.standard_product_name))).join(" · ")}</div>`:"";
         return `<div class="history-occ-row">
           <b>${esc(getTime(r))}</b>
           <span>${esc(getPlatform(r))}</span>
-          <span>${esc(getRawTitle(r))}${o?`<div class="small">지정상품: ${esc(o.standard_product_name)}</div>`:""}</span>
-          <span class="history-actions"><button type="button" class="btn" data-override-edit="${esc(r.hsshow_id||"")}">실적/원본명 수정</button><button type="button" class="btn ${o?"":"primary"}" data-occurrence-edit="${esc(r.hsshow_id||"")}">${o?"분류 수정":"이 방송 분류"}</button></span>
+          <span>${pgmBadgeHtml(r)}${esc(getRawTitle(r))}${o?`<div class="small">지정상품: ${esc(o.standard_product_name)}</div>`:""}${splitLabel}</span>
+          <span class="history-actions"><button type="button" class="btn" data-override-edit="${esc(r.hsshow_id||"")}">실적/원본명 수정</button><button type="button" class="btn ${splits&&splits.length?"":""}" data-split-edit="${esc(r.hsshow_id||"")}">${splits&&splits.length?"상품 분리 수정":"상품 분리 입력"}</button><button type="button" class="btn ${o?"":"primary"}" data-occurrence-edit="${esc(r.hsshow_id||"")}">${o?"분류 수정":"이 방송 분류"}</button></span>
         </div>`;
       }).join("")}`;
     $("#historyBackBtn").onclick=()=>openHistoryDialog(state.historyContext.name,state.historyContext.kind);
     $$("[data-occurrence-edit]").forEach(b=>b.onclick=()=>openOccurrenceEditor(b.dataset.occurrenceEdit));
     $$("[data-override-edit]").forEach(b=>b.onclick=()=>openOverrideEditor(b.dataset.overrideEdit));
+    $$("[data-split-edit]").forEach(b=>b.onclick=()=>openSplitEditor(b.dataset.splitEdit));
+  }
+
+  // ============================================================
+  // V3.2 - 방송 1건 다중상품 분리 입력
+  // 히트상품 앵콜방송처럼 한 방송에 2~5개 상품이 섞여 방송되는 경우,
+  // 관리자가 라방바 유료 계정으로 상세페이지(판매상품 목록)를 직접
+  // 열어 확인한 실제 상품별 매출을 그대로 나눠 입력한다.
+  // 데일리 자동수집(무료 계정, 상세조회 5회 한도)으로는 할 수 없는
+  // 작업이라 이 흐름은 전적으로 수동 확인 후 저장하는 용도다.
+  // 별도의 새 화면 없이 입력창(prompt) 연속 입력으로 처리한다.
+  // ============================================================
+  async function openSplitEditor(id){
+    if(!state.adminPassword){ adminLogin(); return; }
+    const r=state.rows.find(x=>clean(x.hsshow_id)===clean(id)); if(!r) return;
+
+    const existing=splitMap().get(clean(id))||[];
+    const info=`${getDate(r)} ${getTime(r)} · ${getPlatform(r)} · ${esc(getRawTitle(r))}`;
+
+    const countStr=prompt(
+      `[${info}]\n\n이 방송에 실제로 몇 개 상품이 섞여 있나요?\n` +
+      `라방바 상세페이지의 '판매상품' 개수를 그대로 입력하세요.\n` +
+      `(2~5, 이미 분리 입력을 해제하려면 0 입력)`,
+      String(existing.length||2)
+    );
+    if(countStr===null) return;
+
+    const count=parseInt(countStr,10);
+
+    if(!count){
+      if(existing.length && confirm("상품 분리 입력을 해제하고 다시 방송 전체 매출 하나로 되돌릴까요?")){
+        await deleteSplit(id);
+      }
+      return;
+    }
+    if(count<2 || count>5){
+      showStatus("2~5개 사이로 입력해주세요.","error");
+      return;
+    }
+
+    const products=[];
+    for(let i=0;i<count;i++){
+      const prev=existing[i]||{};
+      const name=prompt(`[${i+1}/${count}] 상품명 (라방바 상세페이지 상품명 그대로)`, prev.standard_product_name||"");
+      if(name===null) return;
+      if(!clean(name)){ showStatus("상품명은 비워둘 수 없습니다.","error"); return; }
+      const amt=prompt(`[${i+1}/${count}] "${clean(name)}" 매출액(원) — 상세페이지 매출액 숫자만`, clean(prev.sales_amt||""));
+      if(amt===null) return;
+      const cntv=prompt(`[${i+1}/${count}] "${clean(name)}" 판매량(개)`, clean(prev.sales_cnt||""));
+      if(cntv===null) return;
+      products.push({
+        standard_product_name:clean(name),
+        sales_amt:clean(amt).replace(/[^0-9]/g,"")||"0",
+        sales_cnt:clean(cntv).replace(/[^0-9]/g,"")||"0"
+      });
+    }
+
+    const totalAmt=products.reduce((a,p)=>a+num(p.sales_amt),0);
+    if(!confirm(`아래 내용으로 저장할까요?\n\n${products.map(p=>`- ${p.standard_product_name}: ${money(num(p.sales_amt))} / ${p.sales_cnt}개`).join("\n")}\n\n합계: ${money(totalAmt)}`)) return;
+
+    const body={
+      action:"save_occurrence_split",
+      hsshow_id:id,
+      broadcast_date:getDate(r),
+      start_datetime:clean(r.start_datetime),
+      platform_name:getPlatform(r),
+      raw_title:getRawTitle(r),
+      products,
+      note:"상세페이지 확인 후 상품별 매출 분리 입력"
+    };
+
+    try{
+      const res=await fetch(`${API}/save`,{method:"POST",headers:{"Content-Type":"application/json","X-Admin-Password":state.adminPassword},body:JSON.stringify(body)});
+      const data=await res.json();
+      if(!res.ok||!data.ok) throw new Error(data.error||`HTTP ${res.status}`);
+
+      state.adminMaster=state.adminMaster||{};
+      const current=Array.isArray(state.adminMaster.occurrence_splits)?state.adminMaster.occurrence_splits:[];
+      const optimistic=products.map((p,i)=>({hsshow_id:id,split_index:String(i+1),...p}));
+      state.adminMaster.occurrence_splits=[...current.filter(x=>clean(x.hsshow_id)!==clean(id)),...optimistic];
+      invalidateDerived();
+
+      showStatus(`${products.length}개 상품으로 매출을 나눠 저장했습니다.`);
+      if(state.historyContext) openHistoryDialog(state.historyContext.name,state.historyContext.kind);
+      renderGlobalKpis();
+      renderActiveTab();
+    }catch(e){ showStatus(e.message,"error"); }
+  }
+
+  async function deleteSplit(id){
+    try{
+      const res=await fetch(`${API}/save`,{method:"POST",headers:{"Content-Type":"application/json","X-Admin-Password":state.adminPassword},body:JSON.stringify({action:"delete_occurrence_split",hsshow_id:id})});
+      const data=await res.json();
+      if(!res.ok||!data.ok) throw new Error(data.error||`HTTP ${res.status}`);
+
+      state.adminMaster=state.adminMaster||{};
+      const current=Array.isArray(state.adminMaster.occurrence_splits)?state.adminMaster.occurrence_splits:[];
+      state.adminMaster.occurrence_splits=current.filter(x=>clean(x.hsshow_id)!==clean(id));
+      invalidateDerived();
+
+      showStatus("상품 분리 입력을 해제했습니다.");
+      if(state.historyContext) openHistoryDialog(state.historyContext.name,state.historyContext.kind);
+      renderGlobalKpis();
+      renderActiveTab();
+    }catch(e){ showStatus(e.message,"error"); }
   }
 
   function openOccurrenceEditor(id){
@@ -1567,6 +1853,20 @@
         const key=normalize(optimistic.match_keyword||optimistic.raw_title||"");
         state.adminMaster.admin_rows=[optimistic,...current.filter(x=>normalize(x.match_keyword||x.raw_title||"")!==key)];
         invalidateDerived();
+      } else if(body.action==="mark_dynamic_title") {
+        // V3.2 FIX: 가변형 방송명 저장은 admin_rows가 아니라 dynamic_rules에
+        // 들어가는데, 지금까지는 이 분기가 통째로 위 optimistic 갱신
+        // 블록에서 제외되기만 하고 dynamic_rules 자체에는 아무것도
+        // 반영되지 않았다. 게다가 invalidateDerived()도 호출되지 않아,
+        // 상품확인 목록 캐시(V3.1에서 추가된 reviewItemsCache)가 예전
+        // 상태 그대로 남아있어서 "가변형으로 저장해도 목록이 그대로"인
+        // 것처럼 보였다 (실제로는 서버 저장은 성공했었다).
+        state.adminMaster=state.adminMaster||{};
+        const current=Array.isArray(state.adminMaster.dynamic_rules)?state.adminMaster.dynamic_rules:[];
+        const optimistic={platform:body.platform||"",pattern:body.pattern,enabled:"Y"};
+        const key=`${normalize(optimistic.platform)}|${normalize(optimistic.pattern)}`;
+        state.adminMaster.dynamic_rules=[optimistic,...current.filter(x=>`${normalize(x.platform||"")}|${normalize(x.pattern||"")}`!==key)];
+        invalidateDerived();
       }
 
       $("#productDialog").close();
@@ -2041,7 +2341,7 @@
     $("#calendarSearch").addEventListener("input",debouncedCalendar);
     $$(".quick-range button").forEach(b=>b.onclick=()=>setPerfRange(b.dataset.range));
     const debouncedPerf=debounce(renderPerformance,180);
-    ["#perfPlatform","#perfStatus","#perfHotOnly","#perfNewOnly"].forEach(s=>$(s).addEventListener("input",renderPerformance));
+    ["#perfPlatform","#perfStatus","#perfHotOnly","#perfNewOnly","#perfPgmOnly"].forEach(s=>{const el=$(s); if(el) el.addEventListener("input",renderPerformance);});
     ["#perfMajor","#perfMiddle","#perfSub"].forEach(sel=>$(sel).addEventListener("change",()=>{ if(sel==="#perfMajor") refreshPerfCategoryChildren(); if(sel==="#perfMiddle") refreshPerfCategoryChildren(); renderPerformance(); }));
     $("#perfSearch").addEventListener("input",debouncedPerf);
     const bindSectionToggle=(buttonSel,bodySel)=>{
