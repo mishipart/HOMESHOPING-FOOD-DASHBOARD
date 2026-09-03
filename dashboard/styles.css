@@ -915,3 +915,236 @@ footer{font-size:10px;color:var(--muted);margin-top:18px}
   color:#c0392b;
   background:#fff;
 }
+
+/* ============================================================
+   V3.5 - 일간 캘린더 최종 통합 스타일
+   이 파일 하나로 이전에 드린 day_grid_v2.css / day_grid_v3.css /
+   pgm_day_grid.css / pgm_color_fix.css 를 전부 대체합니다.
+   기존 styles.css 맨 마지막에 그대로 붙여넣으세요.
+   ============================================================ */
+
+/* 표 전체 - 절대 자체 스크롤을 만들지 않는다 (페이지 스크롤만 사용) */
+.day-grid-wrap{
+  overflow: visible !important;
+  max-height: none !important;
+  width: 100%;
+}
+.day-grid{
+  overflow: visible !important;
+  width: 100%;
+}
+
+.day-grid-filter{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:6px 10px;
+  margin:8px 0 12px;
+  padding:8px 10px;
+  background:#f7f8fc;
+  border-radius:10px;
+}
+.day-grid-filter-chip{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  font-size:12px;
+  white-space:nowrap;
+  cursor:pointer;
+}
+.day-grid-filter-chip input{
+  width:auto;
+  margin:0;
+}
+#dayGridShowAll{
+  font-size:11px;
+  padding:3px 8px;
+}
+
+.day-grid-cell{
+  border-bottom:1px solid #eef0f6;
+  border-right:1px solid #eef0f6;
+  padding:2px 3px;
+  min-height:24px;
+  font-size:11px;
+  max-height:none;
+  overflow-y:visible;
+}
+.day-grid-cell:last-child{ border-right:none; }
+
+.day-grid-head-row{
+  position:sticky;
+  top:0;
+  background:#f7f8fc;
+  font-weight:700;
+  z-index:2;
+  font-size:10px;
+  padding:4px 2px;
+  text-align:center;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.day-grid-corner{
+  position:sticky;
+  left:0;
+  top:0;
+  z-index:4;
+  background:#f7f8fc;
+}
+
+.day-grid-hour{
+  position:sticky;
+  left:0;
+  z-index:1;
+  font-weight:700;
+  color:#666;
+  background:#fafbfd;
+  text-align:center;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:10px;
+}
+
+.day-grid-cell.has-events{ background:#fff; }
+
+/* 방송 이벤트 한 건 - 별표는 위, 좁은 칸에서도 안 깨지게 */
+.day-grid-event-wrap{
+  position:relative;
+  margin-bottom:3px;
+}
+.day-grid-event-wrap:last-child{ margin-bottom:0; }
+
+.day-grid-event{
+  display:flex;
+  flex-direction:column;
+  gap:0;
+  padding:3px 4px 3px 14px;
+  border:none;
+  border-radius:6px;
+  background:#f3f5fb;
+  width:100%;
+  text-align:left;
+  cursor:pointer;
+}
+.day-grid-event:hover{ background:#e3e8fa; }
+
+.star.mini{
+  position:absolute;
+  left:0;
+  top:0;
+  width:13px;
+  height:13px;
+  line-height:13px;
+  font-size:9px;
+  padding:0;
+  border:none;
+  background:transparent;
+  color:#ccc;
+  cursor:pointer;
+  z-index:1;
+}
+.star.mini.on{ color:#f5a623; }
+
+.day-grid-event-time{
+  font-size:9px;
+  color:#888;
+  font-weight:700;
+}
+.day-grid-event-name{
+  font-size:10px;
+  font-weight:600;
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+  line-height:1.2;
+  max-height:2.4em;
+  word-break:break-all;
+}
+.day-grid-event-money{
+  font-size:9px;
+  color:#c0392b;
+  font-weight:700;
+}
+
+.day-grid-more{
+  font-size:9px;
+  color:#5b7fdb;
+  text-align:center;
+}
+
+.day-grid-empty{
+  padding:24px;
+  text-align:center;
+}
+
+/* PGM 뱃지 - 등급 상관없이 초록색 하나로 통일 (HOT과 혼동 방지) */
+.badge.pgm,
+.badge.pgm-food,
+.badge.pgm-food_mixed,
+.badge.pgm-nonfood,
+.badge.pgm-unknown{
+  color:#0a5c2e !important;
+  background:#d3f4de !important;
+}
+
+/* V3.6: 캘린더 전용 한 글자 배지 (P/H/N) - 상품명 가리지 않게 최소화 */
+.badge.pgm-mini,
+.badge.hot-mini,
+.badge.new-mini{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:11px;
+  height:11px;
+  border-radius:3px;
+  font-size:8px;
+  font-weight:800;
+  line-height:1;
+  margin-right:2px;
+  padding:0;
+}
+.badge.pgm-mini{ color:#0a5c2e; background:#d3f4de; }
+.badge.hot-mini{ color:#a12b1f; background:#ffdad4; }
+.badge.new-mini{ color:#1a4fa0; background:#dce8ff; }
+
+/* 방송 상세 팝업 */
+#eventDetailDialog .dialog-card{
+  width:min(420px,92vw);
+}
+.mini-row{
+  margin:4px 0;
+  font-size:13px;
+  line-height:1.5;
+}
+
+/* 상품 분리 입력 폼 */
+.split-dialog-card{
+  width:min(560px,92vw);
+}
+.split-rows{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  margin:10px 0;
+}
+.split-row{
+  display:grid;
+  grid-template-columns:1fr 120px 90px 28px;
+  gap:6px;
+  align-items:center;
+}
+.split-row input{ width:100%; }
+.split-remove-row{ color:#c0392b; }
+.split-total{
+  text-align:right;
+  font-size:13px;
+  margin:4px 0 8px;
+}
+.danger-outline{
+  border:1px solid #e0a0a0;
+  color:#c0392b;
+  background:#fff;
+}
