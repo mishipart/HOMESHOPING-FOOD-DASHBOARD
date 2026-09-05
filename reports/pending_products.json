@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-09-04T23:32:59.803399+09:00",
-  "pending_count": 831,
+  "generated_at": "2026-09-05T23:34:08.683742+09:00",
+  "pending_count": 852,
   "review_actions": [
     "기존 제품으로 연결",
     "신규 제품명으로 확정",
@@ -44,15 +44,6 @@
       "note": "2026-08-23 신규 자동등록 · 대시보드에서 확정/병합/제외 필요"
     },
     {
-      "match_keyword": "호주직수입 베지 크리스프 오리지널 * 2봉+브로콜리 플로렛츠 * 2봉+표고버섯 크리스프 * 2봉+ 스냅피 * 2봉",
-      "standard_product_name": "호주직수입 베지 크리스프 오리지널 * 2봉+브로콜리 플로렛츠 * 2봉+표고버섯 크리스프 * 2봉+ 스냅피 * 2봉",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-08-23 신규 자동등록 · 대시보드에서 확정/병합/제외 필요"
-    },
-    {
       "match_keyword": "광천김 추석 선물세트 죽염담은 곱창 캔김 30g*6캔 + 지주식 구운 곱창 전장김 32g*5봉 2세트 더블구성",
       "standard_product_name": "",
       "brand": "",
@@ -60,6 +51,15 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-09-05 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "호주직수입 베지 크리스프 오리지널 * 2봉+브로콜리 플로렛츠 * 2봉+표고버섯 크리스프 * 2봉+ 스냅피 * 2봉",
+      "standard_product_name": "호주직수입 베지 크리스프 오리지널 * 2봉+브로콜리 플로렛츠 * 2봉+표고버섯 크리스프 * 2봉+ 스냅피 * 2봉",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-08-23 신규 자동등록 · 대시보드에서 확정/병합/제외 필요"
     },
     {
       "match_keyword": "● 콘드로이친 1200 콘레이티+MBP+K2 12박스 + 초임계 비타민K2 2박스 | 원산지 : 상품정보 참조",
@@ -224,6 +224,15 @@
       "note": "2026-08-27 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "DOP 12년산 발사믹 비니거 100ml x 3병 + 화이트발사믹 250ml 1병 + 에코백",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-05 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "김선영의 황태구이 간장맛 200g x 4팩 + 김선영의 황태구이 고추장맛 200g x 4팩",
       "standard_product_name": "",
       "brand": "",
@@ -267,15 +276,6 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-09-02 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "DOP 12년산 발사믹 비니거 100ml x 3병 + 화이트발사믹 250ml 1병 + 에코백",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-05 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "프리미엄 발효후추 시그니처 2개 50gX2개 + 시그니처 1개 미니 2개 쇼핑백 3개 추가",
@@ -395,6 +395,15 @@
       "note": "2026-09-06 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "CJ 바이오코어 쓰리핏 비피더스B3유산균 다이어트 150억보장 6+3박스",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "w 카사베르디 유기농 레드와인비니거 6병+2병 + 휴대용기 + 카무트효소G 3박스",
       "standard_product_name": "",
       "brand": "",
@@ -440,6 +449,15 @@
       "note": "2026-08-28 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "밥스누 파이토100 생식 8박스 + 껍질째 약콩100 두유 1box + 쉐이커 2개",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-06 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "★본품 최다! 4박스 더★ 여에스더 리포좀 NMN 파이토에스 울트라 X 16개월분",
       "standard_product_name": "",
       "brand": "",
@@ -465,6 +483,24 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-08-31 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "의 제로당 콩가루 찹쌀떡 320g x 4팩 + 제로당 흑임자 찹쌀떡 320g x 4팩",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "★전고객 상품권★ 관절엔 아나파랙틴 9박스+아나파랙틴 패치 3박스+상품권 3만원",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "하루틴 리포좀 비타민C 프로 12+ 3개월분 + 리포좀 비타민c 스틱 10포 3박스",
@@ -494,40 +530,13 @@
       "note": "2026-09-02 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
-      "match_keyword": "밥스누 파이토100 생식 8박스 + 껍질째 약콩100 두유 1box + 쉐이커 2개",
+      "match_keyword": "2026 안면도 태양초 고춧가루 500g x 4EA +고추씨 300g x 1ea",
       "standard_product_name": "",
       "brand": "",
       "product_group": "",
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-09-06 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "★전고객 상품권★ 관절엔 아나파랙틴 9박스+아나파랙틴 패치 3박스+상품권 3만원",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "CJ 바이오코어 쓰리핏 비피더스B3유산균 다이어트 150억보장 6+3박스",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "의 제로당 콩가루 찹쌀떡 320g x 4팩 + 제로당 흑임자 찹쌀떡 320g x 4팩",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "*담백한 베지밀A 검은콩두유 190ml*80팩 | 원산지 : 상품정보 참조",
@@ -557,24 +566,6 @@
       "note": "2026-08-24 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
-      "match_keyword": "박정수 두툼 순살볼락 25토막+한라봉간장소스/총 2.5kg/필렛 25토막",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-03 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "청정원 호밍스 초간편 국물요리 찌개4종x3팩 + 방송에서만 김치찌개 2팩 더",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-02 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
       "match_keyword": "박민수 박사의 평생 마그네슘 6박스+3박스 / 총 9박스 | 원산지 : 상품정보 참조",
       "standard_product_name": "",
       "brand": "",
@@ -582,6 +573,15 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "박정수 두툼 순살볼락 25토막+한라봉간장소스/총 2.5kg/필렛 25토막",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-03 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "♥역대 최다! 3박스 더♥ 여에스더 키성장 하이 앤 그로우 스틱 Pro 12+3박스",
@@ -593,6 +593,15 @@
       "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "청정원 호밍스 초간편 국물요리 찌개4종x3팩 + 방송에서만 김치찌개 2팩 더",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-02 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "NEW 여에스더 리포좀 글루타치온 다이렉트 12X 알파네트워크 6박스",
       "standard_product_name": "",
       "brand": "",
@@ -600,6 +609,15 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-08-30 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "느솜 당1.5g이하 저당떡 제주쑥팥가득설기 2박스, 흑당꿀설기 2박스",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "동가게PICK YOGA 100% NFC 토마토주스 200ml 24팩",
@@ -719,15 +737,6 @@
       "note": "2026-08-29 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
-      "match_keyword": "느솜 당1.5g이하 저당떡 제주쑥팥가득설기 2박스, 흑당꿀설기 2박스",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
       "match_keyword": "★300초★ 하동녹차 명란김 6gx60봉, 권여사 명란자반 70gx2봉",
       "standard_product_name": "",
       "brand": "",
@@ -755,6 +764,15 @@
       "note": "2026-09-03 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "락토핏 코어맥스 유산균 180포x2통+30포x4박스+복부마사지기",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-06 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "스페인착즙주스1등 돈시몬 100%토마토주스 200ml*60팩",
       "standard_product_name": "",
       "brand": "",
@@ -773,15 +791,6 @@
       "note": "2026-08-28 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
-      "match_keyword": "* 윤상섭 LA갈비 400g*9팩 / 3.6kg | 원산지 : 상품정보 참조",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-04 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
       "match_keyword": "유기농 NFC착즙 야생 빌베리 100 8+4박스 | 원산지 : 상품정보 참조",
       "standard_product_name": "",
       "brand": "",
@@ -791,13 +800,13 @@
       "note": "2026-09-05 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
-      "match_keyword": "락토핏 코어맥스 유산균 180포x2통+30포x4박스+복부마사지기",
+      "match_keyword": "* 윤상섭 LA갈비 400g*9팩 / 3.6kg | 원산지 : 상품정보 참조",
       "standard_product_name": "",
       "brand": "",
       "product_group": "",
       "main_ingredient": "",
       "review_status": "확인필요",
-      "note": "2026-09-06 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+      "note": "2026-09-04 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "대원제약 철갑상어 콘드로이친 with MBP 15개월분 + 저압냄비",
@@ -834,6 +843,15 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-08-27 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "●방송에서만 GNC 스킨&헤어 콜라겐 퍼펙션 골드 X12병+21정",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "아이클타임 키성장 에프지오 FGO 6박스 + 멀티비타민밸런스3박스",
@@ -890,6 +908,15 @@
       "note": "2026-08-26 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "카무트 브랜드 밀 300g x 10팩 / 총3kg | 원산지 : 상품정보 참조",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "해운대암소갈비집 양념갈비 300g * 7팩 | 원산지 : 상품정보 참조",
       "standard_product_name": "",
       "brand": "",
@@ -906,24 +933,6 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-09-03 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "카무트 브랜드 밀 300g x 10팩 / 총3kg | 원산지 : 상품정보 참조",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "●방송에서만 GNC 스킨&헤어 콜라겐 퍼펙션 골드 X12병+21정",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "w100주년특집 유한양행 당큐락 9개월분 +당큐락 플러스 1박스",
@@ -989,6 +998,15 @@
       "note": "2026-09-01 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "오트리 고메 넛츠 퓨어 100봉 + 쇼핑백1장 | 원산지 : 상품정보 참조",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-04 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "조리기능장 임성근의 한끗다른 뼈없는 소갈비찜 500g X 11팩",
       "standard_product_name": "",
       "brand": "",
@@ -1043,15 +1061,6 @@
       "note": "2026-08-29 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
-      "match_keyword": "오트리 고메 넛츠 퓨어 100봉 + 쇼핑백1장 | 원산지 : 상품정보 참조",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-04 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
       "match_keyword": "가시제거연구소 고등어밥상 노르웨이 순살고등어 700g 3봉",
       "standard_product_name": "",
       "brand": "",
@@ -1088,6 +1097,15 @@
       "note": "2026-09-05 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "올록담 올리브3 지중해 올리브오일 24포 7박스 + 10포 4박스",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-04 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "전국한우협회 한우먹는날 한우 등심스테이크 150gx10팩",
       "standard_product_name": "",
       "brand": "",
@@ -1104,6 +1122,24 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-08-28 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "통째로 갈아만든 유기농 블루베리 8박스 | 원산지 : 상품정보 참조",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "프리미엄 스페인+포르투갈 11일 / NO팁 / NO환차 / NO유류인상",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-05 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "하이랜드 프레쉬 100% 블루베리 착즙 주스 48팩 120mL",
@@ -1131,33 +1167,6 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-08-24 신규 자동등록 · 대시보드에서 확정/병합/제외 필요"
-    },
-    {
-      "match_keyword": "올록담 올리브3 지중해 올리브오일 24포 7박스 + 10포 4박스",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-04 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "프리미엄 스페인+포르투갈 11일 / NO팁 / NO환차 / NO유류인상",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-05 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "통째로 갈아만든 유기농 블루베리 8박스 | 원산지 : 상품정보 참조",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "26년_안동제비원 전통고추장 담그기_26년 햇고춧가루사용",
@@ -1223,6 +1232,15 @@
       "note": "2026-08-26 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "여에스더 PS 포스파티딜세린 10박스 + 블루베리 스틱 1박스",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "여에스더 PS 포스파티딜세린 10박스 + 블루베리퓨레 1박스",
       "standard_product_name": "",
       "brand": "",
@@ -1259,6 +1277,24 @@
       "note": "2026-09-03 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "청진수산 활전복 대왕특大사이즈 12미 총 1.44kg이상",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "카사베르디 레드와인비니거 9병 + 휴대용기 세트 + 텀블러믹서기",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-06 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "프로메가 식물성 알티지 오메가3 12박스 +아보카도오일 2병",
       "standard_product_name": "",
       "brand": "",
@@ -1277,31 +1313,22 @@
       "note": "2026-08-25 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
-      "match_keyword": "카사베르디 레드와인비니거 9병 + 휴대용기 세트 + 텀블러믹서기",
+      "match_keyword": "엘로히오 그랑크뤼 엑스트라버진 올리브오일 250ml 8병",
       "standard_product_name": "",
       "brand": "",
       "product_group": "",
       "main_ingredient": "",
       "review_status": "확인필요",
-      "note": "2026-09-06 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+      "note": "2026-09-10 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
-      "match_keyword": "청진수산 활전복 대왕특大사이즈 12미 총 1.44kg이상",
+      "match_keyword": "아티키 그릭 피노 포레스트 허니 10병+스틱형 2통+쇼핑백 2매",
       "standard_product_name": "",
       "brand": "",
       "product_group": "",
       "main_ingredient": "",
       "review_status": "확인필요",
-      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "여에스더 PS 포스파티딜세린 10박스 + 블루베리 스틱 1박스",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+      "note": "2026-09-10 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "고려은단 관절 올케어 +뼈건강 칼마디K2 2박스 +쇼핑백 6장",
@@ -1347,6 +1374,15 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-08-28 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "김종철 홍천약도라지청 떠먹는 국산 도라지청 100g 8병",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "■ 닥터린 콘드로이친 1200 콘레이티+MBP+K2 12박스",
@@ -1448,6 +1484,15 @@
       "note": "2026-08-30 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "워커힐 고메 서울식 한우불고기 8팩 | 원산지 : 상품정보 참조",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-06 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "유기농 엑스트라버진 올리브오일 피쿠알100% 14박스",
       "standard_product_name": "",
       "brand": "",
@@ -1464,6 +1509,15 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-08-25 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "전일정 월드체인 윈덤호텔, 다낭/호이안 5일 vs 푸꾸옥 5일",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-05 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "정관장 홍삼진고 데일리스틱 홍삼스틱 6+2박스 +쇼핑백8장",
@@ -1511,33 +1565,6 @@
       "note": "2026-08-21 신규 자동등록 · 대시보드에서 확정/병합/제외 필요"
     },
     {
-      "match_keyword": "전일정 월드체인 윈덤호텔, 다낭/호이안 5일 vs 푸꾸옥 5일",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-05 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "워커힐 고메 서울식 한우불고기 8팩 | 원산지 : 상품정보 참조",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-06 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "김종철 홍천약도라지청 떠먹는 국산 도라지청 100g 8병",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
       "match_keyword": "1++한우 칼집 스테이크 150gX5팩+ 에만 1팩 더 총 6팩",
       "standard_product_name": "",
       "brand": "",
@@ -1547,6 +1574,33 @@
       "note": "2026-09-02 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "GNC 스킨&헤어 콜라겐 퍼펙션 골드 12박스 + 7일분 더",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "NEW 프로 다이어트 유산균 9개월분+슬림플러스30포",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "●NEW! 홍삼진고 데일리스틱 6+4 박스+쇼핑백10장",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "김호윤셰프의 시그니처 한우한돈 함박스테이크 총 16팩",
       "standard_product_name": "",
       "brand": "",
@@ -1554,6 +1608,15 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-08-25 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "노블레사 델 수르 에코데이 올리브오일 500ml x 4병",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "데이즈온 원데이 알파시클로덱스트린 알파CD 18박스",
@@ -1592,6 +1655,15 @@
       "note": "2026-09-03 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "워커힐 직화 그릴스테이크 15팩 | 원산지 : 상품정보 참조",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "유기농 레몬 자몽즙 10+10박스 | 원산지 : 상품정보 참조",
       "standard_product_name": "",
       "brand": "",
@@ -1599,6 +1671,15 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-08-28 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "이재수명장 곤지암식 한우소머리곰탕 600gx10팩",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "정성곳간 특 양념LA갈비 400gx8팩, 총3.2kg",
@@ -1655,15 +1736,6 @@
       "note": "2026-08-28 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
-      "match_keyword": "해운대암소갈비집 한우 등심불고기 6팩, 감자사리면 2팩",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-08-29 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
       "match_keyword": "한원정 미국산 프라임 꽃갈비 원육 1kgx3팩, 총 3kg",
       "standard_product_name": "",
       "brand": "",
@@ -1673,58 +1745,22 @@
       "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
-      "match_keyword": "GNC 스킨&헤어 콜라겐 퍼펙션 골드 12박스 + 7일분 더",
+      "match_keyword": "해운대암소갈비집 한우 등심불고기 6팩, 감자사리면 2팩",
       "standard_product_name": "",
       "brand": "",
       "product_group": "",
       "main_ingredient": "",
       "review_status": "확인필요",
-      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+      "note": "2026-08-29 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
-      "match_keyword": "워커힐 직화 그릴스테이크 15팩 | 원산지 : 상품정보 참조",
+      "match_keyword": "아름아리 거창 햇 홍로사과 2.5kgx2박스, 총 5kg",
       "standard_product_name": "",
       "brand": "",
       "product_group": "",
       "main_ingredient": "",
       "review_status": "확인필요",
-      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "이재수명장 곤지암식 한우소머리곰탕 600gx10팩",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "노블레사 델 수르 에코데이 올리브오일 500ml x 4병",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "NEW 프로 다이어트 유산균 9개월분+슬림플러스30포",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "●NEW! 홍삼진고 데일리스틱 6+4 박스+쇼핑백10장",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+      "note": "2026-09-10 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "1. 수정픽 GNC 비피도 핏 다이어트 유산균 8+2박스",
@@ -1781,6 +1817,15 @@
       "note": "2026-09-04 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "강남농장 동물복지인증 무항생제 유정란 20구+20구",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-05 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "김규흔명장의 시그니처 영양바 80개 + 미니꿀약과 2봉",
       "standard_product_name": "",
       "brand": "",
@@ -1817,6 +1862,15 @@
       "note": "2026-09-01 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "메이필드호텔 봉래헌 양념LA갈비 총3.2kg, 8팩",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "빅마마 이혜정의 한우갈비찜 500g*6팩, 총 3kg",
       "standard_product_name": "",
       "brand": "",
@@ -1824,6 +1878,15 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-09-05 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "선택1) 뉴질랜드LA갈비 원육1kg x 4팩/총4kg",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "쓰리핏유산균다이어트 6+3개월분 +콜라겐스틱 1박스",
@@ -1842,6 +1905,15 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-08-29 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "여에스더 포스파티딜세린 5개월분 + 올리브오일 1박스",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-06 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "오뗄 규그릴 직화 닭다리살 스테이크 200g x 11팩",
@@ -1869,6 +1941,15 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-09-03 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "정성곳간 뼈없는 한우갈비찜 500gx8팩, 총4kg",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "풍기인삼농협 실속형 홍삼정 원데이스틱 +맛책임제3포",
@@ -1907,6 +1988,15 @@
       "note": "2026-08-27 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "프리미엄 청도 반건시 20과 x 2세트 + 고급 보자기 포장",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "한식대가 장인의 국내산 돼지수제갈비 600g x 4팩",
       "standard_product_name": "",
       "brand": "",
@@ -1923,6 +2013,15 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-08-30 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "한원정 미국산 블랙앵거스 LA갈비 원육 세트 총 3kg",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "황성주 박사의 라이프밀 8박스+영양식 3박스+흔들컵2",
@@ -1943,67 +2042,13 @@
       "note": "2026-08-22 신규 자동등록 · 대시보드에서 확정/병합/제외 필요"
     },
     {
-      "match_keyword": "강남농장 동물복지인증 무항생제 유정란 20구+20구",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-05 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "여에스더 포스파티딜세린 5개월분 + 올리브오일 1박스",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-06 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "정성곳간 뼈없는 한우갈비찜 500gx8팩, 총4kg",
+      "match_keyword": "100% 통참깨 통들깨 솥담 안성 참기름+들기름 세트",
       "standard_product_name": "",
       "brand": "",
       "product_group": "",
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "한원정 미국산 블랙앵거스 LA갈비 원육 세트 총 3kg",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "선택1) 뉴질랜드LA갈비 원육1kg x 4팩/총4kg",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "프리미엄 청도 반건시 20과 x 2세트 + 고급 보자기 포장",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "메이필드호텔 봉래헌 양념LA갈비 총3.2kg, 8팩",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "2026 청양농협 고춧가루 매운맛 500g * 6봉",
@@ -2031,6 +2076,69 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-08-25 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "거제도 견내량 돌미역 120g×4봉+요리를9해조",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "결초보은 깨끗이씻은 홍로 사과 2.5kg*2박스",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "국내산 영산포 숙성 홍어회 모듬살 9팩+초고추장 9팩",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "김규흔명장의 시그니처 영양바 80개 +오란다 12개",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "남해안 다도해 원초 두번 구운 곱창김 10매x20봉",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "덴마크 유산균 이야기 6병 + 쇼핑백 1장 + 선물박스 1개",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "동 원산업 훈제연어8팩+그라브락스3팩+저당소스1",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "락토핏 당케어프로 혈당케어 유산균 8통+핸디청소기",
@@ -2132,6 +2240,15 @@
       "note": "2026-08-25 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "우리참바다국내산 반건조 우럭 230gx10마리",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "우리참바다왕특대 국내산 고등어160gx16팩",
       "standard_product_name": "",
       "brand": "",
@@ -2222,85 +2339,31 @@
       "note": "2026-08-23 신규 자동등록 · 대시보드에서 확정/병합/제외 필요"
     },
     {
-      "match_keyword": "거제도 견내량 돌미역 120g×4봉+요리를9해조",
+      "match_keyword": "엑스트라버진 유기농 올리브오일500ml x 4병",
       "standard_product_name": "",
       "brand": "",
       "product_group": "",
       "main_ingredient": "",
       "review_status": "확인필요",
-      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+      "note": "2026-09-10 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
-      "match_keyword": "100% 통참깨 통들깨 솥담 안성 참기름+들기름 세트",
+      "match_keyword": "블랙타이거 새우 300g 23미 X 5팩 + 갈릭감바스",
       "standard_product_name": "",
       "brand": "",
       "product_group": "",
       "main_ingredient": "",
       "review_status": "확인필요",
-      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+      "note": "2026-09-10 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
-      "match_keyword": "김규흔명장의 시그니처 영양바 80개 +오란다 12개",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "우리참바다국내산 반건조 우럭 230gx10마리",
+      "match_keyword": "26년 국내산 아귀로 만든 살 가득 오만둥이 아구찜",
       "standard_product_name": "",
       "brand": "",
       "product_group": "",
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "덴마크 유산균 이야기 6병 + 쇼핑백 1장 + 선물박스 1개",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "동 원산업 훈제연어8팩+그라브락스3팩+저당소스1",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "남해안 다도해 원초 두번 구운 곱창김 10매x20봉",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "결초보은 깨끗이씻은 홍로 사과 2.5kg*2박스",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "국내산 영산포 숙성 홍어회 모듬살 9팩+초고추장 9팩",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "26년 햇육젓 송화용 새우젓 세트 500g × 3통",
@@ -2319,6 +2382,15 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-08-30 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "LA갈비 400g *7팩 | 원산지 : 상품정보 참조",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "LIGO 리고 100% 땅콩버터 453g 6개입",
@@ -2355,6 +2427,15 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-09-03 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "농협직송 26년 예천 햇홍로 정품과 3kg 2박스",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "뉴케어 당플랜 코어 호두맛 144팩 + 저당양갱 2봉",
@@ -2438,6 +2519,15 @@
       "note": "2026-08-27 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "브리타 큐브 쿨 무타공 냉온정수기 5.3L 화이트",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-04 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "새우표 완도파래김 조미김 15봉+ 무조미김 15봉",
       "standard_product_name": "",
       "brand": "",
@@ -2445,6 +2535,15 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-08-27 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "샤또 드 프로방스 엑스트라버진 올리브오일 총 6병",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "*신세계 * 에버콜라겐 레티놀A +미니2병 까지!",
@@ -2501,6 +2600,33 @@
       "note": "2026-08-25 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "오월식당 프리미엄 부세보리굴비 120g x 8미",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "온작 이영자의 뼈 없는 순살갈비탕 600g 10팩",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "유기농 엑스트라버진올리브오일 5병 + 쇼핑백 5장",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "유한양행 당큐락 HAC01 혈당 유산균 9개월분",
       "standard_product_name": "",
       "brand": "",
@@ -2519,6 +2645,33 @@
       "note": "2026-09-03 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "제주家마당 왕특대 은갈치 선물세트 450g 3미",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "조선호텔 양념 소갈비 수제 포갈비 600g X 6팩",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-06 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "종근당건강 락토핏 맥스19 6통+2통 +쇼핑백2장",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "천사의 땅 해남 고춧가루 500gx8봉 총 4kg",
       "standard_product_name": "",
       "brand": "",
@@ -2535,6 +2688,15 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-08-30 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "키클래오 HT042 프라임 키성장 건강기능식품",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "토니오셰프의 양념 갈비살 구이 250g x 10팩",
@@ -2562,6 +2724,15 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-08-22 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "하이뮨 프로틴밸런스 알파 12캔+하이뮨 선물세트",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "한국인의 두유 무가당 국산 서리태 콩물두유 60팩",
@@ -2600,139 +2771,13 @@
       "note": "2026-08-28 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
-      "match_keyword": "브리타 큐브 쿨 무타공 냉온정수기 5.3L 화이트",
+      "match_keyword": "인산죽염 부세보리굴비 150g*8팩*2박스",
       "standard_product_name": "",
       "brand": "",
       "product_group": "",
       "main_ingredient": "",
       "review_status": "확인필요",
-      "note": "2026-09-04 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "조선호텔 양념 소갈비 수제 포갈비 600g X 6팩",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-06 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "△ 일양약품 프리미엄 마시는 마그네슘 원샷 3박스",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "▽ 일양약품 프리미엄 마시는 마그네슘 원샷 3박스",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "유기농 엑스트라버진올리브오일 5병 + 쇼핑백 5장",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "LA갈비 400g *7팩 | 원산지 : 상품정보 참조",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "온작 이영자의 뼈 없는 순살갈비탕 600g 10팩",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "제주家마당 왕특대 은갈치 선물세트 450g 3미",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "농협직송 26년 예천 햇홍로 정품과 3kg 2박스",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "26년 국내산 아귀로 만든 살 가득 오만둥이 아구찜",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "샤또 드 프로방스 엑스트라버진 올리브오일 총 6병",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "종근당건강 락토핏 맥스19 6통+2통 +쇼핑백2장",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "하이뮨 프로틴밸런스 알파 12캔+하이뮨 선물세트",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "오월식당 프리미엄 부세보리굴비 120g x 8미",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "키클래오 HT042 프라임 키성장 건강기능식품",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+      "note": "2026-09-05 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "2026 네명 햇 무안황토 호박고구마 총 6kg",
@@ -2742,6 +2787,15 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-08-27 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "CAB 인증 블랙앵거스 LA갈비 1kg x 4팩",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "갱년기 유산균 YT1 메노락토 오리진 X2박스",
@@ -2780,6 +2834,15 @@
       "note": "2026-08-25 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "농협 라이블리 한우 LA갈비 1.2kgx2팩",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "농협 라이블리 한우 특 꼬리곰탕 800gx8팩",
       "standard_product_name": "",
       "brand": "",
@@ -2816,6 +2879,15 @@
       "note": "2026-08-25 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "모큐락 플러스 LB-P9 와이즈바이옴 12주분",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-04 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "미국산 프라임등급 LA 꽃갈비 원육 4.8kg",
       "standard_product_name": "",
       "brand": "",
@@ -2843,6 +2915,24 @@
       "note": "2026-09-01 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "상주곶감 세트 총 2.4kg + 선물용 고급 보자기",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "숲에서자란 국내산 명품 장흥 화고버섯 선물세트",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "신세계푸드 호주산 LA갈비 꽃갈비 원육 5kg",
       "standard_product_name": "",
       "brand": "",
@@ -2850,6 +2940,15 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-09-06 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "예미정 진짜 불맛불고기 180gx12팩+1팩",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "완도해조쌀국수 김치12+사골12+멸치12개",
@@ -2868,6 +2967,42 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-09-03 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "유한양행 원더씬 다이어트 유산균 +보랄 드라이기",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "이원일의 청담미식 한우 갈비찜 500g x 7팩",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "이혜정의 아주 맛있는 소갈비찜 500g x 7팩",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "□ 일양약품 프리미엄 마시는 마그네슘 원샷 3박스",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "임성근의 국내산 특 키로갈비탕 1kg x 12팩",
@@ -2969,94 +3104,13 @@
       "note": "2026-09-01 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
-      "match_keyword": "모큐락 플러스 LB-P9 와이즈바이옴 12주분",
+      "match_keyword": "제주에스에프 제주 반건조 옥돔 180gx6팩",
       "standard_product_name": "",
       "brand": "",
       "product_group": "",
       "main_ingredient": "",
       "review_status": "확인필요",
-      "note": "2026-09-04 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "□ 일양약품 프리미엄 마시는 마그네슘 원샷 3박스",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "CAB 인증 블랙앵거스 LA갈비 1kg x 4팩",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "상주곶감 세트 총 2.4kg + 선물용 고급 보자기",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "예미정 진짜 불맛불고기 180gx12팩+1팩",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "이혜정의 아주 맛있는 소갈비찜 500g x 7팩",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "숲에서자란 국내산 명품 장흥 화고버섯 선물세트",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "농협 라이블리 한우 LA갈비 1.2kgx2팩",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "이원일의 청담미식 한우 갈비찜 500g x 7팩",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "유한양행 원더씬 다이어트 유산균 +보랄 드라이기",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+      "note": "2026-09-10 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "2026 화산농협 해남 황토 밤고구마 8kg",
@@ -3167,6 +3221,15 @@
       "note": "2026-09-02 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "라이블리 한우 우삼겹 130g x 20팩 더블",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-04 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "만블링 한우채끝스테이크 150gx10팩",
       "standard_product_name": "",
       "brand": "",
@@ -3183,6 +3246,15 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-08-31 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "박수홍의 착한 뼈없는 갈비찜 500g x 8팩",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-04 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "벨기에 유산균+다이어트 트리플러스 12박스",
@@ -3383,22 +3455,13 @@
       "note": "2026-08-24 신규 자동등록 · 대시보드에서 확정/병합/제외 필요"
     },
     {
-      "match_keyword": "라이블리 한우 우삼겹 130g x 20팩 더블",
+      "match_keyword": "셀로닉스 트리어드 rTg 오메가 총 15박스",
       "standard_product_name": "",
       "brand": "",
       "product_group": "",
       "main_ingredient": "",
       "review_status": "확인필요",
-      "note": "2026-09-04 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "박수홍의 착한 뼈없는 갈비찜 500g x 8팩",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-04 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+      "note": "2026-09-10 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "100% 경북 제철 햇 홍로사과 4.5kg",
@@ -3408,6 +3471,15 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-08-26 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "2025 국내산 볶음참깨 105g*5통",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "2026 의성진 추희자두 800gX4팩",
@@ -3491,6 +3563,15 @@
       "note": "2026-08-28 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "만찬 양념 LA갈비 1kg x 4팩, 총 4kg",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "법성포참맛굴비 특장대 80gx30마리",
       "standard_product_name": "",
       "brand": "",
@@ -3507,6 +3588,15 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-08-28 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "손질새우 총 280마리 / 140g x 14팩",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-04 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "송영옥 전통장 연구가의 소고기 고추장 세트",
@@ -3561,6 +3651,15 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-08-28 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "원데이원푸드 엑스트라버진 아보카도오일",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "육미본가 양념LA갈비 420g*10팩",
@@ -3707,40 +3806,31 @@
       "note": "2026-09-01 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
-      "match_keyword": "손질새우 총 280마리 / 140g x 14팩",
+      "match_keyword": "영암 햇 생 무화과 500g x 4팩 총 2kg",
       "standard_product_name": "",
       "brand": "",
       "product_group": "",
       "main_ingredient": "",
       "review_status": "확인필요",
-      "note": "2026-09-04 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+      "note": "2026-09-10 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
-      "match_keyword": "2025 국내산 볶음참깨 105g*5통",
+      "match_keyword": "곰보배추시럽 스틱 7박스 + 1박스 추가구성",
       "standard_product_name": "",
       "brand": "",
       "product_group": "",
       "main_ingredient": "",
       "review_status": "확인필요",
-      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+      "note": "2026-09-10 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
-      "match_keyword": "원데이원푸드 엑스트라버진 아보카도오일",
+      "match_keyword": "홍삼정마일드센스 12박스 +쇼핑백 12장",
       "standard_product_name": "",
       "brand": "",
       "product_group": "",
       "main_ingredient": "",
       "review_status": "확인필요",
-      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "만찬 양념 LA갈비 1kg x 4팩, 총 4kg",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+      "note": "2026-09-10 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "2026 순천농협 순천향미 총20kg",
@@ -3788,6 +3878,15 @@
       "note": "2026-09-02 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "국내산 명품 참송이 버섯 250g x 5팩",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "국내산 양념구이 뱅어포 100g x 9팩",
       "standard_product_name": "",
       "brand": "",
@@ -3795,6 +3894,15 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-09-01 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "김복녀 전통식품 고급 수제 타래 약과 세트",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "다다채 내고향 참기름 120mlx6병",
@@ -3822,6 +3930,15 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-08-25 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "도미솔김치 포기 9k+열무2k+총각2k",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-05 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "라이필 더마콜라겐 시그니처 RN *5병",
@@ -3930,6 +4047,24 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-09-02 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "영광 천년초 고추장 굴비 180gx6개",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "영광법성포굴비 700g 10미x 3팩",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "오월식당 부세보리굴비 120g x 8팩",
@@ -4067,49 +4202,31 @@
       "note": "2026-08-30 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
-      "match_keyword": "도미솔김치 포기 9k+열무2k+총각2k",
+      "match_keyword": "26년 햇 농협안심특화 아까시꽃꿀 5병",
       "standard_product_name": "",
       "brand": "",
       "product_group": "",
       "main_ingredient": "",
       "review_status": "확인필요",
-      "note": "2026-09-05 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+      "note": "2026-09-10 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
-      "match_keyword": "김복녀 전통식품 고급 수제 타래 약과 세트",
+      "match_keyword": "2026 농협 영광 해뜨지 쌀 20kg",
       "standard_product_name": "",
       "brand": "",
       "product_group": "",
       "main_ingredient": "",
       "review_status": "확인필요",
-      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
-      "match_keyword": "국내산 명품 참송이 버섯 250g x 5팩",
+      "match_keyword": "2026 순천농협 순천향미 20kg",
       "standard_product_name": "",
       "brand": "",
       "product_group": "",
       "main_ingredient": "",
       "review_status": "확인필요",
-      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "영광 천년초 고추장 굴비 180gx6개",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "영광법성포굴비 700g 10미x 3팩",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+      "note": "2026-09-06 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "2026 햇 무안황토 밤고구마 7kg",
@@ -4164,6 +4281,24 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-09-06 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "강병원한우투뿔육전 130gX8팩",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "국내산 고등어 특대 120g x 22팩",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "국내산 반건조 참돔 250g x 11미",
@@ -4274,6 +4409,24 @@
       "note": "2026-08-25 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "미소람 강화 사자발쑥 저당떡 2종 세트",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "밥장금 고기 듬뿍 도가니탕 4팩 + 1팩 더",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "산들바람 진도 찰흑미 800gx6봉",
       "standard_product_name": "",
       "brand": "",
@@ -4328,6 +4481,15 @@
       "note": "2026-08-25 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "온작 수제 양념 포갈비 600g x 6팩",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "워커힐 고메 아이스크림 4종 총 16개",
       "standard_product_name": "",
       "brand": "",
@@ -4353,6 +4515,15 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-08-30 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "일반 고삼숙 명장 세번숙성 어간장 7병",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "점보사이즈 익힌갈비찜 1kg x 4팩",
@@ -4418,6 +4589,15 @@
       "note": "2026-09-04 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "제주은갈치 왕특대 420g×4마리",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "천일 국내산 반건조 특대 가자미 12팩",
       "standard_product_name": "",
       "brand": "",
@@ -4452,6 +4632,15 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-08-23 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "■ 프리미엄 블랙앵거스 LA꽃갈비 원육",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "한양 수제포 돼지 갈비 500g x 5팩",
@@ -4499,94 +4688,31 @@
       "note": "2026-09-04 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
-      "match_keyword": "2026 순천농협 순천향미 20kg",
+      "match_keyword": "정관장 화애락큐 토탈솔루션 5+3박스",
       "standard_product_name": "",
       "brand": "",
       "product_group": "",
       "main_ingredient": "",
       "review_status": "확인필요",
-      "note": "2026-09-06 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+      "note": "2026-09-10 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
-      "match_keyword": "2026 농협 영광 해뜨지 쌀 20kg",
+      "match_keyword": "동원산업 손질새우 총16팩, 320미",
       "standard_product_name": "",
       "brand": "",
       "product_group": "",
       "main_ingredient": "",
       "review_status": "확인필요",
-      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+      "note": "2026-09-10 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
-      "match_keyword": "미소람 강화 사자발쑥 저당떡 2종 세트",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "■ 프리미엄 블랙앵거스 LA꽃갈비 원육",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "온작 수제 양념 포갈비 600g x 6팩",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "강병원한우투뿔육전 130gX8팩",
+      "match_keyword": "2026 음성농협 세척사과 6kg",
       "standard_product_name": "",
       "brand": "",
       "product_group": "",
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "밥장금 고기 듬뿍 도가니탕 4팩 + 1팩 더",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "일반 고삼숙 명장 세번숙성 어간장 7병",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "제주은갈치 왕특대 420g×4마리",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "국내산 고등어 특대 120g x 22팩",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "26 가족 의성진 황도복숭아 4kg",
@@ -4625,6 +4751,15 @@
       "note": "2026-09-04 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "가시없는 순살 갈치 50g*30팩",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "김하진의 궁중 표고버섯 찜갈비 6팩",
       "standard_product_name": "",
       "brand": "",
@@ -4661,6 +4796,15 @@
       "note": "2026-08-26 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "동강마루아까시꽃꿀500gx5",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "두리담 영광모시 생송편 총 120개",
       "standard_product_name": "",
       "brand": "",
@@ -4695,6 +4839,15 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-09-01 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "메리비 로우 마누카 허니콤 ×2박스",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "박정수 자연산 순살 옥돔 총 30토막",
@@ -4767,6 +4920,15 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-08-24 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "'손질옥돔 * 15팩 / 총 2.1kg",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "★쇼리 특별 가!★ 라베키아 발사믹 세트",
@@ -4877,6 +5039,15 @@
       "note": "2026-08-25 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "정호영 만능새우 140g × 14팩",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "조선호텔 소갈비찜 700g x 4팩",
       "standard_product_name": "",
       "brand": "",
@@ -4904,6 +5075,24 @@
       "note": "2026-09-04 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "한우 1++ 프리미엄 선물세트 800g",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-06 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "한우 LA 생갈비 1.2kg x 2팩",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "해남 햇호박고구마 2박스 총 7kg",
       "standard_product_name": "",
       "brand": "",
@@ -4922,76 +5111,22 @@
       "note": "2026-08-30 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
-      "match_keyword": "한우 1++ 프리미엄 선물세트 800g",
+      "match_keyword": "늘해랑 햇 호박 고구마 4kg+4kg",
       "standard_product_name": "",
       "brand": "",
       "product_group": "",
       "main_ingredient": "",
       "review_status": "확인필요",
-      "note": "2026-09-06 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+      "note": "2026-09-10 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
-      "match_keyword": "동강마루아까시꽃꿀500gx5",
+      "match_keyword": "빅마마 이혜정의 부세보리굴비 8미",
       "standard_product_name": "",
       "brand": "",
       "product_group": "",
       "main_ingredient": "",
       "review_status": "확인필요",
-      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "메리비 로우 마누카 허니콤 ×2박스",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "'손질옥돔 * 15팩 / 총 2.1kg",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "정호영 만능새우 140g × 14팩",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "가시없는 순살 갈치 50g*30팩",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "2026 음성농협 세척사과 6kg",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "한우 LA 생갈비 1.2kg x 2팩",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+      "note": "2026-09-10 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "1등급 무항생제 오리로스 14팩",
@@ -5039,6 +5174,15 @@
       "note": "2026-08-27 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "곶감 2박스 선물세트 + 보자기2장",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "국내산 갑오징어 200g × 7팩",
       "standard_product_name": "",
       "brand": "",
@@ -5046,6 +5190,15 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-08-26 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "김규흔 찹쌀유과 선물세트 2박스",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "김오곤 원장의 한방 다이어트 블랙",
@@ -5129,6 +5282,15 @@
       "note": "2026-08-25 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "올레비다 유기농 올리브오일 6병",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "올트라이탄 데일리패키지 16종",
       "standard_product_name": "",
       "brand": "",
@@ -5156,6 +5318,15 @@
       "note": "2026-09-02 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "장수록 모시떡 송편세트 100개",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "장어품은 추어탕 450g 11팩",
       "standard_product_name": "",
       "brand": "",
@@ -5172,6 +5343,24 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-08-24 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "진도기삼활전복 140g 10미",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "청정 LA 갈비 400g x 10팩",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "한미 완전두유 고칼슘 총100팩",
@@ -5228,58 +5417,13 @@
       "note": "2026-09-03 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
-      "match_keyword": "올레비다 유기농 올리브오일 6병",
+      "match_keyword": "자연산 남해안 자숙통문어 2-3미",
       "standard_product_name": "",
       "brand": "",
       "product_group": "",
       "main_ingredient": "",
       "review_status": "확인필요",
-      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "장수록 모시떡 송편세트 100개",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "김규흔 찹쌀유과 선물세트 2박스",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "곶감 2박스 선물세트 + 보자기2장",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "청정 LA 갈비 400g x 10팩",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "진도기삼활전복 140g 10미",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+      "note": "2026-09-10 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "국내산 신안 빙장 생새우 1kg",
@@ -5289,6 +5433,24 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-08-25 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "궁키친 이상민 소갈비찜 3KG",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-06 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "농협 블랙라벨 세척 사과 5kg",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "□ 대원제약 발효 돈태반킹 3박스",
@@ -5381,6 +5543,15 @@
       "note": "2026-08-25 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "이연복셰프 해물 누룽지탕 5팩",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "일반 일월정 흑마늘 독계탕 6+1",
       "standard_product_name": "",
       "brand": "",
@@ -5444,6 +5615,15 @@
       "note": "2026-08-31 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "조리기능장 의 LA갈비 10팩",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-04 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "트루바이타민 올인원 10박스",
       "standard_product_name": "",
       "brand": "",
@@ -5480,34 +5660,16 @@
       "note": "2026-08-23 신규 자동등록 · 대시보드에서 확정/병합/제외 필요"
     },
     {
-      "match_keyword": "조리기능장 의 LA갈비 10팩",
+      "match_keyword": "L)카사베르디 와인비니거3",
       "standard_product_name": "",
       "brand": "",
       "product_group": "",
       "main_ingredient": "",
       "review_status": "확인필요",
-      "note": "2026-09-04 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+      "note": "2026-08-24 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
-      "match_keyword": "궁키친 이상민 소갈비찜 3KG",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-06 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "이연복셰프 해물 누룽지탕 5팩",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "농협 블랙라벨 세척 사과 5kg",
+      "match_keyword": "TV예능화제템 롤팬 플러스",
       "standard_product_name": "",
       "brand": "",
       "product_group": "",
@@ -5516,13 +5678,22 @@
       "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
-      "match_keyword": "L)카사베르디 와인비니거3",
+      "match_keyword": "건 보리새우 100gx9봉",
       "standard_product_name": "",
       "brand": "",
       "product_group": "",
       "main_ingredient": "",
       "review_status": "확인필요",
-      "note": "2026-08-24 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "고수록 저당찰떡 60개+송편",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "국내산 손질 문어 1.3kg",
@@ -5561,6 +5732,15 @@
       "note": "2026-08-25 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "바삭 김부각 시그니처 12봉",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-04 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "베리솔 더 콜라겐 구미 32팩",
       "standard_product_name": "",
       "brand": "",
@@ -5577,6 +5757,15 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-08-27 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "알래스카 순살 가자미 28개",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "영광모시잎 생떡 12봉 세트",
@@ -5613,6 +5802,15 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-08-28 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "전일정 온천 가능, 북해도 4일",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-06 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "정관장 홍삼정 센스 6+4박스",
@@ -5678,58 +5876,13 @@
       "note": "2026-09-03 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
-      "match_keyword": "바삭 김부각 시그니처 12봉",
+      "match_keyword": "제주 참굴비 대장대 40마리",
       "standard_product_name": "",
       "brand": "",
       "product_group": "",
       "main_ingredient": "",
       "review_status": "확인필요",
-      "note": "2026-09-04 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "전일정 온천 가능, 북해도 4일",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-06 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "알래스카 순살 가자미 28개",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "고수록 저당찰떡 60개+송편",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "TV예능화제템 롤팬 플러스",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "건 보리새우 100gx9봉",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+      "note": "2026-09-10 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "N_히트상품앵콜방송 2부",
@@ -5849,6 +6002,15 @@
       "note": "2026-09-04 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "안동제비원_고추장담그기",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-04 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "영광농협 고춧가루 3kg",
       "standard_product_name": "",
       "brand": "",
@@ -5856,6 +6018,15 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-08-28 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "오가굴비세트 10마리 _3",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "오곡&넛츠 버무리 2박스",
@@ -5903,6 +6074,15 @@
       "note": "2026-09-04 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "조선호텔 장어구이 2마리",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "청아 일품 더덕무침 13통",
       "standard_product_name": "",
       "brand": "",
@@ -5928,33 +6108,6 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-08-29 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "안동제비원_고추장담그기",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-04 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "오가굴비세트 10마리 _3",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "조선호텔 장어구이 2마리",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "1) 고려은단 관절 올케어",
@@ -6018,6 +6171,15 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-08-25 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "백년소공인의 감태 세트",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "비비고 만두 7종 16봉",
@@ -6092,6 +6254,15 @@
       "note": "2026-09-02 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "위엔 매스틱 12+4주분",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "위엔 매스틱 12주+4주",
       "standard_product_name": "",
       "brand": "",
@@ -6099,6 +6270,15 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-09-03 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "이영자 수제포갈비 6팩",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-04 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "인기떡 5종 총100개",
@@ -6191,33 +6371,6 @@
       "note": "2026-08-28 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
-      "match_keyword": "군산 황금 박대 총 20미",
-      "standard_product_name": "군산 황금 박대 총 20미",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-08-21 신규 자동등록 · 대시보드에서 확정/병합/제외 필요"
-    },
-    {
-      "match_keyword": "이영자 수제포갈비 6팩",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-04 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "백년소공인의 감태 세트",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
       "match_keyword": "후추 플라이트 선물세트",
       "standard_product_name": "",
       "brand": "",
@@ -6227,13 +6380,13 @@
       "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
-      "match_keyword": "위엔 매스틱 12+4주분",
-      "standard_product_name": "",
+      "match_keyword": "군산 황금 박대 총 20미",
+      "standard_product_name": "군산 황금 박대 총 20미",
       "brand": "",
       "product_group": "",
       "main_ingredient": "",
       "review_status": "확인필요",
-      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+      "note": "2026-08-21 신규 자동등록 · 대시보드에서 확정/병합/제외 필요"
     },
     {
       "match_keyword": "TV황태김치 8kg",
@@ -6243,6 +6396,33 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-08-27 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "宮 꽃갈비살 구이 세트",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "가매 일품 장3종 세트",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "거문도해풍쑥송편1",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "광양식투쁠한우구이",
@@ -6308,6 +6488,15 @@
       "note": "2026-09-03 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "서분례 명인 매실세트 )",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "안동제비원 장류세트",
       "standard_product_name": "",
       "brand": "",
@@ -6315,6 +6504,15 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-09-02 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "영암 햇 무화과 2kg",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-04 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "오라틱스잇몸유산균",
@@ -6389,6 +6587,15 @@
       "note": "2026-08-22 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "하루틴리포좀비타민",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "한삼인굿데이스틱1",
       "standard_product_name": "",
       "brand": "",
@@ -6396,6 +6603,15 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-09-03 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "한우1++ NO.9 구이",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "해농 파래김 200매",
@@ -6425,16 +6641,7 @@
       "note": "2026-09-01 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
-      "match_keyword": "영암 햇 무화과 2kg",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-04 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "거문도해풍쑥송편1",
+      "match_keyword": "1) 마시는 하루견과",
       "standard_product_name": "",
       "brand": "",
       "product_group": "",
@@ -6443,49 +6650,22 @@
       "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
-      "match_keyword": "한우1++ NO.9 구이",
+      "match_keyword": "2) 마시는 하루견과",
       "standard_product_name": "",
       "brand": "",
       "product_group": "",
       "main_ingredient": "",
       "review_status": "확인필요",
-      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
-      "match_keyword": "가매 일품 장3종 세트",
+      "match_keyword": "3) 마시는 하루견과",
       "standard_product_name": "",
       "brand": "",
       "product_group": "",
       "main_ingredient": "",
       "review_status": "확인필요",
-      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "서분례 명인 매실세트 )",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "하루틴리포좀비타민",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "宮 꽃갈비살 구이 세트",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "HLB맥문동진액",
@@ -6585,6 +6765,15 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-08-29 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "영광떡공방 모시떡",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "임성근LA갈비1",
@@ -6704,40 +6893,13 @@
       "note": "2026-08-24 신규 자동등록 · 대시보드에서 확정/병합/제외 필요"
     },
     {
-      "match_keyword": "1) 마시는 하루견과",
+      "match_keyword": "관절엔아나파랙틴",
       "standard_product_name": "",
       "brand": "",
       "product_group": "",
       "main_ingredient": "",
       "review_status": "확인필요",
-      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "2) 마시는 하루견과",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "3) 마시는 하루견과",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "영광떡공방 모시떡",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+      "note": "2026-09-10 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "강원두백감자2",
@@ -6756,6 +6918,15 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-09-02 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "곱창캔김 10캔",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "깨끗한 소분 멸치",
@@ -6803,6 +6974,15 @@
       "note": "2026-09-05 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "블루베리퓨레1",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "빅마마소갈비찜",
       "standard_product_name": "",
       "brand": "",
@@ -6810,6 +6990,15 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-08-31 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "사랑채포기김치",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "삼육두유세트 1",
@@ -6839,6 +7028,15 @@
       "note": "2026-08-31 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "아보카도오일1",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "왕의맥문동진액",
       "standard_product_name": "",
       "brand": "",
@@ -6857,6 +7055,15 @@
       "note": "2026-09-04 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "육전용소고기1",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-06 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "임성근LA갈비",
       "standard_product_name": "",
       "brand": "",
@@ -6873,6 +7080,15 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-08-29 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "자담윙봉세트1",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "저당 모시떡 2종",
@@ -6938,58 +7154,22 @@
       "note": "2026-08-24 신규 자동등록 · 대시보드에서 확정/병합/제외 필요"
     },
     {
-      "match_keyword": "육전용소고기1",
+      "match_keyword": "이종임한우곰탕",
       "standard_product_name": "",
       "brand": "",
       "product_group": "",
       "main_ingredient": "",
       "review_status": "확인필요",
-      "note": "2026-09-06 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+      "note": "2026-09-10 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
-      "match_keyword": "사랑채포기김치",
+      "match_keyword": "김하진_꽃갈비",
       "standard_product_name": "",
       "brand": "",
       "product_group": "",
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "곱창캔김 10캔",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "아보카도오일1",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "자담윙봉세트1",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "블루베리퓨레1",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "김하진_새우장",
@@ -6999,6 +7179,15 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-08-25 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "뉴밋마그네슘",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "뉴밋블루베리",
@@ -7055,6 +7244,15 @@
       "note": "2026-08-22 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "밤로쉐생율2",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "빅마마참굴비",
       "standard_product_name": "",
       "brand": "",
@@ -7062,6 +7260,15 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-08-30 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "소곱창전골1",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-06 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "아티키_천연꿀",
@@ -7080,6 +7287,24 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-08-26 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "올리브오일1",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "왕특대 16미",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "위매스틱케어",
@@ -7136,6 +7361,15 @@
       "note": "2026-08-31 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "한과 선물 세트",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "화과방송편1",
       "standard_product_name": "",
       "brand": "",
@@ -7152,69 +7386,6 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-08-21 신규 자동등록 · 대시보드에서 확정/병합/제외 필요"
-    },
-    {
-      "match_keyword": "소곱창전골1",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-06 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "올리브오일1",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "김하진_꽃갈비",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "뉴밋마그네슘",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "밤로쉐생율2",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "왕특대 16미",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-08 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "한과 선물 세트",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-09 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "LA갈비 1",
@@ -7325,6 +7496,15 @@
       "note": "2026-08-31 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "전통강정1",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-04 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "정호영낙지",
       "standard_product_name": "",
       "brand": "",
@@ -7352,13 +7532,22 @@
       "note": "2026-08-21 신규 자동등록 · 대시보드에서 확정/병합/제외 필요"
     },
     {
-      "match_keyword": "전통강정1",
+      "match_keyword": "전통강정2",
       "standard_product_name": "",
       "brand": "",
       "product_group": "",
       "main_ingredient": "",
       "review_status": "확인필요",
-      "note": "2026-09-04 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+      "note": "2026-09-10 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "햇목이버섯",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-10 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "감자탕2",
@@ -7368,6 +7557,15 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-09-03 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "갓김치1",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "나주배1",
@@ -7452,15 +7650,6 @@
     },
     {
       "match_keyword": "호정가1",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-07 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "갓김치1",
       "standard_product_name": "",
       "brand": "",
       "product_group": "",
