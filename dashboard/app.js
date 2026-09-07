@@ -1038,7 +1038,14 @@
         // '분류완료'가 된 것이라, 관리자가 한 번도 확인하지 않았어도
         // 분류완료 목록에 섞여 들어가 있었다. 100개 넘는 항목을 전부
         // 눌러보지 않아도 이 표시만으로 걸러볼 수 있게 한다.
-        g.verified=(g.aliases||[]).some(a=>clean(a.manual_lock).toUpperCase()==="Y");
+        // V3.7 FIX: "하나라도 확인되면 전체 확인"이 아니라 "연결된
+        // 원본명 전부가 관리자 확인이어야만" 확인된 것으로 본다.
+        // NS홈쇼핑 '복숭아1'/'복숭아2'처럼 제목은 비슷해도 실제로는
+        // 다른 상품인 경우, 자동으로 새 원본명이 붙어도 관리자가 그
+        // 건을 직접 본 적 없으면 절대 '관리자확인'으로 표시하지 않는다.
+        const aliasList=g.aliases||[];
+        g.verified = aliasList.length>0 && aliasList.every(a=>clean(a.manual_lock).toUpperCase()==="Y");
+        g.unverifiedAliasCount = aliasList.filter(a=>clean(a.manual_lock).toUpperCase()!=="Y").length;
         out.push(g);
       }
     }
@@ -1136,7 +1143,7 @@
       return `<div class="review-card"><div>
         <h4>${badge}${groupPgmBadge(displayOcc)}${esc(item.standard_product_name||item.raw_title)}</h4>
         ${item.raw_title&&item.standard_product_name?`<div class="small">원본: ${esc(item.raw_title)}</div>`:""}
-        <div class="review-meta">${last?`${periodLabel} ${reviewRangeActive?"첫":"최근"} 방송 ${getDate(last)} ${getTime(last)} · ${esc(getPlatform(last))}`:"방송 이력 없음"}${displayOcc.length?` · ${periodLabel} 방송 ${displayOcc.length}회`:""}${aliasCount?` · 연결 원본명 ${aliasCount}개`:""}</div>
+        <div class="review-meta">${last?`${periodLabel} ${reviewRangeActive?"첫":"최근"} 방송 ${getDate(last)} ${getTime(last)} · ${esc(getPlatform(last))}`:"방송 이력 없음"}${displayOcc.length?` · ${periodLabel} 방송 ${displayOcc.length}회`:""}${aliasCount?` · 연결 원본명 ${aliasCount}개`:""}${item.unverifiedAliasCount?` · <b class="unverified-count">미확인 원본명 ${item.unverifiedAliasCount}개</b>`:""}</div>
         ${item.kind==="dynamic"?'<div class="dynamic-note">이 제목은 방송마다 실제 상품이 달라질 수 있어 자동 대표상품으로 묶지 않습니다.</div>':""}
         ${item.kind==="auto"?`<div class="dynamic-note">자동분류 신뢰도 ${Math.round(num(item.master?.classification_score)*100)}% · 확인 후 영구규칙으로 저장할 수 있습니다.</div>`:""}
       </div><div class="review-actions">
@@ -1845,7 +1852,10 @@
     $("#productForm").dataset.sourceAliases=JSON.stringify(
       aliases.map(a=>clean(a.match_keyword||"")).filter(Boolean)
     );
-    $("#aliasPreview").innerHTML=aliases.length?`<b>현재 연결된 원본명 ${aliases.length}개</b>${aliases.map(a=>`<label class="alias-row"><input type="checkbox" class="alias-check" value="${esc(a.match_keyword||"")}"><span>${esc(a.match_keyword||"")}</span><span class="small">${esc(a.admin_action||"")}</span></label>`).join("")}`:"기존 연결 원본명 없음";
+    $("#aliasPreview").innerHTML=aliases.length?`<b>현재 연결된 원본명 ${aliases.length}개</b>${aliases.map(a=>{
+      const verified=clean(a.manual_lock).toUpperCase()==="Y";
+      return `<label class="alias-row"><input type="checkbox" class="alias-check" value="${esc(a.match_keyword||"")}"><span>${esc(a.match_keyword||"")}</span><span class="small ${verified?"":"unverified-count"}">${verified?"관리자확인":"자동연결(미확인)"}</span></label>`;
+    }).join("")}`:"기존 연결 원본명 없음";
     $("#bulkAliasTools").classList.toggle("hidden",aliases.length<1);
     $("#bulkAliasTarget").value="";
     if($("#unlockMasterMetaBtn")){
