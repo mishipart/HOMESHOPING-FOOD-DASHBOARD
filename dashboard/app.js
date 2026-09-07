@@ -1832,9 +1832,21 @@
     const last=[...item.occurrences].sort((a,b)=>clean(b.start_datetime).localeCompare(clean(a.start_datetime)))[0];
     const m=item.master||item.aliases?.[0]||{};
     delete $("#productForm").dataset.occurrenceId;
+    delete $("#productForm").dataset.dynamicSingleOcc;
     $("#productForm").dataset.rawOccurrenceId=clean(last?.hsshow_id||"");
 
-    $("#productDialogTitle").textContent=kind==="pending"?"미확인 상품 분류":kind==="auto"?"자동분류 확인":kind==="dynamic"?"가변형 방송명 관리":"기존 상품 관리";
+    // V3.7 FIX: 가변형 원본명은 그룹 전체에 "기존 상품 연결"을 해도
+    // 가변형 규칙이 항상 우선 적용되어 실제로는 반영되지 않는 문제가
+    // 있었다. 지금 보고 있는 기간(방송 시작일~종료일 필터) 안에 방송이
+    // 정확히 1건뿐이면, 그 방송 1건에 대한 분류(save_occurrence)로
+    // 자동 전환해서 "저장했는데 반영이 안 되는" 문제를 없앤다.
+    let dynamicSingleOcc=null;
+    if(kind==="dynamic"){
+      const scoped=reviewOccurrences(item.occurrences||[]);
+      if(scoped.length===1) dynamicSingleOcc=scoped[0];
+    }
+
+    $("#productDialogTitle").textContent=kind==="pending"?"미확인 상품 분류":kind==="auto"?"자동분류 확인":kind==="dynamic"?(dynamicSingleOcc?"가변형 방송 · 이 방송 1건 분류":"가변형 방송명 관리"):"기존 상품 관리";
     $("#editRawTitle").value=item.raw_title||m.match_keyword||"";
     $("#editRawDisplay").value=item.raw_title||m.match_keyword||"(표준 상품 전체)";
     $("#editSourceStandard").value=item.standard_product_name||m.standard_product_name||"";
@@ -1842,11 +1854,31 @@
     $("#editBrand").value=m.brand||""; $("#editGroup").value=m.product_group||""; $("#editIngredient").value=m.main_ingredient||"";
     setCategoryValues(m.category_major||last?.category_major||"",m.category_middle||last?.category_middle||"",m.category_sub||last?.category_sub||"");
     $("#editRawDisplay").disabled=true; $("#unlockRawTitleBtn").textContent="원본명 수정"; $("#sameSlotWrap")?.classList.add("hidden");
-    $("#editAction").value=(kind==="pending"||kind==="auto")?"link_existing":kind==="dynamic"?"mark_dynamic_title":kind==="excluded"?"restore":"update_product";
+
+    if(dynamicSingleOcc){
+      $("#productForm").dataset.occurrenceId=clean(dynamicSingleOcc.hsshow_id||"");
+      $("#productForm").dataset.dynamicSingleOcc="1";
+      $("#editAction").value="link_existing";
+    }else{
+      $("#editAction").value=(kind==="pending"||kind==="auto")?"link_existing":kind==="dynamic"?"mark_dynamic_title":kind==="excluded"?"restore":"update_product";
+    }
     clearExistingProductSelection();
     if((m.category_major||last?.category_major) && (m.category_middle||last?.category_middle)) updateCategoryUiFromCurrent("현재 등록 분류");
     else applyCategoryFromProductGroup();
-    $("#editBroadcastInfo").textContent=last?`최근 방송: ${getDate(last)} ${getTime(last)} · ${getPlatform(last)} · 전체 ${item.occurrences.length}회`:"방송 이력 없음";
+
+    if(dynamicSingleOcc){
+      const dynamicOccIdForShortcut=clean(dynamicSingleOcc.hsshow_id||"");
+      $("#editBroadcastInfo").innerHTML=`<b>${getDate(dynamicSingleOcc)} ${getTime(dynamicSingleOcc)} · ${esc(getPlatform(dynamicSingleOcc))}</b> · 이 방송 1건에만 적용됩니다.<br>
+        <span class="small">이 원본명은 가변형(방송마다 상품이 다를 수 있음)으로 등록돼 있어, 지금 보시는 기간에 걸린 이 방송 1건만 분류합니다. 이 방송에 상품이 여러 개 섞여 있다면 아래 버튼으로 나눠 입력하세요.</span><br>
+        <button type="button" class="btn small" id="dynamicSplitShortcut" style="margin-top:6px">이 방송 상품 분리 입력으로 전환</button>`;
+      const shortcutBtn=$("#dynamicSplitShortcut");
+      if(shortcutBtn) shortcutBtn.onclick=()=>{ $("#productDialog").close(); openSplitEditor(dynamicOccIdForShortcut); };
+    }else if(kind==="dynamic"){
+      $("#editBroadcastInfo").innerHTML=`전체 ${item.occurrences.length}회 방송됨.<br>
+        <span class="small">이 원본명은 방송마다 실제 상품이 달라질 수 있어 그룹 전체를 하나의 상품으로 연결해도 적용되지 않습니다. 방송 시작일/종료일 필터를 특정 날짜 하나로 좁혀서 다시 열거나, 방송이력에서 개별 방송을 분류해주세요.</span>`;
+    }else{
+      $("#editBroadcastInfo").textContent=last?`최근 방송: ${getDate(last)} ${getTime(last)} · ${getPlatform(last)} · 전체 ${item.occurrences.length}회`:"방송 이력 없음";
+    }
 
     const aliases=item.aliases||[];
     $("#productForm").dataset.sourceAliases=JSON.stringify(
@@ -1896,7 +1928,19 @@
   }
 
   async function saveProductAdmin(){
-    const action=$("#editAction").value, raw=$("#editRawTitle").value, source=$("#editSourceStandard").value, standard=$("#editStandardName").value;
+    const originalAction=$("#editAction").value;
+    let action=originalAction;
+    const raw=$("#editRawTitle").value, source=$("#editSourceStandard").value, standard=$("#editStandardName").value;
+
+    // V3.7 FIX: 가변형 원본명에서 방송 1건만 걸린 상태로 연 다이얼로그는,
+    // "기존 상품 연결/기존 분류 수정"을 선택해도 실제로는 이 방송 1건에
+    // 대한 분류(save_occurrence)로 저장해야 가변형 우선순위에 밀려
+    // 무시되지 않는다.
+    const dynamicOccId=$("#productForm").dataset.dynamicSingleOcc==="1"?$("#productForm").dataset.occurrenceId:"";
+    if(dynamicOccId && (action==="link_existing" || action==="update_product")){
+      action="save_occurrence";
+    }
+
     let sourceAliases=[];
     try{
       sourceAliases=JSON.parse($("#productForm").dataset.sourceAliases||"[]");
@@ -1904,7 +1948,7 @@
       sourceAliases=[];
     }
 
-    if(action==="link_existing"){
+    if(originalAction==="link_existing"){
       const selectedAdmin=buildAdminSearchProducts().find(
         p=>productNameKey(p.standard_product_name)===productNameKey(standard)
       );
