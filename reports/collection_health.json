@@ -1,25 +1,25 @@
 {
-  "generated_at": "2026-09-06T23:34:39.834526+09:00",
-  "target_date": "2026-09-06",
+  "generated_at": "2026-09-07T23:33:56.275486+09:00",
+  "target_date": "2026-09-07",
   "cycle": "23:30 KST",
   "status": "ok",
   "all_food": {
-    "broadcast_count": 144,
-    "sales_cnt_present_count": 138,
-    "sales_amt_present_count": 138,
-    "positive_sales_amt_count": 133
+    "broadcast_count": 188,
+    "sales_cnt_present_count": 185,
+    "sales_amt_present_count": 185,
+    "positive_sales_amt_count": 165
   },
   "before_23": {
-    "broadcast_count": 141,
-    "sales_cnt_present_count": 137,
-    "sales_amt_present_count": 137,
-    "positive_sales_amt_count": 132
+    "broadcast_count": 185,
+    "sales_cnt_present_count": 185,
+    "sales_amt_present_count": 185,
+    "positive_sales_amt_count": 165
   },
   "hour_23": {
     "broadcast_count": 3,
-    "sales_cnt_present_count": 1,
-    "sales_amt_present_count": 1,
-    "positive_sales_amt_count": 1
+    "sales_cnt_present_count": 0,
+    "sales_amt_present_count": 0,
+    "positive_sales_amt_count": 0
   },
   "warnings": [],
   "note": "23시 방송은 다음날 무료 상세분석 최대 5건 보정 대상이므로 당일 검증의 핵심 기준은 23시 이전 방송입니다."
