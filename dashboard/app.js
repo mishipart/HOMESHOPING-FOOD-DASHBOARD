@@ -1140,10 +1140,20 @@
         item.kind==="excluded"?'<span class="badge hot">제외</span>':
         item.verified===false?'<span class="badge warn">분류완료·자동매칭(미검토)</span>':'<span class="badge good">분류완료·관리자확인</span>';
 
+      // V3.8: 실적/원본명 수정을 눌러야만 보이던 판매량·매출액을 카드에서
+      // 바로 볼 수 있게 한다. 매일 100건 넘는 방송을 방송이력까지
+      // 들어가야만 실적 확인이 가능하면 대조에 너무 오래 걸린다는
+      // 피드백을 반영했다.
+      const scopedDisplay=displayOcc.map(overlayRow);
+      const scopedSales=scopedDisplay.reduce((a,r)=>a+sales(r),0);
+      const scopedConfirmedCount=scopedDisplay.filter(performanceOk).length;
+      const lastDisplay=last?overlayRow(last):null;
+
       return `<div class="review-card"><div>
         <h4>${badge}${groupPgmBadge(displayOcc)}${esc(item.standard_product_name||item.raw_title)}</h4>
         ${item.raw_title&&item.standard_product_name?`<div class="small">원본: ${esc(item.raw_title)}</div>`:""}
         <div class="review-meta">${last?`${periodLabel} ${reviewRangeActive?"첫":"최근"} 방송 ${getDate(last)} ${getTime(last)} · ${esc(getPlatform(last))}`:"방송 이력 없음"}${displayOcc.length?` · ${periodLabel} 방송 ${displayOcc.length}회`:""}${aliasCount?` · 연결 원본명 ${aliasCount}개`:""}${item.unverifiedAliasCount?` · <b class="unverified-count">미확인 원본명 ${item.unverifiedAliasCount}개</b>`:""}</div>
+        ${displayOcc.length?`<div class="review-meta">${periodLabel} 매출 합계 <b>${money(scopedSales)}</b> · 실적확인 ${scopedConfirmedCount}/${displayOcc.length}회${lastDisplay?` · 최근 방송 판매량 ${cnt(salesCount(lastDisplay))} · 매출 ${performanceOk(lastDisplay)?money(sales(lastDisplay)):"미확인"}`:""}</div>`:""}
         ${item.kind==="dynamic"?'<div class="dynamic-note">이 제목은 방송마다 실제 상품이 달라질 수 있어 자동 대표상품으로 묶지 않습니다.</div>':""}
         ${item.kind==="auto"?`<div class="dynamic-note">자동분류 신뢰도 ${Math.round(num(item.master?.classification_score)*100)}% · 확인 후 영구규칙으로 저장할 수 있습니다.</div>`:""}
       </div><div class="review-actions">
@@ -1206,10 +1216,15 @@
         const o=occurrenceRuleForRow(r);
         const splits=splitMap().get(clean(r.hsshow_id));
         const splitLabel=splits&&splits.length?`<div class="small">분리입력됨: ${splits.map(s=>esc(clean(s.standard_product_name))).join(" · ")}</div>`:"";
+        const display=overlayRow(r);
+        // V3.8: 실적/원본명 수정을 눌러야만 보이던 판매량·매출액을
+        // 목록에서 바로 확인할 수 있게 표시한다. 라방바 실적과 대조할
+        // 때마다 매번 클릭해서 들어가야 하는 번거로움을 없애기 위함.
+        const perfLabel=`<span class="history-perf ${performanceOk(display)?"":"muted"}">판매량 ${cnt(salesCount(display))} · 매출 ${performanceOk(display)?money(sales(display)):"미확인"}${display.performance_source==="manual_override"||display.performance_source==="manual_split"?' <span class="badge good" title="수동 보정된 실적">수동</span>':""}</span>`;
         return `<div class="history-occ-row">
           <b>${esc(getTime(r))}</b>
           <span>${esc(getPlatform(r))}</span>
-          <span>${pgmBadgeHtml(r)}${esc(getRawTitle(r))}${o?`<div class="small">지정상품: ${esc(o.standard_product_name)}</div>`:""}${splitLabel}</span>
+          <span>${pgmBadgeHtml(r)}${esc(getRawTitle(r))}${o?`<div class="small">지정상품: ${esc(o.standard_product_name)}</div>`:""}${splitLabel}<div class="small">${perfLabel}</div></span>
           <span class="history-actions"><button type="button" class="btn" data-override-edit="${esc(r.hsshow_id||"")}">실적/원본명 수정</button><button type="button" class="btn ${splits&&splits.length?"":""}" data-split-edit="${esc(r.hsshow_id||"")}">${splits&&splits.length?"상품 분리 수정":"상품 분리 입력"}</button><button type="button" class="btn ${o?"":"primary"}" data-occurrence-edit="${esc(r.hsshow_id||"")}">${o?"분류 수정":"이 방송 분류"}</button></span>
         </div>`;
       }).join("")}`;
