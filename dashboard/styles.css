@@ -510,6 +510,7 @@ footer{font-size:10px;color:var(--muted);margin-top:18px}
   width: 100%;
 }
 .day-grid{
+  display:grid;
   overflow: visible !important;
   width: 100%;
 }
@@ -737,4 +738,14 @@ footer{font-size:10px;color:var(--muted);margin-top:18px}
 }
 .perf-inline.money{
   color:#c0392b;
+}
+
+/* ============================================================
+   V3.10.1 - 실적 표시를 "실적/원본명 수정" 버튼 왼쪽으로 이동
+   ============================================================ */
+.review-perf-chip{
+  font-size:11px;
+  color:var(--muted);
+  white-space:nowrap;
+  margin-right:4px;
 }

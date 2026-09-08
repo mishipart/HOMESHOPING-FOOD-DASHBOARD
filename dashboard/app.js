@@ -453,11 +453,20 @@
     };
   }
 
+  // V3.1.1 FIX: hotThreshold(rows)는 정렬(O(n log n))이 들어가는데,
+  // isHot()이 rows.filter(r=>isHot(r,rows)) 형태로 쓰이면서 방송 한
+  // 건마다 이 정렬을 매번 다시 돌리고 있었다. 방송이 수천 건으로 늘면서
+  // 사실상 O(n² log n)이 되어 실적 상세 필터가 느려진 주된 원인이었다.
+  // 같은 rows 배열이면 결과가 같으므로, 배열 참조 기준으로 한 번만
+  // 계산해서 재사용한다(WeakMap이라 배열이 새로 만들어지면 자동으로
+  // 캐시도 새로 계산됨 - invalidateDerived() 이후 별도 정리 불필요).
+  const hotThresholdCache=new WeakMap();
   function hotThreshold(rows){
+    if(hotThresholdCache.has(rows)) return hotThresholdCache.get(rows);
     const vals=rows.filter(performanceOk).map(sales).sort((a,b)=>a-b);
-    if(vals.length<4) return Infinity;
-    const p=Math.floor((vals.length-1)*.9);
-    return Math.max(vals[p], 50000000);
+    const result=vals.length<4?Infinity:Math.max(vals[Math.floor((vals.length-1)*.9)], 50000000);
+    hotThresholdCache.set(rows,result);
+    return result;
   }
   function isHot(r, rows){ return performanceOk(r) && sales(r) >= hotThreshold(rows); }
   function isNew(r, firstMap){ return firstMap.get(normalize(getProductName(r))) === getDate(r); }
@@ -1160,10 +1169,10 @@
         <h4>${badge}${groupPgmBadge(displayOcc)}${esc(item.standard_product_name||item.raw_title)}</h4>
         ${item.raw_title&&item.standard_product_name?`<div class="small">원본: ${esc(item.raw_title)}</div>`:""}
         <div class="review-meta">${last?`${periodLabel} ${reviewRangeActive?"첫":"최근"} 방송 ${getDate(last)} ${getTime(last)} · ${esc(getPlatform(last))}`:"방송 이력 없음"}${displayOcc.length?` · ${periodLabel} 방송 ${displayOcc.length}회`:""}${aliasCount?` · 연결 원본명 ${aliasCount}개`:""}${item.unverifiedAliasCount?` · <b class="unverified-count">미확인 원본명 ${item.unverifiedAliasCount}개</b>`:""}</div>
-        ${displayOcc.length?`<div class="review-meta">판매량 <b class="perf-inline">${cnt(lastDisplay?salesCount(lastDisplay):0)}</b> · 최근 매출 <b class="perf-inline money">${lastDisplay&&performanceOk(lastDisplay)?money(sales(lastDisplay)):"미확인"}</b> · ${periodLabel} 매출합계 <b class="perf-inline money">${money(scopedSales)}</b> (실적확인 ${scopedConfirmedCount}/${displayOcc.length}회)</div>`:""}
         ${item.kind==="dynamic"?'<div class="dynamic-note">이 제목은 방송마다 실제 상품이 달라질 수 있어 자동 대표상품으로 묶지 않습니다.</div>':""}
         ${item.kind==="auto"?`<div class="dynamic-note">자동분류 신뢰도 ${Math.round(num(item.master?.classification_score)*100)}% · 확인 후 영구규칙으로 저장할 수 있습니다.</div>`:""}
       </div><div class="review-actions">
+        ${displayOcc.length?`<span class="review-perf-chip">판매량 <b class="perf-inline">${cnt(lastDisplay?salesCount(lastDisplay):0)}</b> · 매출 <b class="perf-inline money">${lastDisplay&&performanceOk(lastDisplay)?money(sales(lastDisplay)):"미확인"}</b> · ${periodLabel}합계 <b class="perf-inline money">${money(scopedSales)}</b> (${scopedConfirmedCount}/${displayOcc.length}회)</span>`:""}
         ${item.kind==="auto"?`<button class="btn good-action" data-confirm-auto="${esc(item.raw_title)}">자동분류 확정</button>`:""}
         ${last?`<button class="btn" data-quick-override="${esc(clean(last.hsshow_id||""))}">실적/원본명 수정</button>`:""}
         ${allOcc.length?`<button class="btn" data-history="${esc(item.standard_product_name||item.raw_title)}" data-kind="${item.kind}">방송이력</button>`:""}
