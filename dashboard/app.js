@@ -1021,7 +1021,14 @@
           const auto=sampleStatus==="자동분류" || clean(sample?.classification_source)==="auto_similarity";
           if(filter==="auto" && !auto) continue;
           if(filter==="pending" && auto) continue;
-          out.push({kind:auto?"auto":"pending",raw_title:x.raw,standard_product_name:sample?.standard_product_name||m?.standard_product_name||"",master:m||sample||null,occurrences:x.rows});
+          // V3.10 FIX: 같은 원본명이라도 "이 방송 분류"/"상품 분리 입력"으로
+          // 방송 1건 단위 해결이 된 것들은 이 그룹에서 빼야 한다.
+          // 안 그러면 그 방송이 이미 분류완료 그룹에도 잡히면서(overlay된
+          // 표준상품명 기준) '미확인'에도 동시에 남아 이중 집계됐다.
+          const unresolvedRows=x.rows.filter(r=>!occurrenceRuleForRow(r) && !splitMap().get(clean(r.hsshow_id)));
+          if(unresolvedRows.length){
+            out.push({kind:auto?"auto":"pending",raw_title:x.raw,standard_product_name:sample?.standard_product_name||m?.standard_product_name||"",master:m||sample||null,occurrences:unresolvedRows});
+          }
         }
       }
     }
@@ -1153,11 +1160,16 @@
         <h4>${badge}${groupPgmBadge(displayOcc)}${esc(item.standard_product_name||item.raw_title)}</h4>
         ${item.raw_title&&item.standard_product_name?`<div class="small">원본: ${esc(item.raw_title)}</div>`:""}
         <div class="review-meta">${last?`${periodLabel} ${reviewRangeActive?"첫":"최근"} 방송 ${getDate(last)} ${getTime(last)} · ${esc(getPlatform(last))}`:"방송 이력 없음"}${displayOcc.length?` · ${periodLabel} 방송 ${displayOcc.length}회`:""}${aliasCount?` · 연결 원본명 ${aliasCount}개`:""}${item.unverifiedAliasCount?` · <b class="unverified-count">미확인 원본명 ${item.unverifiedAliasCount}개</b>`:""}</div>
-        ${displayOcc.length?`<div class="review-meta">${periodLabel} 매출 합계 <b>${money(scopedSales)}</b> · 실적확인 ${scopedConfirmedCount}/${displayOcc.length}회${lastDisplay?` · 최근 방송 판매량 ${cnt(salesCount(lastDisplay))} · 매출 ${performanceOk(lastDisplay)?money(sales(lastDisplay)):"미확인"}`:""}</div>`:""}
+        ${displayOcc.length?`<div class="review-perf">
+          <span class="review-perf-item"><b class="review-perf-num">${cnt(lastDisplay?salesCount(lastDisplay):0)}</b><span class="review-perf-label">최근 판매량</span></span>
+          <span class="review-perf-item"><b class="review-perf-num money">${lastDisplay&&performanceOk(lastDisplay)?money(sales(lastDisplay)):"미확인"}</b><span class="review-perf-label">최근 매출</span></span>
+          <span class="review-perf-item"><b class="review-perf-num">${money(scopedSales)}</b><span class="review-perf-label">${periodLabel} 매출합계 (실적확인 ${scopedConfirmedCount}/${displayOcc.length}회)</span></span>
+        </div>`:""}
         ${item.kind==="dynamic"?'<div class="dynamic-note">이 제목은 방송마다 실제 상품이 달라질 수 있어 자동 대표상품으로 묶지 않습니다.</div>':""}
         ${item.kind==="auto"?`<div class="dynamic-note">자동분류 신뢰도 ${Math.round(num(item.master?.classification_score)*100)}% · 확인 후 영구규칙으로 저장할 수 있습니다.</div>`:""}
       </div><div class="review-actions">
         ${item.kind==="auto"?`<button class="btn good-action" data-confirm-auto="${esc(item.raw_title)}">자동분류 확정</button>`:""}
+        ${last?`<button class="btn" data-quick-override="${esc(clean(last.hsshow_id||""))}">실적/원본명 수정</button>`:""}
         ${allOcc.length?`<button class="btn" data-history="${esc(item.standard_product_name||item.raw_title)}" data-kind="${item.kind}">방송이력</button>`:""}
         <button class="btn primary" data-edit-review="${esc(item.standard_product_name||item.raw_title)}" data-kind="${item.kind}">관리</button>
       </div></div>`;
@@ -1166,6 +1178,7 @@
     $$("[data-confirm-auto]").forEach(b=>b.onclick=()=>confirmAutoClassification(b.dataset.confirmAuto));
     $$("[data-edit-review]").forEach(b=>b.onclick=()=>openProductDialog(b.dataset.editReview,b.dataset.kind));
     $$("[data-history]").forEach(b=>b.onclick=()=>openHistoryDialog(b.dataset.history,b.dataset.kind));
+    $$("[data-quick-override]").forEach(b=>b.onclick=()=>openOverrideEditor(b.dataset.quickOverride));
   }
 
   function setReviewFilter(filter){
@@ -1217,14 +1230,18 @@
         const splits=splitMap().get(clean(r.hsshow_id));
         const splitLabel=splits&&splits.length?`<div class="small">분리입력됨: ${splits.map(s=>esc(clean(s.standard_product_name))).join(" · ")}</div>`:"";
         const display=overlayRow(r);
-        // V3.8: 실적/원본명 수정을 눌러야만 보이던 판매량·매출액을
-        // 목록에서 바로 확인할 수 있게 표시한다. 라방바 실적과 대조할
-        // 때마다 매번 클릭해서 들어가야 하는 번거로움을 없애기 위함.
-        const perfLabel=`<span class="history-perf ${performanceOk(display)?"":"muted"}">판매량 ${cnt(salesCount(display))} · 매출 ${performanceOk(display)?money(sales(display)):"미확인"}${display.performance_source==="manual_override"||display.performance_source==="manual_split"?' <span class="badge good" title="수동 보정된 실적">수동</span>':""}</span>`;
+        const isManual=display.performance_source==="manual_override"||display.performance_source==="manual_split";
+        // V3.9: 라방바 화면처럼 판매량·매출을 왼쪽에 큼직하게 배치해서
+        // 실적/원본명 수정을 열지 않아도 바로 대조할 수 있게 한다.
         return `<div class="history-occ-row">
+          <div class="history-occ-perf">
+            <span class="history-perf-num">${cnt(salesCount(display))}<span class="history-perf-unit">개</span></span>
+            <span class="history-perf-num money">${performanceOk(display)?money(sales(display)):"미확인"}</span>
+            ${isManual?'<span class="badge good">수동</span>':""}
+          </div>
           <b>${esc(getTime(r))}</b>
           <span>${esc(getPlatform(r))}</span>
-          <span>${pgmBadgeHtml(r)}${esc(getRawTitle(r))}${o?`<div class="small">지정상품: ${esc(o.standard_product_name)}</div>`:""}${splitLabel}<div class="small">${perfLabel}</div></span>
+          <span>${pgmBadgeHtml(r)}${esc(getRawTitle(r))}${o?`<div class="small">지정상품: ${esc(o.standard_product_name)}</div>`:""}${splitLabel}</span>
           <span class="history-actions"><button type="button" class="btn" data-override-edit="${esc(r.hsshow_id||"")}">실적/원본명 수정</button><button type="button" class="btn ${splits&&splits.length?"":""}" data-split-edit="${esc(r.hsshow_id||"")}">${splits&&splits.length?"상품 분리 수정":"상품 분리 입력"}</button><button type="button" class="btn ${o?"":"primary"}" data-occurrence-edit="${esc(r.hsshow_id||"")}">${o?"분류 수정":"이 방송 분류"}</button></span>
         </div>`;
       }).join("")}`;
