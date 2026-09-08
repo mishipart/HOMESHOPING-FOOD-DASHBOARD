@@ -1822,15 +1822,22 @@
   }
 
   async function loadAdminMaster(){
-    if(!state.adminPassword) return;
-    const r=await fetch(`${API}/master`,{headers:{"X-Admin-Password":state.adminPassword},cache:"no-store"});
-    if(!r.ok) throw new Error(`관리자 마스터 조회 실패 ${r.status}`);
+    // V3.10 FIX: GET /master는 이제 비밀번호 없이도 누구나 조회할 수 있다.
+    // 로그인 여부와 상관없이 항상 이 데이터를 불러와서, 로그인 안 한
+    // 사람도 관리자가 고친 정확한 분류/실적을 그대로 보게 한다.
+    // 비밀번호가 있을 때만 "관리자 모드" UI를 켠다(저장 기능은 여전히
+    // 서버가 POST /save에서 비밀번호를 검사한다).
+    const headers=state.adminPassword?{"X-Admin-Password":state.adminPassword}:{};
+    const r=await fetch(`${API}/master`,{headers,cache:"no-store"});
+    if(!r.ok) throw new Error(`상품 마스터 조회 실패 ${r.status}`);
     state.adminMaster=await r.json();
     invalidateDerived();
-    $("#adminState").textContent=`관리자 모드 · ${state.adminMaster.product_count||0}개 상품`;
-    $("#adminState").classList.add("on");
-    $("#adminBtn").textContent="관리자 로그아웃";
-    renderMasterDatalist();
+    if(state.adminPassword){
+      $("#adminState").textContent=`관리자 모드 · ${state.adminMaster.product_count||0}개 상품`;
+      $("#adminState").classList.add("on");
+      $("#adminBtn").textContent="관리자 로그아웃";
+      renderMasterDatalist();
+    }
   }
 
   function renderMasterDatalist(){
@@ -2513,6 +2520,7 @@
       const stamps=state.rows.map(r=>clean(r.performance_updated_at||r.last_seen_at||r.start_datetime)).filter(Boolean).sort();
       $("#latestDataAt").textContent=`최근 데이터 갱신: ${stamps.at(-1)||"확인 불가"}`;
       if(state.adminPassword){ try{await loadAdminMaster();}catch{logoutAdmin();} }
+      else{ try{await loadAdminMaster();}catch(e){ console.error("공개 상품 마스터 조회 실패, 원본 데이터로 표시합니다.",e); } }
       renderAll();
     }catch(e){
       $("#latestDataAt").textContent="데이터 로드 실패";
