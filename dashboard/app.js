@@ -1160,11 +1160,7 @@
         <h4>${badge}${groupPgmBadge(displayOcc)}${esc(item.standard_product_name||item.raw_title)}</h4>
         ${item.raw_title&&item.standard_product_name?`<div class="small">원본: ${esc(item.raw_title)}</div>`:""}
         <div class="review-meta">${last?`${periodLabel} ${reviewRangeActive?"첫":"최근"} 방송 ${getDate(last)} ${getTime(last)} · ${esc(getPlatform(last))}`:"방송 이력 없음"}${displayOcc.length?` · ${periodLabel} 방송 ${displayOcc.length}회`:""}${aliasCount?` · 연결 원본명 ${aliasCount}개`:""}${item.unverifiedAliasCount?` · <b class="unverified-count">미확인 원본명 ${item.unverifiedAliasCount}개</b>`:""}</div>
-        ${displayOcc.length?`<div class="review-perf">
-          <span class="review-perf-item"><b class="review-perf-num">${cnt(lastDisplay?salesCount(lastDisplay):0)}</b><span class="review-perf-label">최근 판매량</span></span>
-          <span class="review-perf-item"><b class="review-perf-num money">${lastDisplay&&performanceOk(lastDisplay)?money(sales(lastDisplay)):"미확인"}</b><span class="review-perf-label">최근 매출</span></span>
-          <span class="review-perf-item"><b class="review-perf-num">${money(scopedSales)}</b><span class="review-perf-label">${periodLabel} 매출합계 (실적확인 ${scopedConfirmedCount}/${displayOcc.length}회)</span></span>
-        </div>`:""}
+        ${displayOcc.length?`<div class="review-meta">판매량 <b class="perf-inline">${cnt(lastDisplay?salesCount(lastDisplay):0)}</b> · 최근 매출 <b class="perf-inline money">${lastDisplay&&performanceOk(lastDisplay)?money(sales(lastDisplay)):"미확인"}</b> · ${periodLabel} 매출합계 <b class="perf-inline money">${money(scopedSales)}</b> (실적확인 ${scopedConfirmedCount}/${displayOcc.length}회)</div>`:""}
         ${item.kind==="dynamic"?'<div class="dynamic-note">이 제목은 방송마다 실제 상품이 달라질 수 있어 자동 대표상품으로 묶지 않습니다.</div>':""}
         ${item.kind==="auto"?`<div class="dynamic-note">자동분류 신뢰도 ${Math.round(num(item.master?.classification_score)*100)}% · 확인 후 영구규칙으로 저장할 수 있습니다.</div>`:""}
       </div><div class="review-actions">
@@ -1234,14 +1230,11 @@
         // V3.9: 라방바 화면처럼 판매량·매출을 왼쪽에 큼직하게 배치해서
         // 실적/원본명 수정을 열지 않아도 바로 대조할 수 있게 한다.
         return `<div class="history-occ-row">
-          <div class="history-occ-perf">
-            <span class="history-perf-num">${cnt(salesCount(display))}<span class="history-perf-unit">개</span></span>
-            <span class="history-perf-num money">${performanceOk(display)?money(sales(display)):"미확인"}</span>
-            ${isManual?'<span class="badge good">수동</span>':""}
-          </div>
           <b>${esc(getTime(r))}</b>
           <span>${esc(getPlatform(r))}</span>
-          <span>${pgmBadgeHtml(r)}${esc(getRawTitle(r))}${o?`<div class="small">지정상품: ${esc(o.standard_product_name)}</div>`:""}${splitLabel}</span>
+          <span>${pgmBadgeHtml(r)}${esc(getRawTitle(r))}${o?`<div class="small">지정상품: ${esc(o.standard_product_name)}</div>`:""}${splitLabel}
+            <div class="small">판매량 <b class="perf-inline">${cnt(salesCount(display))}</b> · 매출 <b class="perf-inline money">${performanceOk(display)?money(sales(display)):"미확인"}</b>${isManual?' <span class="badge good">수동</span>':""}</div>
+          </span>
           <span class="history-actions"><button type="button" class="btn" data-override-edit="${esc(r.hsshow_id||"")}">실적/원본명 수정</button><button type="button" class="btn ${splits&&splits.length?"":""}" data-split-edit="${esc(r.hsshow_id||"")}">${splits&&splits.length?"상품 분리 수정":"상품 분리 입력"}</button><button type="button" class="btn ${o?"":"primary"}" data-occurrence-edit="${esc(r.hsshow_id||"")}">${o?"분류 수정":"이 방송 분류"}</button></span>
         </div>`;
       }).join("")}`;
