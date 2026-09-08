@@ -1148,3 +1148,73 @@ footer{font-size:10px;color:var(--muted);margin-top:18px}
   color:#c0392b;
   background:#fff;
 }
+
+/* ============================================================
+   V3.0.12 - 상품확인 카드 / 방송이력에서 판매량·매출을 크게 강조 표시
+   기존 styles.css 맨 끝에 붙여넣으세요.
+   ============================================================ */
+
+/* 상품확인 카드 상단 실적 요약 (최근 판매량/매출 + 기간 합계) */
+.review-perf{
+  display:flex;
+  gap:18px;
+  align-items:baseline;
+  flex-wrap:wrap;
+  margin:8px 0;
+  padding:8px 10px;
+  background:#f7f8fc;
+  border-radius:10px;
+}
+.review-perf-item{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+.review-perf-num{
+  font-size:19px;
+  font-weight:800;
+  color:#222;
+  line-height:1.1;
+}
+.review-perf-num.money{
+  color:#c0392b;
+}
+.review-perf-label{
+  font-size:11px;
+  color:#888;
+  font-weight:600;
+}
+
+/* 방송이력 목록: 왼쪽에 실적을 큼직하게 배치 */
+.history-occ-row{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
+  padding:10px 0;
+  border-bottom:1px solid #eef0f6;
+}
+.history-occ-perf{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:2px;
+  min-width:110px;
+  padding-right:10px;
+  border-right:1px solid #eef0f6;
+}
+.history-perf-num{
+  font-size:17px;
+  font-weight:800;
+  color:#222;
+  line-height:1.2;
+}
+.history-perf-num.money{
+  color:#c0392b;
+}
+.history-perf-unit{
+  font-size:11px;
+  font-weight:600;
+  color:#888;
+  margin-left:2px;
+}
