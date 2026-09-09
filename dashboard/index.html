@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>홈쇼핑 식품 모니터 V3.1.0</title>
-  <link rel="stylesheet" href="./styles.css?v=3.1.0">
+  <link rel="stylesheet" href="./styles.css?v=3.2.0">
 </head>
 <body>
   <main class="shell">
@@ -172,6 +172,7 @@
           <button data-review-filter="auto">자동분류</button>
           <button data-review-filter="dynamic">가변방송</button>
           <button data-review-filter="excluded">제외</button>
+          <button data-review-filter="source">전체방송 점검</button>
           <button data-review-filter="audit">변경이력</button>
           <button data-review-filter="all">전체</button>
         </div>
@@ -327,7 +328,7 @@
       <div class="small">라방바 상세페이지의 '판매상품' 목록을 그대로 옮겨 입력하세요. 다른 탭에서 값을 복사해 와도 이 창은 닫히지 않습니다.</div>
       <div id="splitRows" class="split-rows"></div>
       <button type="button" id="splitAddRowBtn" class="btn">+ 상품 추가</button>
-      <div class="split-total">합계 매출: <b id="splitTotal">0원</b></div>
+      <div class="split-total">식품 실적 합계: <b id="splitTotal">0원</b></div>
       <div id="splitError" class="error-text"></div>
       <div class="dialog-actions">
         <button type="button" id="splitRemoveBtn" class="btn danger-outline">분리 해제</button>
@@ -348,6 +349,8 @@
 
   <script src="./config.js?v=3.1.0"></script>
   <script src="./pgm_schedule.js?v=3.1.0"></script>
-  <script src="./app.js?v=3.1.0"></script>
+  <script src="./food_scope.js?v=3.2.0"></script>
+  <script src="./app.js?v=3.2.0"></script>
 </body>
 </html>
+
