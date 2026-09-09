@@ -442,8 +442,7 @@
   }
 
   function isFoodBroadcast(r){
-    const original=state.rows.find(x=>clean(x.hsshow_id)===clean(r.hsshow_id))||r;
-    return FOOD_SCOPE.isFoodRow(original,occurrenceRuleForRow(original),splitMap().get(clean(original.hsshow_id))||[]);
+    return FOOD_SCOPE.isFoodRow(r,occurrenceRuleForRow(r),splitMap().get(clean(r.hsshow_id))||[]);
   }
 
   function visibleRows(){
