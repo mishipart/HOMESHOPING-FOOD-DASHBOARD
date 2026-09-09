@@ -3,6 +3,7 @@
 
   const CFG = window.HSFM_CONFIG || {};
   const API = String(CFG.adminApiBase || "").replace(/\/$/, "");
+  const FOOD_SCOPE = window.HSFM_FOOD_SCOPE;
 
   const state = {
     rows: [],
@@ -358,9 +359,10 @@
     // 값이라 다른 어떤 자동 매칭보다도 신뢰도가 높으므로 최우선 적용한다.
     const splits=splitMap().get(clean(r.hsshow_id));
     if(splits && splits.length){
-      const totalAmt=splits.reduce((a,s)=>a+num(s.sales_amt),0);
-      const totalCnt=splits.reduce((a,s)=>a+num(s.sales_cnt),0);
-      const names=splits.map(s=>clean(s.standard_product_name)).filter(Boolean);
+      const foodSplits=FOOD_SCOPE.includedSplits(splits);
+      const totalAmt=foodSplits.reduce((a,s)=>a+num(s.sales_amt),0);
+      const totalCnt=foodSplits.reduce((a,s)=>a+num(s.sales_cnt),0);
+      const names=foodSplits.map(s=>clean(s.standard_product_name)).filter(Boolean);
       return {
         ...r,
         standard_product_name: names.length>1?`${names[0]} 외 ${names.length-1}건`:(names[0]||r.standard_product_name),
@@ -372,7 +374,9 @@
         performance_status: "manual_split",
         performance_source: "manual_split",
         occurrence_override: "Y",
-        split_products: splits
+        food_override: foodSplits.length?"Y":"N",
+        split_products: foodSplits,
+        all_split_products: splits
       };
     }
 
@@ -392,13 +396,29 @@
         raw_title_corrected: o.raw_title_corrected || r.raw_title_corrected,
         review_status: o.review_status || "confirmed",
         enabled: o.enabled || "Y",
+        food_override: o.food_override || r.food_override,
         occurrence_override: "Y"
       };
     }
 
     // A variable title must not inherit a global title mapping.
     if(dynamicRuleForRow(r)){
-      return {...r, dynamic_title: "Y"};
+      return {
+        ...r,
+        standard_product_name:"",
+        brand:"",
+        product_group:"",
+        main_ingredient:"",
+        category_major:"",
+        category_middle:"",
+        category_sub:"",
+        classification_source:"dynamic_title",
+        classification_score:"",
+        master_match_keyword:"",
+        manual_lock:"N",
+        review_status:"미분류",
+        dynamic_title:"Y"
+      };
     }
 
     // Priority 2: admin/base master by title
@@ -421,9 +441,14 @@
     };
   }
 
+  function isFoodBroadcast(r){
+    const original=state.rows.find(x=>clean(x.hsshow_id)===clean(r.hsshow_id))||r;
+    return FOOD_SCOPE.isFoodRow(original,occurrenceRuleForRow(original),splitMap().get(clean(original.hsshow_id))||[]);
+  }
+
   function visibleRows(){
     if(state.derived.visibleRows) return state.derived.visibleRows;
-    state.derived.visibleRows=state.rows.map(overlayRow).filter(r=>!isExcludedRow(r));
+    state.derived.visibleRows=state.rows.map(overlayRow).filter(r=>isFoodBroadcast(r)&&!isExcludedRow(r));
     return state.derived.visibleRows;
   }
 
@@ -681,6 +706,11 @@
   const CHANNEL_GROUP_DATA = ["신세계쇼핑","신세계라이브쇼핑","SK스토아","KT알파쇼핑","쇼핑엔티"];
   const CHANNEL_GROUP_LIVEDATA = ["CJ온스타일 플러스","GS홈쇼핑 마이샵","현대홈쇼핑 플러스샵","롯데원티비","NS홈쇼핑 샵플러스"];
   const CHANNEL_GROUP_ORDER = [...CHANNEL_GROUP_LIVE, ...CHANNEL_GROUP_DATA, ...CHANNEL_GROUP_LIVEDATA];
+  const CHANNEL_GROUPS = [
+    {key:"live",label:"라이브채널",channels:CHANNEL_GROUP_LIVE},
+    {key:"data",label:"데이터채널",channels:CHANNEL_GROUP_DATA},
+    {key:"live-data",label:"라이브사의 데이터채널",channels:CHANNEL_GROUP_LIVEDATA},
+  ];
 
   function orderedChannels(present){
     const known = CHANNEL_GROUP_ORDER.filter(c=>present.includes(c));
@@ -699,6 +729,8 @@
     </div>`;
 
     const allChannels = orderedChannels([...new Set(rows.map(getPlatform))]);
+    const otherChannels=allChannels.filter(c=>!CHANNEL_GROUP_ORDER.includes(c));
+    const dayChannelGroups=[...CHANNEL_GROUPS,...(otherChannels.length?[{key:"other",label:"기타채널",channels:otherChannels}]:[])];
 
     // V3.5: 채널 필터 - 처음 보면 전체 선택, 체크 해제한 채널만 숨긴다.
     if(!state.dayGridHiddenChannels) state.dayGridHiddenChannels = new Set();
@@ -706,9 +738,14 @@
 
     if(allChannels.length){
       html += `<div class="day-grid-filter">
-        <span class="small">채널 필터:</span>
-        ${allChannels.map(c=>`<label class="day-grid-filter-chip"><input type="checkbox" data-channel-toggle="${esc(c)}" ${state.dayGridHiddenChannels.has(c)?"":"checked"}>${esc(c)}</label>`).join("")}
-        <button type="button" class="btn small" id="dayGridShowAll">전체 보기</button>
+        <div class="day-grid-filter-head"><b>채널 비교</b><span>그룹 또는 개별 채널을 선택하세요.</span><div><button type="button" class="btn small" id="dayGridShowAll">전체 선택</button><button type="button" class="btn small" id="dayGridHideAll">전체 해제</button></div></div>
+        <div class="day-grid-filter-groups">
+          ${dayChannelGroups.map(group=>{
+            const members=group.channels.filter(c=>allChannels.includes(c));
+            if(!members.length) return "";
+            return `<fieldset class="channel-filter-group"><legend><label><input type="checkbox" data-channel-group="${group.key}"> ${group.label}</label><span>${members.length}개</span></legend><div>${members.map(c=>`<label class="day-grid-filter-chip"><input type="checkbox" data-channel-toggle="${esc(c)}" ${state.dayGridHiddenChannels.has(c)?"":"checked"}>${esc(c)}</label>`).join("")}</div></fieldset>`;
+          }).join("")}
+        </div>
       </div>`;
     }
 
@@ -754,8 +791,21 @@
       if(cb.checked) state.dayGridHiddenChannels.delete(c); else state.dayGridHiddenChannels.add(c);
       renderDay();
     });
+    $$("[data-channel-group]").forEach(cb=>{
+      const group=dayChannelGroups.find(x=>x.key===cb.dataset.channelGroup);
+      const members=(group?.channels||[]).filter(c=>allChannels.includes(c));
+      const selected=members.filter(c=>!state.dayGridHiddenChannels.has(c)).length;
+      cb.checked=selected===members.length;
+      cb.indeterminate=selected>0&&selected<members.length;
+      cb.onchange=()=>{
+        members.forEach(c=>cb.checked?state.dayGridHiddenChannels.delete(c):state.dayGridHiddenChannels.add(c));
+        renderDay();
+      };
+    });
     const showAllBtn=$("#dayGridShowAll");
     if(showAllBtn) showAllBtn.onclick=()=>{ state.dayGridHiddenChannels.clear(); renderDay(); };
+    const hideAllBtn=$("#dayGridHideAll");
+    if(hideAllBtn) hideAllBtn.onclick=()=>{ allChannels.forEach(c=>state.dayGridHiddenChannels.add(c)); renderDay(); };
   }
 
   function setPerfRange(kind){
@@ -1002,6 +1052,15 @@
       return (state.adminMaster?.audit || []).map(x=>({kind:"audit",audit:x}));
     }
 
+    if(filter==="source"){
+      const out=[];
+      for(const group of buildOccurrenceMap().values()){
+        const rows=group.rows.filter(r=>!isFoodBroadcast(r));
+        if(rows.length) out.push({kind:"source_nonfood",raw_title:group.raw,standard_product_name:"",master:null,occurrences:rows});
+      }
+      return out;
+    }
+
     const occurrence=buildOccurrenceMap(), out=[];
     const groups=masterProductGroups();
 
@@ -1113,6 +1172,7 @@
     const auto=getReviewItems("auto").filter(reviewFilterMatch).length;
     const dynamic=getReviewItems("dynamic").filter(reviewFilterMatch).length;
     const excluded=getReviewItems("excluded").filter(reviewFilterMatch).length;
+    const source=getReviewItems("source").filter(reviewFilterMatch).length;
 
     $("#reviewSummary").innerHTML=`
       <span class="summary-chip clickable ${state.reviewFilter==="pending"?"active":""}" data-summary-filter="pending">미확인 ${pending}건</span>
@@ -1120,6 +1180,7 @@
       <span class="summary-chip clickable ${state.reviewFilter==="auto"?"active":""}" data-summary-filter="auto">자동분류 ${auto}개</span>
       <span class="summary-chip clickable ${state.reviewFilter==="dynamic"?"active":""}" data-summary-filter="dynamic">가변방송 ${dynamic}개</span>
       <span class="summary-chip clickable ${state.reviewFilter==="excluded"?"active":""}" data-summary-filter="excluded">제외 ${excluded}개</span>
+      <span class="summary-chip clickable ${state.reviewFilter==="source"?"active":""}" data-summary-filter="source">전체방송 점검 ${source}개</span>
       <span class="summary-chip">현재 표시 ${items.length}건</span>`;
 
     $$("[data-summary-filter]").forEach(b=>b.onclick=()=>setReviewFilter(b.dataset.summaryFilter));
@@ -1154,6 +1215,7 @@
         item.kind==="auto"?'<span class="badge new">자동분류</span>':
         item.kind==="dynamic"?'<span class="badge dynamic">가변방송</span>':
         item.kind==="excluded"?'<span class="badge hot">제외</span>':
+        item.kind==="source_nonfood"?'<span class="badge source">라방바 비식품</span>':
         item.verified===false?'<span class="badge warn">분류완료·자동매칭(미검토)</span>':'<span class="badge good">분류완료·관리자확인</span>';
 
       // V3.8: 실적/원본명 수정을 눌러야만 보이던 판매량·매출액을 카드에서
@@ -1170,13 +1232,14 @@
         ${item.raw_title&&item.standard_product_name?`<div class="small">원본: ${esc(item.raw_title)}</div>`:""}
         <div class="review-meta">${last?`${periodLabel} ${reviewRangeActive?"첫":"최근"} 방송 ${getDate(last)} ${getTime(last)} · ${esc(getPlatform(last))}`:"방송 이력 없음"}${displayOcc.length?` · ${periodLabel} 방송 ${displayOcc.length}회`:""}${aliasCount?` · 연결 원본명 ${aliasCount}개`:""}${item.unverifiedAliasCount?` · <b class="unverified-count">미확인 원본명 ${item.unverifiedAliasCount}개</b>`:""}</div>
         ${item.kind==="dynamic"?'<div class="dynamic-note">이 제목은 방송마다 실제 상품이 달라질 수 있어 자동 대표상품으로 묶지 않습니다.</div>':""}
+        ${item.kind==="source_nonfood"?`<div class="dynamic-note">원본 카테고리: ${esc(clean(last?.source_category||last?.category||"미확인"))} · 식품이 포함된 방송이면 방송이력에서 분류하거나 상품을 나눠 입력하세요.</div>`:""}
         ${item.kind==="auto"?`<div class="dynamic-note">자동분류 신뢰도 ${Math.round(num(item.master?.classification_score)*100)}% · 확인 후 영구규칙으로 저장할 수 있습니다.</div>`:""}
       </div><div class="review-actions">
         ${displayOcc.length?`<span class="review-perf-chip">판매량 <b class="perf-inline">${cnt(lastDisplay?salesCount(lastDisplay):0)}</b> · 매출 <b class="perf-inline money">${lastDisplay&&performanceOk(lastDisplay)?money(sales(lastDisplay)):"미확인"}</b> · ${periodLabel}합계 <b class="perf-inline money">${money(scopedSales)}</b> (${scopedConfirmedCount}/${displayOcc.length}회)</span>`:""}
         ${item.kind==="auto"?`<button class="btn good-action" data-confirm-auto="${esc(item.raw_title)}">자동분류 확정</button>`:""}
         ${last?`<button class="btn" data-quick-override="${esc(clean(last.hsshow_id||""))}">실적/원본명 수정</button>`:""}
         ${allOcc.length?`<button class="btn" data-history="${esc(item.standard_product_name||item.raw_title)}" data-kind="${item.kind}">방송이력</button>`:""}
-        <button class="btn primary" data-edit-review="${esc(item.standard_product_name||item.raw_title)}" data-kind="${item.kind}">관리</button>
+        ${item.kind==="source_nonfood"&&last?`<button class="btn primary" data-direct-occurrence="${esc(clean(last.hsshow_id||""))}">이 방송 식품 분류</button>`:`<button class="btn primary" data-edit-review="${esc(item.standard_product_name||item.raw_title)}" data-kind="${item.kind}">관리</button>`}
       </div></div>`;
     }).join("")||'<div class="card muted">조건에 맞는 상품이 없습니다.</div>';
 
@@ -1184,6 +1247,7 @@
     $$("[data-edit-review]").forEach(b=>b.onclick=()=>openProductDialog(b.dataset.editReview,b.dataset.kind));
     $$("[data-history]").forEach(b=>b.onclick=()=>openHistoryDialog(b.dataset.history,b.dataset.kind));
     $$("[data-quick-override]").forEach(b=>b.onclick=()=>openOverrideEditor(b.dataset.quickOverride));
+    $$("[data-direct-occurrence]").forEach(b=>b.onclick=()=>openOccurrenceEditor(b.dataset.directOccurrence));
   }
 
   function setReviewFilter(filter){
@@ -1273,17 +1337,19 @@
       <input type="text" class="split-name" placeholder="상품명 (상세페이지 상품명 그대로)" value="${esc(clean(p.standard_product_name||""))}">
       <input type="text" inputmode="numeric" class="split-amt" placeholder="매출액(원)" value="${esc(clean(p.sales_amt||""))}">
       <input type="text" inputmode="numeric" class="split-cnt" placeholder="판매량" value="${esc(clean(p.sales_cnt||""))}">
+      <label class="split-food"><input type="checkbox" class="split-food-check" ${clean(p.include_in_food||"Y").toUpperCase()!=="N"?"checked":""}> 식품 실적</label>
       <button type="button" class="icon-btn split-remove-row" title="이 상품 삭제">✕</button>
     </div>`;
   }
 
   function updateSplitTotal(){
-    const total=$$("#splitRows .split-row").reduce((sum,row)=>sum+num(row.querySelector(".split-amt").value),0);
+    const total=$$("#splitRows .split-row").reduce((sum,row)=>sum+(row.querySelector(".split-food-check").checked?num(row.querySelector(".split-amt").value):0),0);
     $("#splitTotal").textContent=money(total);
   }
 
   function bindSplitRow(rowEl){
     rowEl.querySelector(".split-amt").addEventListener("input",updateSplitTotal);
+    rowEl.querySelector(".split-food-check").addEventListener("change",updateSplitTotal);
     rowEl.querySelector(".split-remove-row").onclick=()=>{
       if($$("#splitRows .split-row").length<=2){ showStatus("최소 2개 상품이 필요합니다.","error"); return; }
       rowEl.remove();
@@ -1325,7 +1391,8 @@
     const products=$$("#splitRows .split-row").map(row=>({
       standard_product_name:clean(row.querySelector(".split-name").value),
       sales_amt:clean(row.querySelector(".split-amt").value).replace(/[^0-9]/g,"")||"0",
-      sales_cnt:clean(row.querySelector(".split-cnt").value).replace(/[^0-9]/g,"")||"0"
+      sales_cnt:clean(row.querySelector(".split-cnt").value).replace(/[^0-9]/g,"")||"0",
+      include_in_food:row.querySelector(".split-food-check").checked?"Y":"N"
     }));
 
     if(products.length<2){ $("#splitError").textContent="상품은 최소 2개 이상 입력해야 합니다."; return; }
@@ -1338,6 +1405,7 @@
       start_datetime:clean(r.start_datetime),
       platform_name:getPlatform(r),
       raw_title:getRawTitle(r),
+      source_category:clean(r.source_category||r.category),
       products,
       note:"상세페이지 확인 후 상품별 매출 분리 입력"
     };
@@ -2021,12 +2089,14 @@
     if(action==="mark_dynamic_title"){ body.pattern=raw||source; body.platform=""; }
     if(action==="save_occurrence"){
       body.hsshow_id=$("#productForm").dataset.occurrenceId||"";
+      body.food_override="Y";
       const r=state.rows.find(x=>clean(x.hsshow_id)===body.hsshow_id);
       if(r){
         body.broadcast_date=getDate(r);
         body.start_datetime=clean(r.start_datetime);
         body.platform_name=getPlatform(r);
         body.raw_title=getRawTitle(r);
+        body.source_category=clean(r.source_category||r.category);
         body.raw_title_original=clean(r.raw_title_original||r.raw_title||"");
         body.raw_title_corrected=$("#editRawDisplay").disabled?clean(r.raw_title_corrected||""):clean($("#editRawDisplay").value);
         if($("#applySameSlot")?.checked){
@@ -2680,3 +2750,4 @@
   setPerfRange("yesterday");
   loadData();
 })();
+
