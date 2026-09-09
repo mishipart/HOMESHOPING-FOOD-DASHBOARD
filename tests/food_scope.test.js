@@ -12,6 +12,8 @@ const mixed=[
 ];
 assert.equal(scope.isFoodRow({source_category:"생활/건강"},null,mixed),true);
 assert.deepEqual(scope.includedSplits(mixed).map(x=>x.standard_product_name),["LA갈비"]);
+assert.equal(scope.isFoodRow({source_category:"식품",food_override:"Y"},{food_override:"Y"},[{include_in_food:"N"}]),false);
+assert.equal(scope.isFoodRow({source_category:"생활/건강"},{food_override:"N"},mixed),true);
+assert.equal(scope.includedSplits(mixed).reduce((sum,x)=>sum+Number(x.sales_amt),0),16860000);
 
 console.log("food_scope tests passed");
-

@@ -320,11 +320,13 @@
   }
 
   function dynamicRuleForRow(r){
+    if(clean(r.dynamic_title).toUpperCase()==="Y") return {pattern:getRawTitle(r),platform:getPlatform(r)};
     const raw=normalize(getRawTitle(r));
     const platform=normalize(getPlatform(r));
 
     if(!state.derived.dynamicRules){
       state.derived.dynamicRules=(state.adminMaster?.dynamic_rules||[])
+        .filter(x=>clean(x.enabled).toUpperCase()!=="N")
         .map(x=>({
           row:x,
           pattern:normalize(x.pattern||""),
@@ -721,10 +723,12 @@
     const k=keyDate(state.cursor), rows=filteredCalendarRows().filter(r=>getDate(r)===k).sort((a,b)=>clean(a.start_datetime).localeCompare(clean(b.start_datetime))), firstMap=firstSeenMap();
     $("#periodLabel").textContent=`${state.cursor.getFullYear()}년 ${state.cursor.getMonth()+1}월 ${state.cursor.getDate()}일`;
     $("#calendarTitle").textContent="일간 캘린더";
-    const m=metricsForRows(rows);
+    if(!state.dayGridHiddenChannels) state.dayGridHiddenChannels = new Set();
+    const selectedRows=rows.filter(r=>!state.dayGridHiddenChannels.has(getPlatform(r)));
+    const m=metricsForRows(selectedRows);
 
     let html=`<div class="review-summary">
-      <span class="summary-chip">방송 ${rows.length}회</span><span class="summary-chip">실적 확인 ${m.confirmed}회</span><span class="summary-chip">매출 ${money(m.sales)}</span><span class="summary-chip">관심상품 ${rows.filter(isWatched).length}건</span>
+      <span class="summary-chip">방송 ${selectedRows.length}회</span><span class="summary-chip">실적 확인 ${m.confirmed}회</span><span class="summary-chip">매출 ${money(m.sales)}</span><span class="summary-chip">관심상품 ${selectedRows.filter(isWatched).length}건</span>
     </div>`;
 
     const allChannels = orderedChannels([...new Set(rows.map(getPlatform))]);
@@ -851,9 +855,12 @@
           out.push({
             ...r,
             standard_product_name: clean(sp.standard_product_name)||r.standard_product_name,
-            brand: sp.brand||r.brand,
-            product_group: sp.product_group||r.product_group,
-            main_ingredient: sp.main_ingredient||r.main_ingredient,
+            brand: sp.brand||"",
+            product_group: sp.product_group||"",
+            main_ingredient: sp.main_ingredient||"",
+            category_major: sp.category_major||"",
+            category_middle: sp.category_middle||"",
+            category_sub: sp.category_sub||"",
             sales_amt: num(sp.sales_amt),
             sales_cnt: num(sp.sales_cnt),
             split_products: null
@@ -1064,7 +1071,9 @@
     const groups=masterProductGroups();
 
     if(filter==="pending" || filter==="auto" || filter==="all"){
-      for(const x of occurrence.values()){
+      for(const group of occurrence.values()){
+        const x={...group,rows:group.rows.filter(isFoodBroadcast)};
+        if(!x.rows.length) continue;
         const sample=x.rows.at(-1), m=findMasterForRow(sample);
         const dynamic=!!dynamicRuleForRow(sample);
         const excluded=m&&isExcludedRow(m);
@@ -1257,7 +1266,7 @@
 
   function findReviewItem(name,kind){
     // V2.9.3: 동일 표준명이 여러 상태에 존재할 때 다른 그룹을 집어오는 문제 방지.
-    const exactPool=getReviewItems(kind||"all");
+    const exactPool=getReviewItems(kind==="source_nonfood"?"source":kind||"all");
     return exactPool.find(x=>(x.standard_product_name||x.raw_title)===name) ||
            getReviewItems("all").find(x=>x.kind===kind && (x.standard_product_name||x.raw_title)===name) ||
            getReviewItems("all").find(x=>(x.standard_product_name||x.raw_title)===name);
@@ -2749,4 +2758,3 @@
   setPerfRange("yesterday");
   loadData();
 })();
-
