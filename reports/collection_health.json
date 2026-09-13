@@ -1,28 +1,28 @@
 {
-  "generated_at": "2026-09-12T23:37:26.606024+09:00",
-  "target_date": "2026-09-12",
+  "generated_at": "2026-09-13T23:37:31.277482+09:00",
+  "target_date": "2026-09-13",
   "cycle": "23:30 KST",
   "status": "warning",
   "all_food": {
-    "broadcast_count": 99,
-    "sales_cnt_present_count": 41,
-    "sales_amt_present_count": 41,
-    "positive_sales_amt_count": 41
+    "broadcast_count": 96,
+    "sales_cnt_present_count": 44,
+    "sales_amt_present_count": 44,
+    "positive_sales_amt_count": 44
   },
   "before_23": {
-    "broadcast_count": 98,
-    "sales_cnt_present_count": 41,
-    "sales_amt_present_count": 41,
-    "positive_sales_amt_count": 41
+    "broadcast_count": 93,
+    "sales_cnt_present_count": 43,
+    "sales_amt_present_count": 43,
+    "positive_sales_amt_count": 43
   },
   "hour_23": {
-    "broadcast_count": 1,
-    "sales_cnt_present_count": 0,
-    "sales_amt_present_count": 0,
-    "positive_sales_amt_count": 0
+    "broadcast_count": 3,
+    "sales_cnt_present_count": 1,
+    "sales_amt_present_count": 1,
+    "positive_sales_amt_count": 1
   },
   "warnings": [
-    "2026-09-12 23시 이전 매출 확보율이 41.8%로 낮습니다 (41/98)."
+    "2026-09-13 23시 이전 매출 확보율이 46.2%로 낮습니다 (43/93)."
   ],
   "note": "23시 방송은 다음날 무료 상세분석 최대 5건 보정 대상이므로 당일 검증의 핵심 기준은 23시 이전 방송입니다."
 }
