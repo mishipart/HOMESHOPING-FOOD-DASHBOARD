@@ -30,7 +30,7 @@ const PGM_SCHEDULE = [
   { day:"mon", time:"20:45", name:"김호영의 투머치쇼",     host:"김호영",         channel:"CJ온스타일",      grade:"food_mixed" },
 
   // ---- 화요일 ----
-  { day:"tue", time:"09:00", name:"스타일NOW 더 김동은",   host:"김동은",         channel:"GS SHOP",        grade:"nonfood", note:"정확한 시간 미확인(오전)" },
+  { day:"tue", time:"09:00", name:"스타일NOW 더 김동은",   host:"김동은",         channel:"GS SHOP",        grade:"nonfood" },
   { day:"tue", time:"19:35", name:"김창옥 라이브",         host:"김창옥",         channel:"CJ온스타일",      grade:"food_mixed" },
   { day:"tue", time:"20:45", name:"오윤아의 오감쇼",       host:"오윤아",         channel:"현대홈쇼핑",      grade:"food_mixed" },
 
@@ -63,7 +63,7 @@ const PGM_SCHEDULE = [
   // ---- 토요일 ----
   { day:"sat", time:"08:20", name:"최유라쇼",             host:"최유라",         channel:"롯데홈쇼핑",      grade:"food" },
   { day:"sat", time:"08:20", name:"왕영은의 톡",          host:"왕영은",         channel:"현대홈쇼핑",      grade:"food_mixed" },
-  { day:"sat", time:"09:00", name:"라운지V",              host:"김선희",         channel:"NS홈쇼핑",        grade:"food_mixed", note:"정확한 시간 미확인(오전)" },
+  { day:"sat", time:"09:00", name:"라운지V",              host:"김선희",         channel:"NS홈쇼핑",        grade:"food_mixed" },
   { day:"sat", time:"09:20", name:"더 컬렉션",            host:"이진아",         channel:"GS SHOP",        grade:"nonfood" },
   { day:"sat", time:"10:20", name:"동가게",               host:"동지현·알렉스",   channel:"CJ온스타일",      grade:"food" },
   { day:"sat", time:"11:20", name:"클럽노블레스",         host:"최욱남",         channel:"현대홈쇼핑",      grade:"nonfood" },
@@ -72,11 +72,13 @@ const PGM_SCHEDULE = [
   { day:"sat", time:"21:35", name:"쇼미 더 트렌드",       host:"김민향",         channel:"GS SHOP",        grade:"nonfood" },
   { day:"sat", time:"22:30", name:"힛더스타일",           host:"임세영",         channel:"CJ온스타일",      grade:"nonfood" },
   { day:"sat", time:"22:30", name:"L.SHOW",              host:"-",             channel:"롯데홈쇼핑",      grade:"nonfood" },
+  { day:"sat", time:"22:50", name:"정윤정의 정쇼",        host:"정윤정",         channel:"NS홈쇼핑",      grade:"food_mixed" },
 
   // ---- 일요일 ----
   { day:"sun", time:"08:50", name:"요즘쇼핑 유리네",       host:"이유리",         channel:"롯데홈쇼핑",      grade:"food" },
   { day:"sun", time:"15:00", name:"김지애의 쇼핑리스트",   host:"김지애",         channel:"롯데홈쇼핑",      grade:"food_mixed" },
   { day:"sun", time:"17:45", name:"더 지완스",            host:"-",             channel:"CJ온스타일",      grade:"food_mixed" },
+  { day:"sun", time:"21:45", name:"강연진의 최강쇼",       host:"강연진",         channel:"NS홈쇼핑",       grade:"food_mixed" },
 ];
 
 const PGM_GRADE_LABEL = {
