@@ -305,7 +305,7 @@
     return hit;
   }
 
-  function occurrenceRuleForRow(r){
+  function occurrenceRecord(r){
     const id=clean(r.hsshow_id);
     if(!id) return null;
 
@@ -319,6 +319,13 @@
 
     return state.derived.occurrenceRuleMap.get(id)||null;
   }
+
+  function occurrenceRuleForRow(r){
+    const o=occurrenceRecord(r);
+    return o && (clean(o.standard_product_name)||clean(o.food_override))?o:null;
+  }
+
+  function occurrenceExcluded(r){return clean(occurrenceRecord(r)?.monitoring_excluded)==="Y";}
 
   function dynamicRuleForRow(r){
     if(clean(r.dynamic_title).toUpperCase()==="Y") return {pattern:getRawTitle(r),platform:getPlatform(r)};
@@ -358,7 +365,7 @@
 
   function overlayRow(r){
     if(r.split_index) return r;
-    const timing=occurrenceRuleForRow(r)||{};
+    const timing=occurrenceRecord(r)||{};
     r={...r,...broadcastMetadata(r,timing)};
     // V3.2 Priority 0: 방송 하나에 상품이 여러 개 섞여있어 상세페이지로
     // 직접 확인해 나눠 입력한 경우. 사람이 상세페이지를 보고 입력한
@@ -448,6 +455,7 @@
   }
 
   function isFoodBroadcast(r){
+    if(occurrenceExcluded(r)) return false;
     const o=occurrenceRuleForRow(r), splits=splitMap().get(clean(r.hsshow_id))||[];
     if(o?.food_override || r.food_override || splits.length) return FOOD_SCOPE.isFoodRow(r,o,splits);
     const m=dynamicRuleForRow(r)?null:findMasterForRow(r);
@@ -458,11 +466,12 @@
 
   function broadcastMetadata(r,o){
     const start=clean(o.start_datetime_override), end=clean(o.end_datetime_override);
-    return {...(start?{start_datetime:start,broadcast_date:start.slice(0,10)}:{}),...(end?{end_datetime:end}:{}),
+    return {...(start?{start_datetime:start,broadcast_date:getDate(r)}:{}),...(end?{end_datetime:end}:{}),
       pgm_override:clean(o.pgm_override||r.pgm_override),pgm_name:clean(o.pgm_name||r.pgm_name)};
   }
 
   function resolvedBroadcast(r){
+    if(occurrenceExcluded(r)) return true;
     if(occurrenceRuleForRow(r) || splitMap().get(clean(r.hsshow_id))?.length) return true;
     const m=dynamicRuleForRow(r)?null:findMasterForRow(r);
     return !!(m && (isExcludedRow(m) || (clean(m.manual_lock)==="Y" && clean(m.standard_product_name))));
@@ -575,7 +584,7 @@
   }
 
   function computePgmForRow(r){
-    const manual=r.split_index?r:(occurrenceRuleForRow(r)||r);
+    const manual=r.split_index?r:(occurrenceRecord(r)||r);
     if(clean(manual.pgm_override)==="N") return null;
     if(clean(manual.pgm_override)==="Y") return {name:clean(manual.pgm_name),grade:"manual"};
     const list=window.HSFM_PGM_SCHEDULE;
@@ -1053,7 +1062,7 @@
       const bucket=occMap.get(k);
       if(!bucket) continue;
       for(const r of bucket.rows){
-        if(splitMap().get(clean(r.hsshow_id))?.length || occurrenceRuleForRow(r)) continue;
+        if(occurrenceExcluded(r) || dynamicRuleForRow(r) || splitMap().get(clean(r.hsshow_id))?.length || occurrenceRuleForRow(r)) continue;
         found.set(`${clean(r.hsshow_id)||rowChronoKey(r)}|${r.split_index||""}`, r);
       }
     }
@@ -1091,7 +1100,7 @@
     if(filter==="source"){
       const out=[];
       for(const group of buildOccurrenceMap().values()){
-        const rows=group.rows.filter(r=>!resolvedBroadcast(r)&&!isFoodBroadcast(r));
+        const rows=group.rows.filter(r=>!resolvedBroadcast(r)&&!dynamicRuleForRow(r)&&!isFoodBroadcast(r));
         if(rows.length) out.push({kind:"source_nonfood",raw_title:group.raw,standard_product_name:"",master:null,occurrences:rows});
       }
       return out;
@@ -1102,7 +1111,7 @@
 
     if(filter==="pending" || filter==="auto" || filter==="all"){
       for(const group of occurrence.values()){
-        const x={...group,rows:group.rows.filter(isFoodBroadcast)};
+        const x={...group,rows:group.rows.filter(r=>isFoodBroadcast(r)&&!dynamicRuleForRow(r))};
         if(!x.rows.length) continue;
         const sample=x.rows.at(-1), m=findMasterForRow(sample);
         const dynamic=!!dynamicRuleForRow(sample);
@@ -1174,14 +1183,16 @@
       }
     }
 
-    if(filter==="dynamic"){
-      const dynRules=state.adminMaster?.dynamic_rules||[];
-      for(const dr of dynRules){
-        const occurrences=state.rows.filter(r=>{
-          const raw=normalize(getRawTitle(r)), p=normalize(dr.pattern), ch=normalize(dr.platform||"");
-          return p && raw.includes(p) && (!ch || normalize(getPlatform(r))===ch);
-        });
-        out.push({kind:"dynamic",raw_title:dr.pattern,standard_product_name:"",master:dr,occurrences});
+    if(filter==="dynamic" || filter==="all"){
+      for(const group of occurrence.values()){
+        const occurrences=group.rows.filter(r=>dynamicRuleForRow(r)&&!resolvedBroadcast(r));
+        if(occurrences.length) out.push({kind:"dynamic",raw_title:group.raw,standard_product_name:"",master:null,occurrences});
+      }
+    }
+    if(filter==="excluded" || filter==="all"){
+      for(const group of occurrence.values()){
+        const occurrences=group.rows.filter(occurrenceExcluded);
+        if(occurrences.length) out.push({kind:"excluded",raw_title:group.raw,standard_product_name:"",master:null,occurrenceExcluded:true,occurrences});
       }
     }
 
@@ -1381,25 +1392,26 @@
   // 오려고 창을 전환하면 입력 중이던 값이 통째로 사라지는 문제가 있어,
   // 일반 다이얼로그 폼으로 바꿨다. 탭을 오가도 입력값이 유지된다.
   // ============================================================
-  function splitRowHtml(p={}){
+  function splitRowHtml(p={},broadcastDate=""){
     return `<div class="split-row" data-split-row>
       <input type="text" class="split-name" list="masterProductNames" placeholder="상품명 (상세페이지 상품명 그대로)" value="${esc(clean(p.standard_product_name||""))}">
       <input type="text" inputmode="numeric" class="split-cnt" placeholder="판매량" value="${esc(clean(p.sales_cnt||""))}">
       <input type="text" inputmode="numeric" class="split-amt" placeholder="매출액(원)" value="${esc(clean(p.sales_amt||""))}">
       <label class="split-food"><input type="checkbox" class="split-food-check" ${clean(p.include_in_food||"Y").toUpperCase()!=="N"?"checked":""}> 식품 실적</label>
       <button type="button" class="icon-btn split-remove-row" title="이 상품 삭제">✕</button>
-      ${metadataFormHtml(p)}
+      ${metadataFormHtml(p,broadcastDate)}
     </div>`;
   }
 
-  function metadataFormHtml(p={}){
+  function metadataFormHtml(p={},broadcastDate=""){
     const names=[...new Set([...(window.HSFM_PGM_SCHEDULE||[]).map(p=>p.name),p.pgm_name].filter(Boolean))];
-    return `<div class="broadcast-metadata" data-pgm-original="${esc(clean(p.pgm_override))}">
-      <label>시작 (한국시간)<input class="meta-start" type="datetime-local" value="${esc(clean(p.start_datetime_override).slice(0,16))}"></label>
-      <label>종료 (한국시간)<input class="meta-end" type="datetime-local" value="${esc(clean(p.end_datetime_override).slice(0,16))}"></label>
-      <label><input type="checkbox" class="meta-pgm" ${p.pgm_override==="Y"?"checked":""}> PGM 방송</label>
+    return `<div class="broadcast-metadata" data-broadcast-date="${esc(broadcastDate)}">
+      <small>방송일 ${esc(broadcastDate)} (고정) · 방송명·매출·수량은 이 날짜에 반영</small>
+      <label>시작 (한국시간)<input class="meta-start" type="time" step="60" value="${esc(clean(p.start_datetime_override).slice(11,16))}"></label>
+      <label>종료 (한국시간)<input class="meta-end" type="time" step="60" value="${esc(clean(p.end_datetime_override).slice(11,16))}"></label>
+      <label class="meta-pgm-toggle"><input type="checkbox" class="meta-pgm" ${p.pgm_override==="Y"?"checked":""}> <span>PGM 방송</span></label>
       <label>PGM명<select class="meta-pgm-name" ${p.pgm_override==="Y"?"":"hidden"}><option value="">프로그램 선택</option>${names.map(n=>`<option value="${esc(n)}" ${n===p.pgm_name?"selected":""}>${esc(n)}</option>`).join("")}</select></label>
-      <small>시간을 비우면 원본 시간 유지 · 같은 시간대 상품도 별도 저장 가능</small></div>`;
+      <small>시간을 비우면 원본 시간 유지 · 종료가 시작보다 이르면 종료만 익일 처리</small></div>`;
   }
 
   function bindMetadataForm(root){
@@ -1409,10 +1421,16 @@
 
   function readMetadataForm(root){
     const start=root.querySelector(".meta-start").value,end=root.querySelector(".meta-end").value;
-    if(!!start!==!!end || (start && end<=start)) throw new Error("시작·종료시간을 함께 입력하고 종료시간을 시작 이후로 지정하세요.");
+    if(!!start!==!!end || (start && start===end)) throw new Error("시작·종료 시각을 함께 입력하고 서로 다르게 지정하세요.");
+    const date=root.dataset.broadcastDate;
+    let endDate=date;
+    if(start){
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||![start,end].every(t=>/^([01]\d|2[0-3]):[0-5]\d$/.test(t))) throw new Error("방송일 또는 시각이 올바르지 않습니다.");
+      if(end<start){const next=new Date(date+"T00:00:00Z");next.setUTCDate(next.getUTCDate()+1);endDate=next.toISOString().slice(0,10);}
+    }
     const pgm=root.querySelector(".meta-pgm").checked, name=root.querySelector(".meta-pgm-name").value;
     if(pgm&&!name) throw new Error("PGM명을 선택하세요.");
-    return {start_datetime_override:start?start+":00+09:00":"",end_datetime_override:end?end+":00+09:00":"",
+    return {start_datetime_override:start?date+"T"+start+":00+09:00":"",end_datetime_override:end?endDate+"T"+end+":00+09:00":"",
       pgm_override:pgm?"Y":"N",pgm_name:pgm?name:""};
   }
 
@@ -1425,11 +1443,13 @@
   function setupOccurrenceMetadata(r){
     const existing=$("#occurrenceMetadata"); if(existing) existing.remove();
     for(const option of $("#editAction").options){
-      option.disabled=option.value==="save_occurrence"?!r:!!r && ["merge_product","mark_dynamic_title","exclude","restore"].includes(option.value);
+      option.disabled=option.value==="save_occurrence"?!r:!!r && ["merge_product","mark_dynamic_title"].includes(option.value);
+      if(option.value==="exclude"){option.textContent=r?"이 방송만 모니터링 제외":"모니터링 제외";if(r)option.disabled=occurrenceExcluded(r);}
+      if(option.value==="restore"){option.textContent=r?"이 방송 제외 해제 (이전 상태 복원)":"제외 복원";if(r)option.disabled=!occurrenceExcluded(r);}
     }
     if(!r) return;
-    const o=occurrenceRuleForRow(r)||{}, pgm=pgmForRow(r);
-    $("#editBroadcastInfo").insertAdjacentHTML("afterend",`<div id="occurrenceMetadata">${metadataFormHtml({...o,pgm_override:o.pgm_override||(pgm?"Y":""),pgm_name:o.pgm_name||pgm?.name||""})}</div>`);
+    const o=occurrenceRecord(r)||{}, pgm=pgmForRow(r);
+    $("#editBroadcastInfo").insertAdjacentHTML("afterend",`<div id="occurrenceMetadata">${metadataFormHtml({...o,pgm_override:o.pgm_override||(pgm?"Y":""),pgm_name:o.pgm_name||pgm?.name||""},getDate(r))}</div>`);
     bindMetadataForm($("#occurrenceMetadata .broadcast-metadata"));
   }
 
@@ -1454,7 +1474,8 @@
 
   function addSplitRow(prefill){
     if($$("#splitRows .split-row").length>=5){ showStatus("상품은 최대 5개까지 입력할 수 있습니다.","error"); return; }
-    $("#splitRows").insertAdjacentHTML("beforeend",splitRowHtml(prefill||{}));
+    const r=state.rows.find(x=>clean(x.hsshow_id)===$("#splitForm").dataset.hsshowId);
+    $("#splitRows").insertAdjacentHTML("beforeend",splitRowHtml(prefill||{},getDate(r||{})));
     bindSplitRow($("#splitRows .split-row:last-child"));
   }
 
@@ -1472,7 +1493,7 @@
     const seedRows=existing.length?existing:[{},{}];
     seedRows.forEach(p=>{
       const pgm=pgmForRow({...r,...p,split_index:p.split_index||"new"});
-      $("#splitRows").insertAdjacentHTML("beforeend",splitRowHtml({...p,pgm_override:p.pgm_override||(pgm?"Y":""),pgm_name:p.pgm_name||pgm?.name||""}));
+      $("#splitRows").insertAdjacentHTML("beforeend",splitRowHtml({...p,pgm_override:p.pgm_override||(pgm?"Y":""),pgm_name:p.pgm_name||pgm?.name||""},getDate(r)));
     });
     $$("#splitRows .split-row").forEach(bindSplitRow);
     updateSplitTotal();
@@ -1551,7 +1572,7 @@
 
   function openOccurrenceEditor(id){
     if(!state.adminPassword){adminLogin();return;}
-    if(splitMap().get(clean(id))?.length){openSplitEditor(id);return;}
+    if(splitMap().get(clean(id))?.length && !occurrenceExcluded({hsshow_id:id})){openSplitEditor(id);return;}
     const r=state.rows.find(x=>clean(x.hsshow_id)===clean(id)); if(!r) return;
     $("#historyDialog").close();
     $("#productDialogTitle").textContent="이 방송만 분류 · 시간/PGM 수정";
@@ -1564,14 +1585,14 @@
     setCategoryValues(o.category_major||r.category_major||"",o.category_middle||r.category_middle||"",o.category_sub||r.category_sub||"");
     if(!(o.category_major||r.category_major) || !(o.category_middle||r.category_middle)) applyCategoryFromProductGroup(); else updateCategoryUiFromCurrent("현재 등록 분류");
     setupOccurrenceMetadata(r);
-    $("#editAction").value="save_occurrence";
+    $("#editAction").value=occurrenceExcluded(r)?"restore":"save_occurrence";
     $("#productForm").dataset.occurrenceId=clean(r.hsshow_id);
     $("#productForm").dataset.dynamicSingleOcc="1";
     $("#productForm").dataset.sourceAliases="[]";
     $("#editBroadcastInfo").textContent=`${getDate(r)} ${getTime(r)} · ${getPlatform(r)} · 이 방송 1건에만 적용`;
     $("#aliasPreview").innerHTML="이 저장은 같은 제목의 다른 방송에는 영향을 주지 않습니다.";
     $("#bulkAliasTools").classList.add("hidden");
-    $("#sameSlotWrap")?.classList.remove("hidden");
+    $("#sameSlotWrap")?.classList.add("hidden");
     if($("#sameSlotWrap")) $("#sameSlotWrap").lastChild.textContent=" 같은 날짜·같은 시간·같은 홈쇼핑사의 방송행 전체를 이 표준상품으로 강제 통일";
     $("#applySameSlot").checked=false;
     renderSimilarSuggestions(getRawTitle(r));
@@ -2045,6 +2066,7 @@
     if(!state.adminPassword){ adminLogin(); return; }
     const item=findReviewItem(name,kind); if(!item) return;
     const scoped=reviewOccurrences(item.occurrences||[]);
+    if(item.occurrenceExcluded){if(scoped.length===1)openOccurrenceEditor(scoped[0].hsshow_id);else openHistoryDialog(name,kind);return;}
     if(scoped.some(r=>r.split_index)){
       const ids=[...new Set(scoped.map(r=>clean(r.hsshow_id)))];
       if(ids.length===1) openSplitEditor(ids[0]); else openHistoryDialog(name,kind);
@@ -2166,6 +2188,20 @@
     invalidateDerived();
   }
 
+  async function saveOccurrenceMonitoring(id,excluded){
+    try{
+      if(num(state.adminMaster?.schema_version)<3) throw new Error("새 Worker 배포 후 데이터 새로고침을 해주세요.");
+      const row=state.rows.find(r=>clean(r.hsshow_id)===clean(id));
+      if(!row) throw new Error("방송을 찾을 수 없습니다.");
+      const response=await fetch(`${API}/save`,{method:"POST",headers:{"Content-Type":"application/json","X-Admin-Password":state.adminPassword},body:JSON.stringify({action:"set_occurrence_monitoring",hsshow_id:id,monitoring_excluded:excluded?"Y":"N",broadcast_date:getDate(row),start_datetime:row.start_datetime,raw_title:getRawTitle(row),platform_name:getPlatform(row)})});
+      const data=await response.json();
+      if(!response.ok||!data.ok) throw new Error(data.error||`HTTP ${response.status}`);
+      state.adminMaster.occurrence_rules=[...(state.adminMaster.occurrence_rules||[]).filter(r=>clean(r.hsshow_id)!==id),data.row];
+      invalidateDerived();$("#productDialog").close();fillCommonFilters();renderGlobalKpis();renderActiveTab();
+      showStatus(excluded?"이 방송만 제외했습니다. 기존 분류와 분리실적은 보존됩니다.":"제외를 해제하고 이전 상태로 복원했습니다.");
+    }catch(e){$("#productSaveError").textContent=e.message;}
+  }
+
   async function saveProductAdmin(){
     const originalAction=$("#editAction").value;
     let action=originalAction;
@@ -2176,6 +2212,10 @@
     // 대한 분류(save_occurrence)로 저장해야 가변형 우선순위에 밀려
     // 무시되지 않는다.
     const dynamicOccId=$("#productForm").dataset.dynamicSingleOcc==="1"?$("#productForm").dataset.occurrenceId:"";
+    if(dynamicOccId && ["exclude","restore"].includes(action)){
+      await saveOccurrenceMonitoring(dynamicOccId,action==="exclude");
+      return;
+    }
     if(dynamicOccId && (action==="link_existing" || action==="update_product" || action==="create_new")){
       action="save_occurrence";
     }
@@ -2890,4 +2930,3 @@
   setPerfRange("yesterday");
   loadData();
 })();
-
