@@ -223,7 +223,8 @@
     const adminRows=Array.isArray(state.adminMaster?.admin_rows) ? state.adminMaster.admin_rows : [];
     const effectiveRows=Array.isArray(state.adminMaster?.rows) ? state.adminMaster.rows : [];
     const publicRows=Array.isArray(state.masterPublic) ? state.masterPublic : [];
-    const source=adminRows.length || effectiveRows.length ? [...adminRows,...effectiveRows] : publicRows;
+    const adminKeys=new Set(adminRows.map(r=>normalize(r.match_keyword||r.raw_title||"")));
+    const source=adminRows.length || effectiveRows.length ? [...adminRows,...effectiveRows.filter(r=>!adminKeys.has(normalize(r.match_keyword||r.raw_title||"")))] : publicRows;
 
     const seen=new Set();
     const ranked=[...source].sort((a,b)=>masterRulePriority(b)-masterRulePriority(a));
@@ -356,6 +357,9 @@
   }
 
   function overlayRow(r){
+    if(r.split_index) return r;
+    const timing=occurrenceRuleForRow(r)||{};
+    r={...r,...broadcastMetadata(r,timing)};
     // V3.2 Priority 0: 방송 하나에 상품이 여러 개 섞여있어 상세페이지로
     // 직접 확인해 나눠 입력한 경우. 사람이 상세페이지를 보고 입력한
     // 값이라 다른 어떤 자동 매칭보다도 신뢰도가 높으므로 최우선 적용한다.
@@ -424,7 +428,7 @@
     }
 
     // Priority 2: admin/base master by title
-    const m=findMasterForRow(r);
+    const m=dynamicRuleForRow(r)?null:findMasterForRow(r);
     if(!m) return {...r};
     return {
       ...r,
@@ -444,7 +448,24 @@
   }
 
   function isFoodBroadcast(r){
-    return FOOD_SCOPE.isFoodRow(r,occurrenceRuleForRow(r),splitMap().get(clean(r.hsshow_id))||[]);
+    const o=occurrenceRuleForRow(r), splits=splitMap().get(clean(r.hsshow_id))||[];
+    if(o?.food_override || r.food_override || splits.length) return FOOD_SCOPE.isFoodRow(r,o,splits);
+    const m=dynamicRuleForRow(r)?null:findMasterForRow(r);
+    if(m && isExcludedRow(m)) return false;
+    if(m && clean(m.manual_lock)==="Y" && clean(m.standard_product_name)) return true;
+    return FOOD_SCOPE.isFoodRow(r,o,splits) || FOOD_SCOPE.foodTitleCandidate(getRawTitle(r)) || !!pgmForRow(r);
+  }
+
+  function broadcastMetadata(r,o){
+    const start=clean(o.start_datetime_override), end=clean(o.end_datetime_override);
+    return {...(start?{start_datetime:start,broadcast_date:start.slice(0,10)}:{}),...(end?{end_datetime:end}:{}),
+      pgm_override:clean(o.pgm_override||r.pgm_override),pgm_name:clean(o.pgm_name||r.pgm_name)};
+  }
+
+  function resolvedBroadcast(r){
+    if(occurrenceRuleForRow(r) || splitMap().get(clean(r.hsshow_id))?.length) return true;
+    const m=dynamicRuleForRow(r)?null:findMasterForRow(r);
+    return !!(m && (isExcludedRow(m) || (clean(m.manual_lock)==="Y" && clean(m.standard_product_name))));
   }
 
   function visibleRows(){
@@ -470,11 +491,12 @@
   function metricsForRows(rows){
     const confirmed=rows.filter(performanceOk);
     const totalSales=confirmed.reduce((s,r)=>s+sales(r),0);
+    const count=items=>new Set(items.map((r,i)=>clean(r.hsshow_id)||`row-${i}`)).size;
     return {
-      broadcasts: rows.length,
-      confirmed: confirmed.length,
+      broadcasts: count(rows),
+      confirmed: count(confirmed),
       sales: totalSales,
-      avg: confirmed.length ? totalSales/confirmed.length : 0,
+      avg: confirmed.length ? totalSales/count(confirmed) : 0,
       units: confirmed.reduce((s,r)=>s+salesCount(r),0)
     };
   }
@@ -521,7 +543,7 @@
     const p=$("#calendarPlatform").value, q=normalize($("#calendarSearch").value);
     return visibleRows().filter(r=>{
       if(p && getPlatform(r)!==p) return false;
-      if(q && !normalize(`${getProductName(r)} ${getRawTitle(r)}`).includes(q)) return false;
+      if(q && !normalize(`${getProductName(r)} ${getRawTitle(r)} ${(r.split_products||[]).map(p=>p.standard_product_name).join(" ")}`).includes(q)) return false;
       if($("#calendarWatchOnly").checked && !isWatched(r)) return false;
       return true;
     });
@@ -529,10 +551,8 @@
 
   // ============================================================
   // V3.3 - 특화 PGM(고정 편성 프로그램) 매칭
-  // pgm_schedule.js에 정리해둔 요일·시간·홈쇼핑사 데이터와 실제 방송을
-  // 대조해서, 이 방송이 어떤 고정 PGM에 해당하는지 찾는다.
-  // 매주 편성 시각이 몇 분씩 밀리는 경우가 있어 완전히 같은 시각이
-  // 아니라 ±20분 이내면 같은 PGM으로 본다.
+  // 관리자 지정이 최우선이며, 자동 후보는 방송명과 채널이 일치해야 한다.
+  // 편성 시각만으로 PGM을 확정하지 않는다.
   // ============================================================
   const PGM_DAY_KEYS=["sun","mon","tue","wed","thu","fri","sat"];
 
@@ -546,6 +566,7 @@
     if(!pgmChannel || pgmChannel==="기타") return false;
     const aliases=(window.HSFM_PGM_CHANNEL_ALIASES||{})[pgmChannel]||[pgmChannel];
     const a=clean(actualChannel);
+    if(/플러스|마이샵|원티비|샵플러스/.test(a) && !/플러스|마이샵|원티비|샵플러스/.test(pgmChannel)) return false;
     // V3.6 FIX: 부분일치(includes)였던 탓에 "현대홈쇼핑 플러스샵"이
     // "현대홈쇼핑" PGM과 잘못 매칭되는 등 라이브 채널 전용 PGM이
     // 플러스샵/마이샵/원티비 등에도 잘못 붙는 문제가 있었다.
@@ -554,6 +575,9 @@
   }
 
   function computePgmForRow(r){
+    const manual=r.split_index?r:(occurrenceRuleForRow(r)||r);
+    if(clean(manual.pgm_override)==="N") return null;
+    if(clean(manual.pgm_override)==="Y") return {name:clean(manual.pgm_name),grade:"manual"};
     const list=window.HSFM_PGM_SCHEDULE;
     if(!Array.isArray(list)||!list.length) return null;
     const d=parseDate(getDate(r));
@@ -564,20 +588,20 @@
 
     let best=null, bestDiff=Infinity;
     for(const p of list){
-      if(p.day!==dayKey) continue;
       // V3.6: 식품을 취급하지 않는 PGM(비식품)은 애초에 후보에서 제외한다.
       if(p.grade==="nonfood" || p.grade==="unknown") continue;
       if(!pgmChannelMatches(p.channel,getPlatform(r))) continue;
       const pMin=pgmToMinutes(p.time);
       if(pMin===null) continue;
       const diff=Math.abs(pMin-rowMin);
-      if(diff<=20 && diff<bestDiff){ best=p; bestDiff=diff; }
+      const names=[p.name,...(p.aliases||[])].map(normalize).filter(Boolean);
+      if(names.some(name=>normalize(getRawTitle(r)).includes(name)) && diff<bestDiff){ best=p; bestDiff=diff; }
     }
     return best;
   }
 
   function pgmForRow(r){
-    const key=clean(r.hsshow_id)||rowChronoKey(r);
+    const key=`${clean(r.hsshow_id)||rowChronoKey(r)}|${r.split_index||""}`;
     const map=state.derived.pgmMap||(state.derived.pgmMap=new Map());
     if(map.has(key)) return map.get(key);
     const result=computePgmForRow(r);
@@ -618,7 +642,7 @@
   }
 
   function renderMonth(){
-    const d=state.cursor, first=startOfMonth(d), gridStart=startOfWeek(first), rows=filteredCalendarRows();
+    const d=state.cursor, first=startOfMonth(d), gridStart=startOfWeek(first), rows=expandForProducts(filteredCalendarRows());
     const firstMap=firstSeenMap(), hotT=hotThreshold(rows);
     $("#periodLabel").textContent=`${d.getFullYear()}년 ${d.getMonth()+1}월`;
     $("#calendarTitle").textContent="월간 캘린더";
@@ -631,9 +655,9 @@
       html+=`<div class="month-cell ${same?"":"other"} ${k===keyDate(today())?"today":""}" data-open-day="${k}">
         <div class="day-number">${day.getDate()}</div>
         ${hot.length?`<div class="month-hot"><span class="badge hot" title="${esc(hotTip)}">HOT ${hot.length}</span></div>`:""}
-        ${dr.length?`<span class="summary-pill count">식품방송 ${dr.length}회</span>`:""}
+        ${dr.length?`<span class="summary-pill count">식품방송 ${m.broadcasts}회</span>`:""}
         ${m.sales?`<span class="summary-pill sales">매출 ${money(m.sales)}</span>`:""}
-        ${future&&dr.length?`<span class="summary-pill future">예정 ${dr.length}회</span>`:""}
+        ${future&&dr.length?`<span class="summary-pill future">예정 ${m.broadcasts}회</span>`:""}
         ${newc?`<span class="badge new">NEW ${newc}</span>`:""}
       </div>`;
     }
@@ -660,17 +684,18 @@
     return dlg;
   }
 
-  function openEventDetail(id){
+  function openEventDetail(id,splitIndex=""){
     const r=state.rows.find(x=>clean(x.hsshow_id)===clean(id)); if(!r) return;
     const dlg=ensureEventDetailDialog();
-    const row=overlayRow(r);
-    const pgm=pgmForRow(r);
+    const parent=overlayRow(r);
+    const row=splitIndex?(expandForProducts([parent]).find(x=>clean(x.split_index)===splitIndex)||parent):parent;
+    const pgm=pgmForRow(row);
     const pgmLine=pgm?`<div class="mini-row"><b>PGM</b> ${esc(pgm.name)} · ${esc((window.HSFM_PGM_GRADE_LABEL||{})[pgm.grade]||"")}</div>`:"";
     const splitLine=(row.split_products&&row.split_products.length)
       ?`<div class="mini-row"><b>분리입력 상품</b><br>${row.split_products.map(p=>`${esc(clean(p.standard_product_name))} — ${money(num(p.sales_amt))} / ${cnt(num(p.sales_cnt))}개`).join("<br>")}</div>`
       :"";
     dlg.querySelector("#eventDetailBody").innerHTML=`
-      <div class="mini-row"><b>${esc(getDate(r))} ${esc(getTime(r))}</b> · ${esc(getPlatform(r))}</div>
+      <div class="mini-row"><b>${esc(getDate(row))} ${esc(getTime(row))}${row.end_datetime?` ~ ${esc(clean(row.end_datetime).slice(11,16))}`:""}</b> · ${esc(getPlatform(row))}</div>
       ${pgmLine}
       <div class="mini-row" style="margin-top:6px"><b>${esc(getProductName(row))}</b></div>
       <div class="mini-row small">원본명: ${esc(getRawTitle(r))}</div>
@@ -681,7 +706,7 @@
   }
 
   function renderWeek(){
-    const start=startOfWeek(state.cursor), days=Array.from({length:7},(_,i)=>addDays(start,i)), rows=filteredCalendarRows(), firstMap=firstSeenMap();
+    const start=startOfWeek(state.cursor), days=Array.from({length:7},(_,i)=>addDays(start,i)), rows=expandForProducts(filteredCalendarRows()), firstMap=firstSeenMap();
     $("#periodLabel").textContent=`${days[0].getMonth()+1}.${days[0].getDate()} – ${days[6].getMonth()+1}.${days[6].getDate()}`;
     $("#calendarTitle").textContent="주간 캘린더";
     let html=`<div class="week-board"><div class="week-cell week-head"></div>${days.map(d=>`<div class="week-cell week-head">${["일","월","화","수","목","금","토"][d.getDay()]}<br><span class="small">${d.getMonth()+1}/${d.getDate()}</span></div>`).join("")}`;
@@ -691,13 +716,13 @@
         const slot=rows.filter(r=>getDate(r)===keyDate(d)&&getHour(r)===h).sort((a,b)=>clean(a.start_datetime).localeCompare(clean(b.start_datetime)));
         html+=`<div class="week-cell"><div class="week-events">${slot.slice(0,3).map(r=>{
           const badges=calendarBadgesHtml(r,rows,firstMap);
-          return `<button class="event-chip" data-show-id="${esc(r.hsshow_id||"")}"><span class="event-title">${badges}${esc(getTime(r))} ${esc(getProductName(r))}</span><span class="event-meta">${esc(getPlatform(r))}${performanceOk(r)?` · ${money(sales(r))}`:""}</span></button>`;
+          return `<button class="event-chip" data-show-id="${esc(r.hsshow_id||"")}" data-split-index="${esc(r.split_index||"")}"><span class="event-title">${badges}${esc(getTime(r))} ${esc(getProductName(r))}</span><span class="event-meta">${esc(getPlatform(r))}${performanceOk(r)?` · ${money(sales(r))}`:""}</span></button>`;
         }).join("")}${slot.length>3?`<div class="more-chip">+ ${slot.length-3}개 더보기</div>`:""}</div></div>`;
       }
     }
     html+="</div>";
     $("#calendarRoot").innerHTML=html;
-    $$("[data-show-id]").forEach(b=>b.onclick=()=>openEventDetail(b.dataset.showId));
+    $$("[data-show-id]").forEach(b=>b.onclick=()=>openEventDetail(b.dataset.showId,b.dataset.splitIndex));
   }
 
   // V3.5: 라이브 방송사 / 데이터(VOD) 전용 채널 / 라이브+데이터 결합채널
@@ -720,7 +745,7 @@
   }
 
   function renderDay(){
-    const k=keyDate(state.cursor), rows=filteredCalendarRows().filter(r=>getDate(r)===k).sort((a,b)=>clean(a.start_datetime).localeCompare(clean(b.start_datetime))), firstMap=firstSeenMap();
+    const k=keyDate(state.cursor), rows=expandForProducts(filteredCalendarRows()).filter(r=>getDate(r)===k).sort((a,b)=>clean(a.start_datetime).localeCompare(clean(b.start_datetime))), firstMap=firstSeenMap();
     $("#periodLabel").textContent=`${state.cursor.getFullYear()}년 ${state.cursor.getMonth()+1}월 ${state.cursor.getDate()}일`;
     $("#calendarTitle").textContent="일간 캘린더";
     if(!state.dayGridHiddenChannels) state.dayGridHiddenChannels = new Set();
@@ -728,7 +753,7 @@
     const m=metricsForRows(selectedRows);
 
     let html=`<div class="review-summary">
-      <span class="summary-chip">방송 ${selectedRows.length}회</span><span class="summary-chip">실적 확인 ${m.confirmed}회</span><span class="summary-chip">매출 ${money(m.sales)}</span><span class="summary-chip">관심상품 ${selectedRows.filter(isWatched).length}건</span>
+      <span class="summary-chip">방송 ${new Set(selectedRows.map(r=>r.hsshow_id)).size}회</span><span class="summary-chip">실적 확인 ${new Set(selectedRows.filter(performanceOk).map(r=>r.hsshow_id)).size}회</span><span class="summary-chip">매출 ${money(m.sales)}</span><span class="summary-chip">관심상품 ${selectedRows.filter(isWatched).length}건</span>
     </div>`;
 
     const allChannels = orderedChannels([...new Set(rows.map(getPlatform))]);
@@ -756,7 +781,7 @@
       html+='<div class="muted day-grid-empty">해당 일자에 방송 데이터가 없습니다 (또는 필터로 전부 숨겨짐).</div>';
     }else{
       const byHourChannel=new Map();
-      for(const r of rows){
+      for(const r of expandForProducts(rows)){
         const key=`${getHour(r)}|${getPlatform(r)}`;
         const arr=byHourChannel.get(key)||[]; arr.push(r); byHourChannel.set(key,arr);
       }
@@ -775,7 +800,7 @@
             return `<div class="day-grid-cell ${cellRows.length?"has-events":""}">${shown.map(r=>`
               <div class="day-grid-event-wrap">
                 <button type="button" class="star mini ${isWatched(r)?"on":""}" data-star="${esc(interestKey(r))}">★</button>
-                <button type="button" class="day-grid-event" data-show-id="${esc(r.hsshow_id||"")}" title="클릭하면 상세정보를 볼 수 있습니다">
+                <button type="button" class="day-grid-event" data-show-id="${esc(r.hsshow_id||"")}" data-split-index="${esc(r.split_index||"")}" title="클릭하면 상세정보를 볼 수 있습니다">
                   <span class="day-grid-event-time">${esc(getTime(r))}</span>
                   <span class="day-grid-event-name">${calendarBadgesHtml(r,rows,firstMap)}${esc(getProductName(r))}</span>
                   <span class="day-grid-event-money">${performanceOk(r)?money(sales(r)):"-"}</span>
@@ -788,7 +813,7 @@
 
     $("#calendarRoot").innerHTML=html;
     $$("[data-star]").forEach(b=>b.onclick=(e)=>{ e.stopPropagation(); const key=b.dataset.star; state.interests.has(key)?state.interests.delete(key):state.interests.add(key); saveWatch(); renderDay(); });
-    $$("[data-show-id]").forEach(b=>b.onclick=()=>openEventDetail(b.dataset.showId));
+    $$("[data-show-id]").forEach(b=>b.onclick=()=>openEventDetail(b.dataset.showId,b.dataset.splitIndex));
     $$("[data-channel-toggle]").forEach(cb=>cb.onchange=()=>{
       const c=cb.dataset.channelToggle;
       if(cb.checked) state.dayGridHiddenChannels.delete(c); else state.dayGridHiddenChannels.add(c);
@@ -826,7 +851,7 @@
 
   function perfRows(){
     const s=$("#perfStart").value, e=$("#perfEnd").value, p=$("#perfPlatform").value, major=$("#perfMajor").value, middle=$("#perfMiddle").value, sub=$("#perfSub").value, q=normalize($("#perfSearch").value), st=$("#perfStatus").value;
-    let rows=visibleRows().filter(r=>{
+    let rows=expandForProducts(visibleRows()).filter(r=>{
       const d=getDate(r); if(s&&d<s||e&&d>e) return false;
       if(p&&getPlatform(r)!==p) return false;
       if(major&&clean(r.category_major)!==major) return false;
@@ -854,6 +879,8 @@
         for(const sp of r.split_products){
           out.push({
             ...r,
+            ...broadcastMetadata(r,sp),
+            split_index: clean(sp.split_index),
             standard_product_name: clean(sp.standard_product_name)||r.standard_product_name,
             brand: sp.brand||"",
             product_group: sp.product_group||"",
@@ -976,7 +1003,9 @@
   }
 
   function masterRowsForReview(){
-    return state.adminMaster?.rows || state.masterPublic || [];
+    const rows=new Map((state.adminMaster?.rows || state.masterPublic || []).map(m=>[normalize(m.match_keyword),m]));
+    for(const m of state.adminMaster?.admin_rows||[]) rows.set(normalize(m.match_keyword),m);
+    return [...rows.values()];
   }
 
   function masterProductGroups(){
@@ -1000,7 +1029,7 @@
     // 상품명 -> 방송목록 색인을 한 번만 만들어 재사용한다.
     if(state.derived.productNameIndex) return state.derived.productNameIndex;
     const idx=new Map();
-    for(const r of visibleRows()){
+    for(const r of expandForProducts(visibleRows())){
       const key=productNameKey(getProductName(r));
       if(!key) continue;
       const bucket=idx.get(key);
@@ -1024,7 +1053,8 @@
       const bucket=occMap.get(k);
       if(!bucket) continue;
       for(const r of bucket.rows){
-        found.set(clean(r.hsshow_id)||rowChronoKey(r)+k, r);
+        if(splitMap().get(clean(r.hsshow_id))?.length || occurrenceRuleForRow(r)) continue;
+        found.set(`${clean(r.hsshow_id)||rowChronoKey(r)}|${r.split_index||""}`, r);
       }
     }
 
@@ -1034,7 +1064,7 @@
       const bucket=productNameIndex().get(target);
       if(bucket){
         for(const r of bucket){
-          found.set(clean(r.hsshow_id)||rowChronoKey(r)+normalize(getRawTitle(r)),r);
+          found.set(`${clean(r.hsshow_id)||rowChronoKey(r)}|${r.split_index||""}`,r);
         }
       }
     }
@@ -1061,7 +1091,7 @@
     if(filter==="source"){
       const out=[];
       for(const group of buildOccurrenceMap().values()){
-        const rows=group.rows.filter(r=>!isFoodBroadcast(r));
+        const rows=group.rows.filter(r=>!resolvedBroadcast(r)&&!isFoodBroadcast(r));
         if(rows.length) out.push({kind:"source_nonfood",raw_title:group.raw,standard_product_name:"",master:null,occurrences:rows});
       }
       return out;
@@ -1130,6 +1160,17 @@
         g.verified = aliasList.length>0 && aliasList.every(a=>clean(a.manual_lock).toUpperCase()==="Y");
         g.unverifiedAliasCount = aliasList.filter(a=>clean(a.manual_lock).toUpperCase()!=="Y").length;
         out.push(g);
+      }
+      if(filter!=="excluded"){
+        const byName=new Map(out.filter(g=>g.kind==="confirmed").map(g=>[productNameKey(g.standard_product_name),g]));
+        for(const r of expandForProducts(visibleRows())){
+          if(!r.occurrence_override || !clean(r.standard_product_name)) continue;
+          const key=productNameKey(r.standard_product_name);
+          let g=byName.get(key);
+          if(!g){g={kind:"confirmed",standard_product_name:r.standard_product_name,aliases:[],master:r,verified:true,occurrences:[]};byName.set(key,g);out.push(g);}
+          g.occurrences=g.occurrences.filter(x=>clean(x.hsshow_id)!==clean(r.hsshow_id)||clean(x.split_index)!==clean(r.split_index));
+          g.occurrences.push(r);
+        }
       }
     }
 
@@ -1273,7 +1314,7 @@
   }
 
   function openHistoryDialog(name,kind){
-    const item=findReviewItem(name,kind); if(!item) return;
+    const item=findReviewItem(name,kind); if(!item){$("#historyDialog").close();state.historyContext=null;return;}
     state.historyContext={name,kind,item};
     $("#historyDialogTitle").textContent=`방송이력 · ${name}`;
     const filtered=reviewOccurrences(item.occurrences);
@@ -1327,7 +1368,7 @@
 
   // ============================================================
   // V3.2 - 방송 1건 다중상품 분리 입력
-  // 히트상품 앵콜방송처럼 한 방송에 2~5개 상품이 섞여 방송되는 경우,
+  // 히트상품 앵콜방송처럼 한 방송의 상품을 1~5개로 구분하는 경우,
   // 관리자가 라방바 유료 계정으로 상세페이지(판매상품 목록)를 직접
   // 열어 확인한 실제 상품별 매출을 그대로 나눠 입력한다.
   // 데일리 자동수집(무료 계정, 상세조회 5회 한도)으로는 할 수 없는
@@ -1342,24 +1383,70 @@
   // ============================================================
   function splitRowHtml(p={}){
     return `<div class="split-row" data-split-row>
-      <input type="text" class="split-name" placeholder="상품명 (상세페이지 상품명 그대로)" value="${esc(clean(p.standard_product_name||""))}">
-      <input type="text" inputmode="numeric" class="split-amt" placeholder="매출액(원)" value="${esc(clean(p.sales_amt||""))}">
+      <input type="text" class="split-name" list="masterProductNames" placeholder="상품명 (상세페이지 상품명 그대로)" value="${esc(clean(p.standard_product_name||""))}">
       <input type="text" inputmode="numeric" class="split-cnt" placeholder="판매량" value="${esc(clean(p.sales_cnt||""))}">
+      <input type="text" inputmode="numeric" class="split-amt" placeholder="매출액(원)" value="${esc(clean(p.sales_amt||""))}">
       <label class="split-food"><input type="checkbox" class="split-food-check" ${clean(p.include_in_food||"Y").toUpperCase()!=="N"?"checked":""}> 식품 실적</label>
       <button type="button" class="icon-btn split-remove-row" title="이 상품 삭제">✕</button>
+      ${metadataFormHtml(p)}
     </div>`;
+  }
+
+  function metadataFormHtml(p={}){
+    const names=[...new Set([...(window.HSFM_PGM_SCHEDULE||[]).map(p=>p.name),p.pgm_name].filter(Boolean))];
+    return `<div class="broadcast-metadata" data-pgm-original="${esc(clean(p.pgm_override))}">
+      <label>시작 (한국시간)<input class="meta-start" type="datetime-local" value="${esc(clean(p.start_datetime_override).slice(0,16))}"></label>
+      <label>종료 (한국시간)<input class="meta-end" type="datetime-local" value="${esc(clean(p.end_datetime_override).slice(0,16))}"></label>
+      <label><input type="checkbox" class="meta-pgm" ${p.pgm_override==="Y"?"checked":""}> PGM 방송</label>
+      <label>PGM명<select class="meta-pgm-name" ${p.pgm_override==="Y"?"":"hidden"}><option value="">프로그램 선택</option>${names.map(n=>`<option value="${esc(n)}" ${n===p.pgm_name?"selected":""}>${esc(n)}</option>`).join("")}</select></label>
+      <small>시간을 비우면 원본 시간 유지 · 같은 시간대 상품도 별도 저장 가능</small></div>`;
+  }
+
+  function bindMetadataForm(root){
+    const box=root.querySelector(".meta-pgm");
+    box.onchange=()=>{root.dataset.pgmChanged="Y";root.querySelector(".meta-pgm-name").hidden=!box.checked;};
+  }
+
+  function readMetadataForm(root){
+    const start=root.querySelector(".meta-start").value,end=root.querySelector(".meta-end").value;
+    if(!!start!==!!end || (start && end<=start)) throw new Error("시작·종료시간을 함께 입력하고 종료시간을 시작 이후로 지정하세요.");
+    const pgm=root.querySelector(".meta-pgm").checked, name=root.querySelector(".meta-pgm-name").value;
+    if(pgm&&!name) throw new Error("PGM명을 선택하세요.");
+    return {start_datetime_override:start?start+":00+09:00":"",end_datetime_override:end?end+":00+09:00":"",
+      pgm_override:pgm?"Y":"N",pgm_name:pgm?name:""};
+  }
+
+  function readNonnegativeInteger(value){
+    const v=clean(value).replace(/,/g,"")||"0";
+    if(!/^\d+$/.test(v)||!Number.isSafeInteger(Number(v))) throw new Error("수량·매출액은 0 이상의 정수로 입력하세요.");
+    return v;
+  }
+
+  function setupOccurrenceMetadata(r){
+    const existing=$("#occurrenceMetadata"); if(existing) existing.remove();
+    for(const option of $("#editAction").options){
+      option.disabled=option.value==="save_occurrence"?!r:!!r && ["merge_product","mark_dynamic_title","exclude","restore"].includes(option.value);
+    }
+    if(!r) return;
+    const o=occurrenceRuleForRow(r)||{}, pgm=pgmForRow(r);
+    $("#editBroadcastInfo").insertAdjacentHTML("afterend",`<div id="occurrenceMetadata">${metadataFormHtml({...o,pgm_override:o.pgm_override||(pgm?"Y":""),pgm_name:o.pgm_name||pgm?.name||""})}</div>`);
+    bindMetadataForm($("#occurrenceMetadata .broadcast-metadata"));
   }
 
   function updateSplitTotal(){
     const total=$$("#splitRows .split-row").reduce((sum,row)=>sum+(row.querySelector(".split-food-check").checked?num(row.querySelector(".split-amt").value):0),0);
     $("#splitTotal").textContent=money(total);
+    const r=state.rows.find(x=>clean(x.hsshow_id)===$("#splitForm").dataset.hsshowId);
+    const all=$$("#splitRows .split-row").reduce((sum,row)=>sum+num(row.querySelector(".split-amt").value),0);
+    if($("#splitDifference")) $("#splitDifference").textContent=`원본 매출 ${money(sales(r||{}))} · 전체 입력 ${money(all)} · 차액 ${money(sales(r||{})-all)} (자동 배분하지 않음)`;
   }
 
   function bindSplitRow(rowEl){
+    bindMetadataForm(rowEl.querySelector(".broadcast-metadata"));
     rowEl.querySelector(".split-amt").addEventListener("input",updateSplitTotal);
     rowEl.querySelector(".split-food-check").addEventListener("change",updateSplitTotal);
     rowEl.querySelector(".split-remove-row").onclick=()=>{
-      if($$("#splitRows .split-row").length<=2){ showStatus("최소 2개 상품이 필요합니다.","error"); return; }
+      if($$("#splitRows .split-row").length<=1){ showStatus("최소 1개 상품이 필요합니다.","error"); return; }
       rowEl.remove();
       updateSplitTotal();
     };
@@ -1384,7 +1471,8 @@
     $("#splitRows").innerHTML="";
     const seedRows=existing.length?existing:[{},{}];
     seedRows.forEach(p=>{
-      $("#splitRows").insertAdjacentHTML("beforeend",splitRowHtml(p));
+      const pgm=pgmForRow({...r,...p,split_index:p.split_index||"new"});
+      $("#splitRows").insertAdjacentHTML("beforeend",splitRowHtml({...p,pgm_override:p.pgm_override||(pgm?"Y":""),pgm_name:p.pgm_name||pgm?.name||""}));
     });
     $$("#splitRows .split-row").forEach(bindSplitRow);
     updateSplitTotal();
@@ -1393,17 +1481,21 @@
   }
 
   async function saveSplitEditor(){
+    if(num(state.adminMaster?.schema_version)<2){$("#splitError").textContent="시간·PGM 저장을 지원하는 새 Cloudflare Worker 배포 후 데이터 새로고침을 해주세요.";return;}
     const id=$("#splitForm").dataset.hsshowId||""; if(!id) return;
     const r=state.rows.find(x=>clean(x.hsshow_id)===clean(id)); if(!r) return;
 
-    const products=$$("#splitRows .split-row").map(row=>({
+    let products;
+    try{products=$$("#splitRows .split-row").map((row,i)=>({
+      ...(splitMap().get(clean(id))||[])[i],
+      ...readMetadataForm(row.querySelector(".broadcast-metadata")),
       standard_product_name:clean(row.querySelector(".split-name").value),
-      sales_amt:clean(row.querySelector(".split-amt").value).replace(/[^0-9]/g,"")||"0",
-      sales_cnt:clean(row.querySelector(".split-cnt").value).replace(/[^0-9]/g,"")||"0",
+      sales_amt:readNonnegativeInteger(row.querySelector(".split-amt").value),
+      sales_cnt:readNonnegativeInteger(row.querySelector(".split-cnt").value),
       include_in_food:row.querySelector(".split-food-check").checked?"Y":"N"
-    }));
+    }));}catch(e){$("#splitError").textContent=e.message;return;}
 
-    if(products.length<2){ $("#splitError").textContent="상품은 최소 2개 이상 입력해야 합니다."; return; }
+    if(products.length<1){ $("#splitError").textContent="상품은 최소 1개 이상 입력해야 합니다."; return; }
     if(products.some(p=>!p.standard_product_name)){ $("#splitError").textContent="상품명이 비어있는 항목이 있습니다."; return; }
 
     const body={
@@ -1458,19 +1550,23 @@
   }
 
   function openOccurrenceEditor(id){
+    if(!state.adminPassword){adminLogin();return;}
+    if(splitMap().get(clean(id))?.length){openSplitEditor(id);return;}
     const r=state.rows.find(x=>clean(x.hsshow_id)===clean(id)); if(!r) return;
     $("#historyDialog").close();
-    $("#productDialogTitle").textContent="가변방송 · 이 방송만 분류";
+    $("#productDialogTitle").textContent="이 방송만 분류 · 시간/PGM 수정";
     $("#editRawTitle").value=getRawTitle(r);
     $("#editRawDisplay").value=getRawTitle(r);
     $("#editSourceStandard").value="";
-    const o=occurrenceRuleForRow(r)||{};
+    const o=occurrenceRuleForRow(r)||overlayRow(r);
     $("#editStandardName").value=o.standard_product_name||"";
     $("#editBrand").value=o.brand||""; $("#editGroup").value=o.product_group||""; $("#editIngredient").value=o.main_ingredient||"";
     setCategoryValues(o.category_major||r.category_major||"",o.category_middle||r.category_middle||"",o.category_sub||r.category_sub||"");
     if(!(o.category_major||r.category_major) || !(o.category_middle||r.category_middle)) applyCategoryFromProductGroup(); else updateCategoryUiFromCurrent("현재 등록 분류");
+    setupOccurrenceMetadata(r);
     $("#editAction").value="save_occurrence";
     $("#productForm").dataset.occurrenceId=clean(r.hsshow_id);
+    $("#productForm").dataset.dynamicSingleOcc="1";
     $("#productForm").dataset.sourceAliases="[]";
     $("#editBroadcastInfo").textContent=`${getDate(r)} ${getTime(r)} · ${getPlatform(r)} · 이 방송 1건에만 적용`;
     $("#aliasPreview").innerHTML="이 저장은 같은 제목의 다른 방송에는 영향을 주지 않습니다.";
@@ -1945,8 +2041,16 @@
   }
 
   function openProductDialog(name,kind){
+    setupOccurrenceMetadata(null);
     if(!state.adminPassword){ adminLogin(); return; }
     const item=findReviewItem(name,kind); if(!item) return;
+    const scoped=reviewOccurrences(item.occurrences||[]);
+    if(scoped.some(r=>r.split_index)){
+      const ids=[...new Set(scoped.map(r=>clean(r.hsshow_id)))];
+      if(ids.length===1) openSplitEditor(ids[0]); else openHistoryDialog(name,kind);
+      return;
+    }
+    if(scoped.length===1 && kind!=="excluded"){openOccurrenceEditor(scoped[0].hsshow_id);return;}
     const last=[...item.occurrences].sort((a,b)=>clean(b.start_datetime).localeCompare(clean(a.start_datetime)))[0];
     const m=item.master||item.aliases?.[0]||{};
     delete $("#productForm").dataset.occurrenceId;
@@ -1977,6 +2081,7 @@
       $("#productForm").dataset.occurrenceId=clean(dynamicSingleOcc.hsshow_id||"");
       $("#productForm").dataset.dynamicSingleOcc="1";
       $("#editAction").value="link_existing";
+      setupOccurrenceMetadata(dynamicSingleOcc);
     }else{
       $("#editAction").value=(kind==="pending"||kind==="auto")?"link_existing":kind==="dynamic"?"mark_dynamic_title":kind==="excluded"?"restore":"update_product";
     }
@@ -2045,6 +2150,22 @@
     }
   }
 
+  function applyExcludedRules(body){
+    state.adminMaster=state.adminMaster||{};
+    const aliases=new Map(masterCandidates().map(r=>[normalize(r.match_keyword||r.raw_title||""),r]));
+    const raw=clean(body.raw_title||body.match_keyword);
+    const targets=body.scope==="product"
+      ? [...aliases.values()].filter(r=>productNameKey(r.standard_product_name)===productNameKey(body.standard_product_name))
+      : [{...(aliases.get(normalize(raw))||{}),match_keyword:raw,standard_product_name:body.standard_product_name}];
+    if(body.scope==="product") for(const alias of body.source_aliases||[]) {
+      const name=typeof alias==="string"?alias:alias.match_keyword;
+      if(name) targets.push({...aliases.get(normalize(name)),match_keyword:name});
+    }
+    const updates=new Map(targets.map(r=>[normalize(r.match_keyword),{...r,enabled:"N",review_status:"exclude",manual_lock:"Y"}]));
+    state.adminMaster.admin_rows=[...(state.adminMaster.admin_rows||[]).filter(r=>!updates.has(normalize(r.match_keyword||r.raw_title||""))),...updates.values()];
+    invalidateDerived();
+  }
+
   async function saveProductAdmin(){
     const originalAction=$("#editAction").value;
     let action=originalAction;
@@ -2055,7 +2176,7 @@
     // 대한 분류(save_occurrence)로 저장해야 가변형 우선순위에 밀려
     // 무시되지 않는다.
     const dynamicOccId=$("#productForm").dataset.dynamicSingleOcc==="1"?$("#productForm").dataset.occurrenceId:"";
-    if(dynamicOccId && (action==="link_existing" || action==="update_product")){
+    if(dynamicOccId && (action==="link_existing" || action==="update_product" || action==="create_new")){
       action="save_occurrence";
     }
 
@@ -2097,8 +2218,10 @@
     if(action==="exclude"){ body.scope=source&&!raw?"product":"alias"; }
     if(action==="mark_dynamic_title"){ body.pattern=raw||source; body.platform=""; }
     if(action==="save_occurrence"){
+      if(num(state.adminMaster?.schema_version)<2){$("#productSaveError").textContent="새 Cloudflare Worker 배포 후 데이터 새로고침을 해주세요. 시간·PGM 값 유실 방지를 위해 저장을 중단했습니다.";return;}
       body.hsshow_id=$("#productForm").dataset.occurrenceId||"";
       body.food_override="Y";
+      try{if($("#occurrenceMetadata")) Object.assign(body,readMetadataForm($("#occurrenceMetadata .broadcast-metadata")));}catch(e){$("#productSaveError").textContent=e.message;return;}
       const r=state.rows.find(x=>clean(x.hsshow_id)===body.hsshow_id);
       if(r){
         body.broadcast_date=getDate(r);
@@ -2138,6 +2261,13 @@
         const key=normalize(optimistic.match_keyword||optimistic.raw_title||"");
         state.adminMaster.admin_rows=[optimistic,...current.filter(x=>normalize(x.match_keyword||x.raw_title||"")!==key)];
         invalidateDerived();
+      } else if(body.action==="save_occurrence" || body.action==="save_occurrence_batch") {
+        state.adminMaster=state.adminMaster||{};
+        const ids=new Set(body.hsshow_ids||[body.hsshow_id]);
+        state.adminMaster.occurrence_rules=[...(state.adminMaster.occurrence_rules||[]).filter(x=>!ids.has(clean(x.hsshow_id))),...[...ids].map(id=>({...body,hsshow_id:id,enabled:"Y",manual_lock:"Y",review_status:"confirmed"}))];
+        invalidateDerived();
+      } else if(body.action==="exclude") {
+        applyExcludedRules(body);
       } else if(body.action==="mark_dynamic_title") {
         // V3.2 FIX: 가변형 방송명 저장은 admin_rows가 아니라 dynamic_rules에
         // 들어가는데, 지금까지는 이 분기가 통째로 위 optimistic 갱신
@@ -2507,6 +2637,7 @@
   }
 
   function openOverrideEditor(id){
+    if(splitMap().get(clean(id))?.length){openSplitEditor(id);return;}
     if(!state.adminPassword){ adminLogin(); return; }
     const r=state.rows.find(x=>clean(x.hsshow_id)===clean(id)); if(!r) return;
     $("#historyDialog").close(); $("#overrideForm").dataset.hsshowId=clean(id);
@@ -2759,3 +2890,4 @@
   setPerfRange("yesterday");
   loadData();
 })();
+

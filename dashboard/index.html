@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>홈쇼핑 식품 모니터 V3.1.0</title>
-  <link rel="stylesheet" href="./styles.css?v=3.2.0">
+  <link rel="stylesheet" href="./styles.css?v=3.11.0">
 </head>
 <body>
   <main class="shell">
@@ -262,6 +262,7 @@
         </div>
         <label>처리 방식
           <select id="editAction">
+            <option value="save_occurrence" disabled>이 방송만 분류/수정</option>
             <option value="link_existing">기존 상품으로 연결</option>
             <option value="create_new">신규 상품 등록</option>
             <option value="update_product">기존 분류 수정</option>
@@ -329,6 +330,7 @@
       <div id="splitRows" class="split-rows"></div>
       <button type="button" id="splitAddRowBtn" class="btn">+ 상품 추가</button>
       <div class="split-total">식품 실적 합계: <b id="splitTotal">0원</b></div>
+      <div id="splitDifference" class="small"></div>
       <div id="splitError" class="error-text"></div>
       <div class="dialog-actions">
         <button type="button" id="splitRemoveBtn" class="btn danger-outline">분리 해제</button>
@@ -349,7 +351,8 @@
 
   <script src="./config.js?v=3.1.0"></script>
   <script src="./pgm_schedule.js?v=3.1.0"></script>
-  <script src="./food_scope.js?v=3.2.0"></script>
-  <script src="./app.js?v=3.2.0"></script>
+  <script src="./food_scope.js?v=3.11.0"></script>
+  <script src="./app.js?v=3.11.0"></script>
 </body>
 </html>
+
