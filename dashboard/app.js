@@ -190,6 +190,7 @@
     // V3.1: 성능 최적화용 캐시도 함께 초기화한다.
     state.derived.masterCandidates = null;
     state.derived.masterExactIndex = null;
+    state.derived.masterSearchEntries = null;
     state.derived.reviewItemsCache = null;
     state.derived.productNameIndex = null;
     // V3.2: 방송 1건 다중상품 분리 캐시
@@ -283,23 +284,22 @@
       return exact;
     }
 
-    const matches=masterCandidates().filter(m=>{
-      const k=normalize(m.match_keyword || m.raw_title || m.normalized_title || "");
-      return k && (raw.includes(k) || k.includes(raw));
-    });
-
-    matches.sort((a,b)=>{
-      const ak=normalize(a.match_keyword || a.raw_title || a.normalized_title || "");
-      const bk=normalize(b.match_keyword || b.raw_title || b.normalized_title || "");
-      const aExact=raw===ak ? 1 : 0, bExact=raw===bk ? 1 : 0;
-      if(aExact!==bExact) return bExact-aExact;
-      const ap=masterRulePriority(a), bp=masterRulePriority(b);
-      if(ap!==bp) return bp-ap;
-      // 더 구체적인(긴) alias를 우선해 짧은 키워드의 오매칭을 줄인다.
-      return bk.length-ak.length;
-    });
-
-    const hit=matches[0]||null;
+    // Normalize aliases once per master update, not once per broadcast.
+    if(!state.derived.masterSearchEntries){
+      state.derived.masterSearchEntries=masterCandidates().map(m=>({
+        row:m,
+        key:normalize(m.match_keyword || m.raw_title || m.normalized_title || ""),
+        priority:masterRulePriority(m)
+      }));
+    }
+    let best=null;
+    for(const entry of state.derived.masterSearchEntries){
+      const k=entry.key;
+      if(!k || !(raw.includes(k) || k.includes(raw))) continue;
+      if(!best || entry.priority>best.priority ||
+         (entry.priority===best.priority && k.length>best.key.length)) best=entry;
+    }
+    const hit=best?.row||null;
     state.derived.masterMatch.set(raw,hit);
     return hit;
   }
