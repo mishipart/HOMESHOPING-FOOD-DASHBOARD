@@ -1,19 +1,19 @@
 {
-  "generated_at": "2026-09-15T23:37:39.939032+09:00",
-  "target_date": "2026-09-15",
+  "generated_at": "2026-09-16T23:38:57.633458+09:00",
+  "target_date": "2026-09-16",
   "cycle": "23:30 KST",
   "status": "ok",
   "all_food": {
-    "broadcast_count": 80,
-    "sales_cnt_present_count": 48,
-    "sales_amt_present_count": 48,
-    "positive_sales_amt_count": 48
+    "broadcast_count": 95,
+    "sales_cnt_present_count": 49,
+    "sales_amt_present_count": 49,
+    "positive_sales_amt_count": 49
   },
   "before_23": {
-    "broadcast_count": 80,
-    "sales_cnt_present_count": 48,
-    "sales_amt_present_count": 48,
-    "positive_sales_amt_count": 48
+    "broadcast_count": 95,
+    "sales_cnt_present_count": 49,
+    "sales_amt_present_count": 49,
+    "positive_sales_amt_count": 49
   },
   "hour_23": {
     "broadcast_count": 0,
