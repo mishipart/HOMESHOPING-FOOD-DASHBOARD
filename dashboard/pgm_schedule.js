@@ -32,7 +32,7 @@ const PGM_SCHEDULE = [
   // ---- 화요일 ----
   { day:"tue", time:"09:00", name:"스타일NOW 더 김동은",   host:"김동은",         channel:"GS SHOP",        grade:"nonfood" },
   { day:"tue", time:"19:35", name:"김창옥 라이브",         host:"김창옥",         channel:"CJ온스타일",      grade:"food_mixed" },
-  { day:"tue", time:"20:45", name:"오윤아의 오감쇼",       host:"오윤아",         channel:"현대홈쇼핑",      grade:"food_mixed" },
+  { day:"tue", time:"19:30", name:"오윤아의 오감쇼",       host:"오윤아",         channel:"현대홈쇼핑",      grade:"food_mixed" },
 
   // ---- 수요일 ----
   { day:"wed", time:"19:35", name:"신라벨",               host:"김한석·김혜린",   channel:"신세계라이브쇼핑", grade:"food_mixed" },
