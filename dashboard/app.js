@@ -1933,7 +1933,8 @@
   }
 
   function logoutAdmin(){
-    state.adminPassword=""; state.adminMaster=null; sessionStorage.removeItem("hsfm_admin_password");
+    // Public classifications must survive logout; only remove write credentials.
+    state.adminPassword=""; sessionStorage.removeItem("hsfm_admin_password");
     invalidateDerived();
     $("#adminState").textContent="조회 모드";
     $("#adminState").classList.remove("on");
