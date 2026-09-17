@@ -603,8 +603,10 @@
       const pMin=pgmToMinutes(p.time);
       if(pMin===null) continue;
       const diff=Math.abs(pMin-rowMin);
-      const names=[p.name,...(p.aliases||[])].map(normalize).filter(Boolean);
-      if(names.some(name=>normalize(getRawTitle(r)).includes(name)) && diff<bestDiff){ best=p; bestDiff=diff; }
+      // Product matching strips bracketed promotions; PGM names often live inside them.
+      const pgmKey=v=>clean(v).toLowerCase().replace(/[^\p{L}\p{N}]+/gu,"");
+      const names=[p.name,...(p.aliases||[])].map(pgmKey).filter(Boolean);
+      if(names.some(name=>pgmKey(getRawTitle(r)).includes(name)) && diff<bestDiff){ best=p; bestDiff=diff; }
     }
     return best;
   }
@@ -798,7 +800,7 @@
 
       // V3.5: 스크롤 없이 화면 안에 다 들어오도록 - 시간열/칸을 좁히고,
       // 관심상품 별표는 상품명 위에 작게 배치해서 가로폭을 아낀다.
-      html+=`<div class="day-grid-wrap" style="overflow:visible;max-height:none"><div class="day-grid" style="grid-template-columns:34px repeat(${channels.length},minmax(0,1fr));overflow:visible">
+      html+=`<div class="day-grid-wrap" style="overflow:visible;max-height:none"><div class="day-grid" style="--channel-count:${channels.length};grid-template-columns:34px repeat(${channels.length},minmax(0,1fr));overflow:visible">
         <div class="day-grid-cell day-grid-corner day-grid-head-row">시간</div>
         ${channels.map(c=>`<div class="day-grid-cell day-grid-head-cell day-grid-head-row" title="${esc(c)}">${esc(c)}</div>`).join("")}
         ${Array.from({length:24},(_,h)=>h).map(h=>`
@@ -1218,8 +1220,20 @@
     return true;
   }
 
+  function scopedReviewStatus(item){
+    if(item.kind!=="confirmed") return item;
+    const rows=reviewOccurrences(item.occurrences||[]).map(overlayRow);
+    if(!rows.length) return item;
+    const unreviewed=rows.filter(r=>clean(r.manual_lock).toUpperCase()!=="Y");
+    return {...item,verified:unreviewed.length===0,unverifiedAliasCount:0,
+      unreviewedBroadcastCount:new Set(unreviewed.map(r=>clean(r.hsshow_id)||rowChronoKey(r))).size};
+  }
+
   function renderReview(){
-    const all=getReviewItems(state.reviewFilter);
+    // Review status belongs to the selected occurrences, not every historical alias.
+    const scoped=new Map();
+    const withStatus=item=>{if(!scoped.has(item))scoped.set(item,scopedReviewStatus(item));return scoped.get(item);};
+    const all=getReviewItems(state.reviewFilter).map(withStatus);
     // V3.2: "관리자 미검토(자동매칭)만 보기" 토글 - 분류완료 항목 중
     // manual_lock이 하나도 없는(=관리자가 실제로 저장을 눌러본 적 없는)
     // 것만 추려서 검토 대상을 줄인다.
@@ -1228,7 +1242,7 @@
     if(autoOnly) items=items.filter(x=>x.kind!=="confirmed"||x.verified===false);
     const pending=getReviewItems("pending").filter(reviewFilterMatch).length;
     const confirmed=getReviewItems("confirmed").filter(reviewFilterMatch).length;
-    const confirmedUnverified=getReviewItems("confirmed").filter(reviewFilterMatch).filter(x=>!x.verified).length;
+    const confirmedUnverified=getReviewItems("confirmed").map(withStatus).filter(reviewFilterMatch).filter(x=>!x.verified).length;
     const auto=getReviewItems("auto").filter(reviewFilterMatch).length;
     const dynamic=getReviewItems("dynamic").filter(reviewFilterMatch).length;
     const excluded=getReviewItems("excluded").filter(reviewFilterMatch).length;
@@ -1290,7 +1304,7 @@
       return `<div class="review-card"><div>
         <h4>${badge}${groupPgmBadge(displayOcc)}${esc(item.standard_product_name||item.raw_title)}</h4>
         ${item.raw_title&&item.standard_product_name?`<div class="small">원본: ${esc(item.raw_title)}</div>`:""}
-        <div class="review-meta">${last?`${periodLabel} ${reviewRangeActive?"첫":"최근"} 방송 ${getDate(last)} ${getTime(last)} · ${esc(getPlatform(last))}`:"방송 이력 없음"}${displayOcc.length?` · ${periodLabel} 방송 ${displayOcc.length}회`:""}${aliasCount?` · 연결 원본명 ${aliasCount}개`:""}${item.unverifiedAliasCount?` · <b class="unverified-count">미확인 원본명 ${item.unverifiedAliasCount}개</b>`:""}</div>
+        <div class="review-meta">${last?`${periodLabel} ${reviewRangeActive?"첫":"최근"} 방송 ${getDate(last)} ${getTime(last)} · ${esc(getPlatform(last))}`:"방송 이력 없음"}${displayOcc.length?` · ${periodLabel} 방송 ${displayOcc.length}회`:""}${aliasCount?` · 연결 원본명 ${aliasCount}개`:""}${item.unreviewedBroadcastCount?` · <b class="unverified-count">미검토 방송 ${item.unreviewedBroadcastCount}회</b>`:item.unverifiedAliasCount?` · <b class="unverified-count">미확인 원본명 ${item.unverifiedAliasCount}개</b>`:""}</div>
         ${item.kind==="dynamic"?'<div class="dynamic-note">이 제목은 방송마다 실제 상품이 달라질 수 있어 자동 대표상품으로 묶지 않습니다.</div>':""}
         ${item.kind==="source_nonfood"?`<div class="dynamic-note">원본 카테고리: ${esc(clean(last?.source_category||last?.category||"미확인"))} · 식품이 포함된 방송이면 방송이력에서 분류하거나 상품을 나눠 입력하세요.</div>`:""}
         ${item.kind==="auto"?`<div class="dynamic-note">자동분류 신뢰도 ${Math.round(num(item.master?.classification_score)*100)}% · 확인 후 영구규칙으로 저장할 수 있습니다.</div>`:""}

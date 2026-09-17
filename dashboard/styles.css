@@ -798,3 +798,30 @@ footer{font-size:10px;color:var(--muted);margin-top:18px}
   white-space:nowrap;
   margin-right:4px;
 }
+
+/* Mobile: keep controls readable and confine wide calendars to their panel. */
+@media(max-width:760px){
+  .shell{padding:18px 12px 32px;min-width:0}
+  h1{font-size:26px}
+  .topbar,.top-actions{width:100%;min-width:0}
+  .top-actions{flex-wrap:wrap}
+  .tabs{max-width:100%;overflow-x:auto}
+  .toolbar{min-width:0}
+  .toolbar>*,.toolbar .grow,.review-toolbar .date-input-wrap{min-width:0;max-width:100%;flex:1 1 160px}
+  .toolbar input,.toolbar select,.toolbar .grow input{min-width:0;width:100%;box-sizing:border-box}
+  .review-card{grid-template-columns:minmax(0,1fr);overflow-wrap:anywhere}
+  .review-actions{flex-wrap:wrap;min-width:0}
+  .review-perf-chip{flex-basis:100%;white-space:normal;line-height:1.7}
+  .review-actions button{flex:1 1 auto;min-height:40px}
+  .form-grid{grid-template-columns:minmax(0,1fr)}
+  dialog{width:calc(100vw - 24px);max-width:calc(100vw - 24px);box-sizing:border-box;padding:0}
+  .dialog-card,.dialog-card.wide,.split-dialog-card{min-width:0;width:100%;box-sizing:border-box;padding:16px;overflow-wrap:anywhere}
+  .dialog-card input,.dialog-card select{min-width:0;max-width:100%;box-sizing:border-box;font-size:16px}
+  .dialog-card input:not([type=checkbox]),.dialog-card select{width:100%}
+  .dialog-actions{flex-wrap:wrap}
+  #calendarRoot{min-width:0;max-width:100%;overflow-x:auto}
+  .month-board{min-width:640px}
+  .day-grid-wrap{overflow-x:auto!important;max-width:100%;overscroll-behavior-x:contain}
+  .day-grid{grid-template-columns:40px repeat(var(--channel-count,1),minmax(140px,1fr))!important}
+  .perf-filter-row-1,.perf-filter-row-2{grid-template-columns:minmax(0,1fr)}
+}

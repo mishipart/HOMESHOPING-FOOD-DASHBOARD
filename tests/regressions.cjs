@@ -1,0 +1,16 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const elements=new Map();
+const ctx={window:{HSFM_FOOD_SCOPE:require('../dashboard/food_scope.js'),HSFM_PGM_SCHEDULE:[{name:'최화정쇼',channel:'CJ온스타일',day:'wed',time:'20:45',grade:'food'}]},sessionStorage:{getItem:()=>null},localStorage:{getItem:()=>null},document:{addEventListener(){},querySelectorAll:()=>[],querySelector:s=>{if(!elements.has(s))elements.set(s,{value:'',checked:false,innerHTML:'',classList:{toggle(){}}});return elements.get(s);}}};
+vm.createContext(ctx);
+vm.runInContext(fs.readFileSync(__dirname+'/../dashboard/app.js','utf8').replace(/  bind\(\);\s+setPerfRange\("yesterday"\);\s+loadData\(\);/,'globalThis.app={state,renderReview,pgmForRow,invalidateDerived};'),ctx);
+const a=ctx.app,el=s=>ctx.document.querySelector(s);
+const row={hsshow_id:'A',raw_title:'한복선의 풍미가득 포기김치 11kg',source_category:'식품',broadcast_date:'2026-08-05',start_datetime:'2026-08-05T17:33:00+09:00',platform_name:'쇼핑엔티',sales_amt:'49800000',sales_cnt:'998'};
+function reset(){elements.clear();a.state.rows=[row];a.state.masterPublic=[];a.state.adminMaster={rows:[],admin_rows:[],occurrence_rules:[],occurrence_splits:[]};a.state.reviewFilter='confirmed';a.invalidateDerived();}
+const tests=[];function test(n,fn){tests.push([n,fn]);}
+test('PGM inside brackets is recognized without time-only inference',()=>{reset();assert.equal(a.pgmForRow({...row,platform_name:'CJ온스타일',raw_title:'[최화정쇼/단독] 유기농 블루베리 100',start_datetime:'2026-08-05T20:45:00+09:00'})?.name,'최화정쇼');a.invalidateDerived();assert.equal(a.pgmForRow({...row,platform_name:'CJ온스타일',raw_title:'유기농 블루베리 100',start_datetime:'2026-08-05T20:45:00+09:00'}),null);});
+test('explicit PGM removal still beats bracketed title',()=>{reset();a.state.adminMaster.occurrence_rules=[{hsshow_id:'A',pgm_override:'N'}];assert.equal(a.pgmForRow({...row,platform_name:'CJ온스타일',raw_title:'[최화정쇼] 블루베리'}),null);});
+function seedReview(){reset();a.state.rows=[row,{...row,hsshow_id:'B',broadcast_date:'2026-08-06',start_datetime:'2026-08-06T17:33:00+09:00'}];a.state.adminMaster.rows=[{match_keyword:'한복선의 풍미가득 포기김치',standard_product_name:'한복선의 풍미가득 포기김치',enabled:'Y',manual_lock:'',review_status:'confirmed'}];a.state.adminMaster.occurrence_rules=[{hsshow_id:'A',standard_product_name:'한복선의 풍미 가득 포기김치',food_override:'Y',manual_lock:'Y',review_status:'confirmed'}];a.invalidateDerived();}
+test('selected saved broadcast renders reviewed despite unlocked global alias',()=>{seedReview();el('#reviewStart').value=el('#reviewEnd').value='2026-08-05';a.renderReview();assert.match(el('#reviewList').innerHTML,/분류완료·관리자확인/);assert.doesNotMatch(el('#reviewList').innerHTML,/자동매칭\(미검토\)|미확인 원본명/);});
+test('unreviewed filter hides reviewed selected occurrence',()=>{seedReview();el('#reviewStart').value=el('#reviewEnd').value='2026-08-05';el('#reviewAutoOnlyToggle').checked=true;a.renderReview();assert.match(el('#reviewList').innerHTML,/조건에 맞는 상품이 없습니다/);});
+test('next-day unsaved occurrence stays unreviewed',()=>{seedReview();el('#reviewStart').value=el('#reviewEnd').value='2026-08-06';a.renderReview();assert.match(el('#reviewList').innerHTML,/자동매칭\(미검토\)/);});
+let failures=0;for(const [name,fn]of tests){try{fn();console.log('PASS',name);}catch(e){failures++;console.error('FAIL',name,e.message);}}process.exitCode=failures?1:0;
