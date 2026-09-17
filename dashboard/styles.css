@@ -824,4 +824,5 @@ footer{font-size:10px;color:var(--muted);margin-top:18px}
   .day-grid-wrap{overflow-x:auto!important;max-width:100%;overscroll-behavior-x:contain}
   .day-grid{grid-template-columns:40px repeat(var(--channel-count,1),minmax(140px,1fr))!important}
   .perf-filter-row-1,.perf-filter-row-2{grid-template-columns:minmax(0,1fr)}
+  .perf-toolbar .quick-range{flex-wrap:wrap!important;min-width:0;max-width:100%}
 }
