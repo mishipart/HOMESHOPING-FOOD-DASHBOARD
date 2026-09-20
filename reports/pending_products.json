@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-09-19T23:39:14.193813+09:00",
-  "pending_count": 1157,
+  "generated_at": "2026-09-20T23:39:26.393037+09:00",
+  "pending_count": 1160,
   "review_actions": [
     "기존 제품으로 연결",
     "신규 제품명으로 확정",
@@ -4103,6 +4103,15 @@
       "note": "2026-09-17 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "엘루비 유기농 블루베리 100% 10박스 + 보틀",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-24 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "2026 화산농협 해남 황토 밤고구마 8kg",
       "standard_product_name": "",
       "brand": "",
@@ -4578,6 +4587,15 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-08-31 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "여에스더 루테인지아잔틴10개월+컬리케일",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-25 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "100% 경북 제철 햇 홍로사과 4.5kg",
@@ -5091,6 +5109,15 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-09-01 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
+      "match_keyword": "정성곳간 뼈없는 소갈비찜 500g*9팩",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-20 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "2026 순천농협 순천향미 총20kg",
@@ -8909,6 +8936,15 @@
       "note": "2026-09-02 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
+      "match_keyword": "에버스감자도우피자",
+      "standard_product_name": "",
+      "brand": "",
+      "product_group": "",
+      "main_ingredient": "",
+      "review_status": "확인필요",
+      "note": "2026-09-24 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
+    },
+    {
       "match_keyword": "여에스더콘드로이친",
       "standard_product_name": "",
       "brand": "",
@@ -9069,15 +9105,6 @@
       "main_ingredient": "",
       "review_status": "확인필요",
       "note": "2026-09-01 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
-    },
-    {
-      "match_keyword": "에버스감자도우피자",
-      "standard_product_name": "",
-      "brand": "",
-      "product_group": "",
-      "main_ingredient": "",
-      "review_status": "확인필요",
-      "note": "2026-09-24 신규 자동등록 · 표준상품명 미확정 · 대시보드에서 기존상품 연결/신규확정/제외 필요"
     },
     {
       "match_keyword": "1) 마시는 하루견과",
