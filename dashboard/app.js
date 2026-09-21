@@ -561,7 +561,7 @@
   // ============================================================
   // V3.3 - 특화 PGM(고정 편성 프로그램) 매칭
   // 관리자 지정이 최우선이며, 자동 후보는 방송명과 채널이 일치해야 한다.
-  // 편성 시각만으로 PGM을 확정하지 않는다.
+  // 자동 PGM은 허용 채널의 요일/시작시간 일치 또는 원본 프로그램명으로 판정한다.
   // ============================================================
   const PGM_DAY_KEYS=["sun","mon","tue","wed","thu","fri","sat"];
 
@@ -587,6 +587,9 @@
     const manual=r.split_index?r:(occurrenceRecord(r)||r);
     if(clean(manual.pgm_override)==="N") return null;
     if(clean(manual.pgm_override)==="Y") return {name:clean(manual.pgm_name),grade:"manual"};
+    // 라이브사의 데이터 채널은 별개 채널이다. 신세계쇼핑만 예외 허용한다.
+    const autoChannels=["CJ온스타일","CJ ENM","롯데홈쇼핑","현대홈쇼핑","GS홈쇼핑","GS SHOP","GS샵","NS홈쇼핑","홈앤쇼핑","공영쇼핑","신세계쇼핑","신세계라이브쇼핑"];
+    if(!autoChannels.some(c=>c.replace(/\s/g,"")===clean(getPlatform(r)).replace(/\s/g,""))) return null;
     const list=window.HSFM_PGM_SCHEDULE;
     if(!Array.isArray(list)||!list.length) return null;
     const d=parseDate(getDate(r));
@@ -606,7 +609,8 @@
       // Product matching strips bracketed promotions; PGM names often live inside them.
       const pgmKey=v=>clean(v).toLowerCase().replace(/[^\p{L}\p{N}]+/gu,"");
       const names=[p.name,...(p.aliases||[])].map(pgmKey).filter(Boolean);
-      if(names.some(name=>pgmKey(getRawTitle(r)).includes(name)) && diff<bestDiff){ best=p; bestDiff=diff; }
+      const scheduleMatch=p.day===dayKey && diff===0;
+      if((scheduleMatch || names.some(name=>pgmKey(getRawTitle(r)).includes(name))) && diff<bestDiff){ best=p; bestDiff=diff; }
     }
     return best;
   }
