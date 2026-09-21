@@ -1425,20 +1425,33 @@
     const names=[...new Set([...(window.HSFM_PGM_SCHEDULE||[]).map(p=>p.name),p.pgm_name].filter(Boolean))];
     return `<div class="broadcast-metadata" data-broadcast-date="${esc(broadcastDate)}">
       <small>방송일 ${esc(broadcastDate)} (고정) · 방송명·매출·수량은 이 날짜에 반영</small>
-      <label>시작 (한국시간)<input class="meta-start" type="time" step="60" value="${esc(clean(p.start_datetime_override).slice(11,16))}"></label>
-      <label>종료 (한국시간)<input class="meta-end" type="time" step="60" value="${esc(clean(p.end_datetime_override).slice(11,16))}"></label>
+      <label>시작 (24시간·한국시간)<input class="meta-start" type="text" inputmode="numeric" maxlength="5" placeholder="0320 또는 03:20" autocomplete="off" value="${esc(clean(p.start_datetime_override).slice(11,16))}"></label>
+      <label>종료 (24시간·한국시간)<input class="meta-end" type="text" inputmode="numeric" maxlength="5" placeholder="1530 또는 15:30" autocomplete="off" value="${esc(clean(p.end_datetime_override).slice(11,16))}"></label>
       <label class="meta-pgm-toggle"><input type="checkbox" class="meta-pgm" ${p.pgm_override==="Y"?"checked":""}> <span>PGM 방송</span></label>
       <label>PGM명<select class="meta-pgm-name" ${p.pgm_override==="Y"?"":"hidden"}><option value="">프로그램 선택</option>${names.map(n=>`<option value="${esc(n)}" ${n===p.pgm_name?"selected":""}>${esc(n)}</option>`).join("")}</select></label>
       <small>시간을 비우면 원본 시간 유지 · 종료가 시작보다 이르면 종료만 익일 처리</small></div>`;
   }
 
   function bindMetadataForm(root){
+    for(const selector of [".meta-start",".meta-end"]){
+      const field=root.querySelector(selector);
+      field.onblur=()=>{try{field.value=normalizeTimeInput(field.value);field.setCustomValidity("");}catch(e){field.setCustomValidity(e.message);}};
+      field.oninput=()=>field.setCustomValidity("");
+    }
     const box=root.querySelector(".meta-pgm");
     box.onchange=()=>{root.dataset.pgmChanged="Y";root.querySelector(".meta-pgm-name").hidden=!box.checked;};
   }
 
+  function normalizeTimeInput(value){
+    const text=clean(value);
+    if(!text)return "";
+    const match=/^([01]\d|2[0-3]):?([0-5]\d)$/.exec(text);
+    if(!match)throw new Error("시간은 0000~2359 또는 HH:MM 형식으로 입력하세요. (예: 0320, 15:30)");
+    return match[1]+":"+match[2];
+  }
+
   function readMetadataForm(root){
-    const start=root.querySelector(".meta-start").value,end=root.querySelector(".meta-end").value;
+    const start=normalizeTimeInput(root.querySelector(".meta-start").value),end=normalizeTimeInput(root.querySelector(".meta-end").value);
     if(!!start!==!!end || (start && start===end)) throw new Error("시작·종료 시각을 함께 입력하고 서로 다르게 지정하세요.");
     const date=root.dataset.broadcastDate;
     let endDate=date;
