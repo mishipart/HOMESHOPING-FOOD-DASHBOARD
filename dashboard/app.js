@@ -1901,11 +1901,6 @@
 
   function buildAdminSearchProducts(){
     const direct=state.adminMaster?.admin_products;
-
-    if(Array.isArray(direct) && direct.length){
-      return direct.map(enrichedMasterProduct);
-    }
-
     const rows=state.adminMaster?.admin_rows||[];
     const groups=new Map();
 
@@ -1949,6 +1944,19 @@
       if(!group.category_sub && clean(row.category_sub)){ group.category_sub=clean(row.category_sub); }
     }
 
+    // Server summaries may predate a save in this session. Current rows win.
+    for(const product of direct||[]){
+      const key=productNameKey(product.standard_product_name);
+      if(key && !groups.has(key)) groups.set(key,product);
+    }
+    // Older scoped registrations were saved only as occurrence rules. Make
+    // those confirmed names selectable without creating global alias rules.
+    for(const row of state.adminMaster?.occurrence_rules||[]){
+      if(clean(row.review_status).toLowerCase()!=="confirmed") continue;
+      if(clean(row.enabled).toUpperCase()==="N" || clean(row.monitoring_excluded).toUpperCase()==="Y" || clean(row.food_override).toUpperCase()==="N") continue;
+      const name=clean(row.standard_product_name), key=productNameKey(name);
+      if(key && !groups.has(key)) groups.set(key,{...row,standard_product_name:name,alias_count:0,aliases:[]});
+    }
     return [...groups.values()].map(enrichedMasterProduct);
   }
 
@@ -2311,6 +2319,25 @@
 
     $("#productSaveError").textContent="";
     try{
+      if(originalAction==="create_new" && dynamicOccId){
+        // Register the canonical name, never the generic broadcast title.
+        // A successful catalog write is retained if the occurrence write fails,
+        // so retrying is safe and never overwrites another product's alias.
+        const name=clean(standard), key=productNameKey(name);
+        if(!name) throw new Error("신규 표준 상품명이 필요합니다.");
+        const catalogRows=state.adminMaster?.admin_rows||[];
+        const collision=catalogRows.find(x=>normalize(x.match_keyword)===normalize(name) && productNameKey(x.standard_product_name)!==key);
+        if(collision) throw new Error("이 표준명은 다른 상품의 연결 이름으로 사용 중입니다. 기존 연결을 확인해주세요.");
+        const registered=catalogRows.some(x=>productNameKey(x.standard_product_name)===key && clean(x.enabled||"Y").toUpperCase()!=="N" && clean(x.review_status).toLowerCase()!=="exclude");
+        if(!registered){
+          const catalog={action:"create_new",raw_title:name,match_keyword:name,standard_product_name:name,brand:body.brand,product_group:body.product_group,main_ingredient:body.main_ingredient,category_major:body.category_major,category_middle:body.category_middle,category_sub:body.category_sub,manual_lock:"Y"};
+          const cr=await fetch(`${API}/save`,{method:"POST",headers:{"Content-Type":"application/json","X-Admin-Password":state.adminPassword},body:JSON.stringify(catalog)});
+          const cd=await cr.json();
+          if(!cr.ok||!cd.ok) throw new Error(cd.error||`신규 상품 등록 HTTP ${cr.status}`);
+          state.adminMaster.admin_rows=[...catalogRows,{...catalog,review_status:"confirmed",enabled:"Y"}];
+          invalidateDerived();
+        }
+      }
       const r=await fetch(`${API}/save`,{method:"POST",headers:{"Content-Type":"application/json","X-Admin-Password":state.adminPassword},body:JSON.stringify(body)});
       const data=await r.json();
       if(!r.ok||!data.ok) throw new Error(data.error||`HTTP ${r.status}`);
@@ -2961,3 +2988,5 @@
   setPerfRange("yesterday");
   loadData();
 })();
+
+
