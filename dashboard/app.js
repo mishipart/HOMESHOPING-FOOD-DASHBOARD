@@ -651,9 +651,43 @@
 
   function renderCalendar(){
     $$(".segmented [data-view]").forEach(b=>b.classList.toggle("active",b.dataset.view===state.view));
+    if(window.matchMedia?.("(max-width: 760px)").matches && ((state.view!=="month" && !state.mobileTimetable)||(state.view==="month" && $("#calendarSearch").value.trim()))){renderMobileCalendar();return;}
     if(state.view==="month") renderMonth();
     else if(state.view==="week") renderWeek();
     else renderDay();
+  }
+
+  function mobileBroadcasts(root,rows){
+    let limit=30;
+    const draw=()=>{
+      const sorted=[...rows].sort((a,b)=>clean(a.start_datetime).localeCompare(clean(b.start_datetime)));
+      root.innerHTML=`<div class="mobile-results-heading">상품별 방송 ${cnt(rows.length)}건</div>`+sorted.slice(0,limit).map(r=>`<button type="button" class="mobile-broadcast-card"><span class="mobile-broadcast-meta">${esc(getDate(r))} · ${esc(getTime(r))} · ${esc(getPlatform(r))}</span><strong>${pgmBadgeHtml(r)}${esc(getProductName(r))}</strong><span>${performanceOk(r)?`수량 ${cnt(salesCount(r))} · 매출 ${money(sales(r))}`:'실적 미확인'}</span></button>`).join("")+(rows.length>limit?'<button type="button" class="btn mobile-more">방송 더 보기</button>':"");
+      root.querySelectorAll('.mobile-broadcast-card').forEach((b,i)=>b.onclick=()=>openEventDetail(sorted[i].hsshow_id,sorted[i].split_index||""));
+      const more=root.querySelector('.mobile-more');if(more)more.onclick=()=>{limit+=30;draw();};
+    };draw();
+  }
+
+  function renderMobileCalendar(){
+    const start=state.view==="month"?startOfMonth(state.cursor):state.view==="week"?startOfWeek(state.cursor):state.cursor;
+    const end=state.view==="month"?new Date(start.getFullYear(),start.getMonth()+1,0):state.view==="week"?addDays(start,6):start;
+    $("#periodLabel").textContent=`${keyDate(start)}${state.view!=="day"?" ~ "+keyDate(end).slice(5):""}`;
+    $("#calendarTitle").textContent=state.view==="month"?"월간 검색 결과":state.view==="week"?"주간 방송 목록":"일간 방송 목록";
+    const rows=expandForProducts(filteredCalendarRows()).filter(r=>getDate(r)>=keyDate(start)&&getDate(r)<=keyDate(end));
+    $("#calendarRoot").innerHTML='<div class="mobile-broadcast-list"></div>';
+    mobileBroadcasts($("#calendarRoot .mobile-broadcast-list"),rows);
+    if(!rows.length)$("#calendarRoot").insertAdjacentHTML('beforeend','<p class="mobile-empty">선택한 날짜와 검색 조건에 맞는 방송이 없습니다. 날짜나 검색어를 변경해 주세요.</p>');
+  }
+
+  function setupMobileUI(){
+    const toggle=(button,target,label)=>{button.onclick=()=>{const on=target.classList.toggle('mobile-expanded');button.setAttribute('aria-expanded',String(on));button.textContent=label+(on?' 접기':' 펼치기');};};
+    const perf=$(".perf-toolbar");
+    perf.insertAdjacentHTML('beforeend','<button id="mobilePerfFilters" class="btn mobile-only" aria-expanded="false">상세 필터 펼치기</button>');
+    toggle($("#mobilePerfFilters"),perf,'상세 필터');
+    perf.insertAdjacentHTML('afterend','<button id="mobileAnalytics" class="btn mobile-only" aria-expanded="false">분석 요약 펼치기</button><div id="mobilePerfResults" class="mobile-only"></div>');
+    toggle($("#mobileAnalytics"),$("#performancePanel"),'분석 요약');
+    $(".calendar-toolbar").insertAdjacentHTML('afterend','<button id="mobileTimetable" class="btn mobile-only">시간표 보기</button>');
+    $("#mobileTimetable").onclick=()=>{state.mobileTimetable=!state.mobileTimetable;$("#mobileTimetable").textContent=state.mobileTimetable?'방송 목록 보기':'시간표 보기';renderCalendar();};
+    window.matchMedia?.('(max-width: 760px)').addEventListener('change',()=>renderActiveTab());
   }
 
   function renderMonth(){
@@ -670,7 +704,7 @@
       html+=`<div class="month-cell ${same?"":"other"} ${k===keyDate(today())?"today":""}" data-open-day="${k}">
         <div class="day-number">${day.getDate()}</div>
         ${hot.length?`<div class="month-hot"><span class="badge hot" title="${esc(hotTip)}">HOT ${hot.length}</span></div>`:""}
-        ${dr.length?`<span class="summary-pill count">식품방송 ${m.broadcasts}회</span>`:""}
+        ${dr.length?`<span class="summary-pill count"><span class="month-count-prefix">식품방송 </span>${m.broadcasts}회</span>`:""}
         ${m.sales?`<span class="summary-pill sales">매출 ${money(m.sales)}</span>`:""}
         ${future&&dr.length?`<span class="summary-pill future">예정 ${m.broadcasts}회</span>`:""}
         ${newc?`<span class="badge new">NEW ${newc}</span>`:""}
@@ -917,6 +951,11 @@
 
   function renderPerformance(){
     let rows=perfRows(), m=metricsForRows(rows), confirmed=rows.filter(performanceOk), firstMap=firstSeenMap();
+    const mobileResults=$("#mobilePerfResults");
+    if(mobileResults){
+      mobileBroadcasts(mobileResults,rows);
+      if(!rows.length){mobileResults.innerHTML='<div class="mobile-empty">선택 기간에 검색 결과가 없습니다.<br>검색어와 필터를 유지하고 전체 기간을 확인할 수 있습니다.<br><button id="mobilePerfAllDates" class="btn">전체 기간에서 검색</button></div>';$("#mobilePerfAllDates").onclick=()=>setPerfRange("all");}
+    }
     const prevStart=addDays(parseDate($("#perfStart").value), -(Math.max(1,(parseDate($("#perfEnd").value)-parseDate($("#perfStart").value))/86400000+1)));
     const prevEnd=addDays(parseDate($("#perfStart").value),-1);
     const prev=visibleRows().filter(r=>getDate(r)>=keyDate(prevStart)&&getDate(r)<=keyDate(prevEnd));
@@ -2869,6 +2908,7 @@
   }
 
   function bind(){
+    setupMobileUI();
     $$(".tab").forEach(b=>b.onclick=()=>{
       state.activeTab=b.dataset.tab;
       $$(".tab").forEach(x=>x.classList.toggle("active",x===b));

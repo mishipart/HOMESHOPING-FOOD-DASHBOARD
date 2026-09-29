@@ -826,3 +826,63 @@ footer{font-size:10px;color:var(--muted);margin-top:18px}
   .perf-filter-row-1,.perf-filter-row-2{grid-template-columns:minmax(0,1fr)}
   .perf-toolbar .quick-range{flex-wrap:wrap!important;min-width:0;max-width:100%}
 }
+
+/* Mobile viewing layer: business data and desktop layouts stay unchanged. */
+.mobile-only{display:none}
+@media(max-width:760px){
+  body .shell{padding:14px 12px 28px}
+  body .topbar{gap:12px;margin-bottom:12px}
+  body h1{font-size:23px;margin:4px 0}
+  body .topbar .eyebrow{font-size:9px}
+  body .top-actions{gap:6px}
+  body .top-actions .btn{padding:8px 12px;min-height:40px}
+  body #globalKpis{display:flex;overflow-x:auto;gap:8px;margin:12px 0}
+  body #globalKpis .kpi{flex:0 0 132px;padding:12px;min-height:0;border-radius:12px}
+  body #globalKpis .value{font-size:18px;margin:5px 0 0}
+  body #globalKpis .sub{display:none}
+  body .tabs{display:flex;width:100%;box-sizing:border-box;margin-bottom:16px}
+  body .tabs .tab{flex:1;padding:12px 6px;white-space:nowrap}
+  body .section-head{gap:8px;margin-bottom:12px}
+  body .section-head h2{font-size:20px}
+  body .section-head .eyebrow{display:none}
+  body .toolbar input:not([type=checkbox]),body .toolbar select{font-size:16px;min-height:44px}
+  body .toolbar input[type=checkbox]{width:20px!important;min-width:20px!important;height:20px;flex:none;padding:0;margin:0}
+  body .toolbar label.check,body .toolbar label.checkbox-inline{display:flex;flex-direction:row;justify-content:flex-start;align-items:center;gap:8px;padding:8px 0}
+  body .calendar-toolbar{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;padding:12px}
+  body .calendar-toolbar .grow{grid-column:1/-1;grid-row:1}
+  body .calendar-toolbar .date-nav{grid-column:1/-1;display:flex;justify-content:space-between;width:100%}
+  body .date-nav strong{min-width:0;font-size:14px}
+  body .calendar-toolbar .check{font-size:12px}
+  body .month-board{min-width:0;grid-template-columns:repeat(7,minmax(0,1fr))}
+  body .month-cell{min-width:0;min-height:78px;padding:4px;overflow:hidden}
+  body .month-cell .summary-pill{padding:3px 1px;font-size:9px;white-space:nowrap}
+  body .month-cell .summary-pill.sales,body .month-cell .month-hot,body .month-cell .badge{display:none}
+  body .month-cell .day-number{font-size:12px}
+  body .month-count-prefix{display:none}
+  body .mobile-only{display:block}
+  body #mobileTimetable{margin:0 0 10px auto}
+  body #calendarPanel:has([data-view="month"].active) #mobileTimetable{display:none}
+  body .mobile-broadcast-card{display:flex;flex-direction:column;align-items:flex-start;gap:8px;width:100%;text-align:left;background:white;border:1px solid var(--line,#dfe6f0);border-radius:12px;padding:14px;margin:8px 0;color:#10213b;box-sizing:border-box;font:inherit;overflow-wrap:anywhere}
+  body .mobile-broadcast-card strong{font-size:15px;line-height:1.5}
+  body .mobile-broadcast-card>span{font-size:12px}
+  body .mobile-broadcast-card .mobile-broadcast-meta{color:#6b7890;font-size:11px}
+  body .mobile-results-heading{font-size:13px;font-weight:700;margin:14px 0 8px}
+  body .mobile-empty{padding:20px 12px;background:#fff;border:1px solid #dfe6f0;border-radius:12px;line-height:1.8;font-size:14px}
+  body .mobile-empty .btn{margin-top:12px}
+  body .perf-toolbar.perf-toolbar-v291{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:12px}
+  body .perf-toolbar .perf-filter-row{display:contents}
+  body .perf-toolbar label:has(#perfSearch){order:-4;grid-column:1/-1}
+  body .perf-toolbar label:has(#perfStart),body .perf-toolbar label:has(#perfEnd){order:-3}
+  body .perf-toolbar .quick-range{order:-2;grid-column:1/-1;display:flex;gap:4px}
+  body .perf-toolbar .quick-range button{flex:1;padding:8px 4px;min-height:40px;white-space:nowrap;font-size:11px}
+  body .perf-toolbar:not(.mobile-expanded) label:not(:has(#perfSearch,#perfStart,#perfEnd)),body .perf-toolbar:not(.mobile-expanded) #resetPerf{display:none}
+  body #mobilePerfFilters{grid-column:1/-1;min-height:44px}
+  body #performancePanel:not(.mobile-expanded)>:is(#autoBrief,#perfKpis,.two-col,#channelDetailCard,#productDetailCard){display:none}
+  body #performancePanel.mobile-expanded>#mobilePerfResults{display:none}
+  body #mobileAnalytics{margin:12px 0;width:100%}
+  body .review-state-filter{flex-wrap:nowrap;overflow-x:auto;max-width:100%;width:100%}
+  body .review-state-filter button{white-space:nowrap;flex:none;min-height:44px}
+  body .review-toolbar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  body .review-toolbar>.grow,body .review-toolbar>.review-state-filter,body .review-toolbar>.checkbox-inline{grid-column:1/-1}
+  body #reviewPanel>.notice{font-size:11px;padding:10px;line-height:1.5}
+}
