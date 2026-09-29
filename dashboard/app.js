@@ -1375,7 +1375,7 @@
       ${rows.map(r=>{
         const o=occurrenceRuleForRow(r);
         const splits=splitMap().get(clean(r.hsshow_id));
-        const splitLabel=splits&&splits.length?`<div class="small">분리입력됨: ${splits.map(s=>esc(clean(s.standard_product_name))).join(" · ")}</div>`:"";
+        const splitLabel=r.split_index?`<div class="small">선택한 분리 상품: ${esc(r.standard_product_name)}</div>`:splits&&splits.length?`<div class="small">분리입력됨: ${splits.map(s=>esc(clean(s.standard_product_name))).join(" · ")}</div>`:"";
         const display=overlayRow(r);
         const isManual=display.performance_source==="manual_override"||display.performance_source==="manual_split";
         // V3.9: 라방바 화면처럼 판매량·매출을 왼쪽에 큼직하게 배치해서
@@ -1386,11 +1386,11 @@
           <span>${pgmBadgeHtml(r)}${esc(getRawTitle(r))}${o?`<div class="small">지정상품: ${esc(o.standard_product_name)}</div>`:""}${splitLabel}
             <div class="small">판매량 <b class="perf-inline">${cnt(salesCount(display))}</b> · 매출 <b class="perf-inline money">${performanceOk(display)?money(sales(display)):"미확인"}</b>${isManual?' <span class="badge good">수동</span>':""}</div>
           </span>
-          <span class="history-actions"><button type="button" class="btn" data-override-edit="${esc(r.hsshow_id||"")}">실적/원본명 수정</button><button type="button" class="btn ${splits&&splits.length?"":""}" data-split-edit="${esc(r.hsshow_id||"")}">${splits&&splits.length?"상품 분리 수정":"상품 분리 입력"}</button><button type="button" class="btn ${o?"":"primary"}" data-occurrence-edit="${esc(r.hsshow_id||"")}">${o?"분류 수정":"이 방송 분류"}</button></span>
+          <span class="history-actions"><button type="button" class="btn" data-override-edit="${esc(r.hsshow_id||"")}">실적/원본명 수정</button><button type="button" class="btn" data-split-edit="${esc(r.hsshow_id||"")}">${splits&&splits.length?"상품 분리 수정":"상품 분리 입력"}</button><button type="button" class="btn ${o?"":"primary"}" data-occurrence-edit="${esc(r.hsshow_id||"")}" data-split-index="${esc(r.split_index||"")}">${r.split_index?"이 상품 분류 수정":o?"분류 수정":"이 방송 분류"}</button></span>
         </div>`;
       }).join("")}`;
     $("#historyBackBtn").onclick=()=>openHistoryDialog(state.historyContext.name,state.historyContext.kind);
-    $$("[data-occurrence-edit]").forEach(b=>b.onclick=()=>openOccurrenceEditor(b.dataset.occurrenceEdit));
+    $$("[data-occurrence-edit]").forEach(b=>b.onclick=()=>openOccurrenceEditor(b.dataset.occurrenceEdit,b.dataset.splitIndex));
     $$("[data-override-edit]").forEach(b=>b.onclick=()=>openOverrideEditor(b.dataset.overrideEdit));
     $$("[data-split-edit]").forEach(b=>b.onclick=()=>openSplitEditor(b.dataset.splitEdit));
   }
@@ -1411,7 +1411,7 @@
   // 일반 다이얼로그 폼으로 바꿨다. 탭을 오가도 입력값이 유지된다.
   // ============================================================
   function splitRowHtml(p={},broadcastDate=""){
-    return `<div class="split-row" data-split-row>
+    return `<div class="split-row" data-split-row data-split-index="${esc(p.split_index||"")}">
       <input type="text" class="split-name" list="masterProductNames" placeholder="상품명 (상세페이지 상품명 그대로)" value="${esc(clean(p.standard_product_name||""))}">
       <input type="text" inputmode="numeric" class="split-cnt" placeholder="판매량" value="${esc(clean(p.sales_cnt||""))}">
       <input type="text" inputmode="numeric" class="split-amt" placeholder="매출액(원)" value="${esc(clean(p.sales_amt||""))}">
@@ -1474,6 +1474,7 @@
   function setupOccurrenceMetadata(r){
     const existing=$("#occurrenceMetadata"); if(existing) existing.remove();
     for(const option of $("#editAction").options){
+      if(option.value==="save_occurrence") option.textContent="이 방송만 분류/수정";
       option.disabled=option.value==="save_occurrence"?!r:!!r && ["merge_product","mark_dynamic_title"].includes(option.value);
       if(option.value==="exclude"){option.textContent=r?"이 방송만 모니터링 제외":"모니터링 제외";if(r)option.disabled=occurrenceExcluded(r);}
       if(option.value==="restore"){option.textContent=r?"이 방송 제외 해제 (이전 상태 복원)":"제외 복원";if(r)option.disabled=!occurrenceExcluded(r);}
@@ -1539,7 +1540,7 @@
 
     let products;
     try{products=$$("#splitRows .split-row").map((row,i)=>({
-      ...(splitMap().get(clean(id))||[])[i],
+      ...(splitMap().get(clean(id))||[]).find(p=>clean(p.split_index)===clean(row.dataset.splitIndex)),
       ...readMetadataForm(row.querySelector(".broadcast-metadata")),
       standard_product_name:clean(row.querySelector(".split-name").value),
       sales_amt:readNonnegativeInteger(row.querySelector(".split-amt").value),
@@ -1570,7 +1571,7 @@
 
       state.adminMaster=state.adminMaster||{};
       const current=Array.isArray(state.adminMaster.occurrence_splits)?state.adminMaster.occurrence_splits:[];
-      const optimistic=products.map((p,i)=>({hsshow_id:id,split_index:String(i+1),...p}));
+      const optimistic=data.rows||products.map((p,i)=>({...p,hsshow_id:id,split_index:String(i+1),updated_at:data.saved_at||""}));
       state.adminMaster.occurrence_splits=[...current.filter(x=>clean(x.hsshow_id)!==clean(id)),...optimistic];
       invalidateDerived();
 
@@ -1601,21 +1602,24 @@
     }catch(e){ $("#splitError").textContent=e.message; }
   }
 
-  function openOccurrenceEditor(id){
+  function openOccurrenceEditor(id,splitIndex=""){
     if(!state.adminPassword){adminLogin();return;}
-    if(splitMap().get(clean(id))?.length && !occurrenceExcluded({hsshow_id:id})){openSplitEditor(id);return;}
+    delete $("#productForm").dataset.splitIndex;
+    const split=splitIndex?(splitMap().get(clean(id))||[]).find(p=>clean(p.split_index)===clean(splitIndex)):null;
+    if(splitIndex&&!split){showStatus("분리 상품이 변경되었습니다. 새로고침해주세요.","error");return;}
+    if(!split && splitMap().get(clean(id))?.length && !occurrenceExcluded({hsshow_id:id})){openSplitEditor(id);return;}
     const r=state.rows.find(x=>clean(x.hsshow_id)===clean(id)); if(!r) return;
     $("#historyDialog").close();
     $("#productDialogTitle").textContent="이 방송만 분류 · 시간/PGM 수정";
     $("#editRawTitle").value=getRawTitle(r);
     $("#editRawDisplay").value=getRawTitle(r);
     $("#editSourceStandard").value="";
-    const o=occurrenceRuleForRow(r)||overlayRow(r);
+    const o=split||occurrenceRuleForRow(r)||overlayRow(r);
     $("#editStandardName").value=o.standard_product_name||"";
     $("#editBrand").value=o.brand||""; $("#editGroup").value=o.product_group||""; $("#editIngredient").value=o.main_ingredient||"";
     setCategoryValues(o.category_major||r.category_major||"",o.category_middle||r.category_middle||"",o.category_sub||r.category_sub||"");
     if(!(o.category_major||r.category_major) || !(o.category_middle||r.category_middle)) applyCategoryFromProductGroup(); else updateCategoryUiFromCurrent("현재 등록 분류");
-    setupOccurrenceMetadata(r);
+    setupOccurrenceMetadata(split?null:r);
     $("#editAction").value=occurrenceExcluded(r)?"restore":"save_occurrence";
     $("#productForm").dataset.occurrenceId=clean(r.hsshow_id);
     $("#productForm").dataset.dynamicSingleOcc="1";
@@ -1626,6 +1630,17 @@
     $("#sameSlotWrap")?.classList.add("hidden");
     if($("#sameSlotWrap")) $("#sameSlotWrap").lastChild.textContent=" 같은 날짜·같은 시간·같은 홈쇼핑사의 방송행 전체를 이 표준상품으로 강제 통일";
     $("#applySameSlot").checked=false;
+    $("#editRawDisplay").disabled=true;
+    $("#unlockRawTitleBtn").disabled=!!split;
+    $("#productSaveError").textContent="";
+    if(split){
+      Object.assign($("#productForm").dataset,{splitIndex:clean(split.split_index),splitUpdatedAt:clean(split.updated_at),splitOriginalName:clean(split.standard_product_name),splitExpectedMetadata:JSON.stringify(Object.fromEntries(["standard_product_name","brand","product_group","main_ingredient","category_major","category_middle","category_sub"].map(field=>[field,clean(split[field])]))) });
+      $("#productDialogTitle").textContent="분리 상품 분류 · 신규 상품 등록";
+      $("#editBroadcastInfo").textContent=`${getDate(r)} · ${getPlatform(r)} · 분리 상품 ${split.split_index}: ${split.standard_product_name}`;
+      $("#aliasPreview").textContent="선택한 분리 상품의 분류만 수정합니다. 수량·매출·시간·PGM과 다른 분리 상품은 유지됩니다. 실적·시간 변경은 방송이력의 ‘상품 분리 수정’을 이용하세요.";
+      for(const option of $("#editAction").options){option.disabled=!["save_occurrence","link_existing","create_new"].includes(option.value);if(option.value==="save_occurrence")option.textContent="이 분리 상품만 수정";}
+      $("#editAction").value="save_occurrence";
+    }
     renderSimilarSuggestions(getRawTitle(r));
     $("#productDialog").showModal();
     toggleMergeTarget();
@@ -2101,14 +2116,15 @@
   }
 
   function openProductDialog(name,kind){
+    delete $("#productForm").dataset.splitIndex;
+    $("#unlockRawTitleBtn").disabled=false;
     setupOccurrenceMetadata(null);
     if(!state.adminPassword){ adminLogin(); return; }
     const item=findReviewItem(name,kind); if(!item) return;
     const scoped=reviewOccurrences(item.occurrences||[]);
     if(item.occurrenceExcluded){if(scoped.length===1)openOccurrenceEditor(scoped[0].hsshow_id);else openHistoryDialog(name,kind);return;}
     if(scoped.some(r=>r.split_index)){
-      const ids=[...new Set(scoped.map(r=>clean(r.hsshow_id)))];
-      if(ids.length===1) openSplitEditor(ids[0]); else openHistoryDialog(name,kind);
+      if(scoped.length===1) openOccurrenceEditor(scoped[0].hsshow_id,scoped[0].split_index); else openHistoryDialog(name,kind);
       return;
     }
     if(scoped.length===1 && kind!=="excluded"){openOccurrenceEditor(scoped[0].hsshow_id);return;}
@@ -2251,6 +2267,8 @@
     // 대한 분류(save_occurrence)로 저장해야 가변형 우선순위에 밀려
     // 무시되지 않는다.
     const dynamicOccId=$("#productForm").dataset.dynamicSingleOcc==="1"?$("#productForm").dataset.occurrenceId:"";
+    const splitIndex=$("#productForm").dataset.splitIndex||"";
+    if(splitIndex && (num(state.adminMaster?.schema_version)<4 || !["save_occurrence","link_existing","create_new"].includes(originalAction))){$("#productSaveError").textContent="분리 상품 편집을 지원하는 Worker 배포 후 데이터를 새로고침해주세요.";return;}
     if(dynamicOccId && ["exclude","restore"].includes(action)){
       await saveOccurrenceMonitoring(dynamicOccId,action==="exclude");
       return;
@@ -2258,6 +2276,7 @@
     if(dynamicOccId && (action==="link_existing" || action==="update_product" || action==="create_new")){
       action="save_occurrence";
     }
+    if(splitIndex) action="update_split_product";
 
     let sourceAliases=[];
     try{
@@ -2292,6 +2311,7 @@
       category_sub:categorySubValue(),
       manual_lock:"Y"
     };
+    if(splitIndex){Object.assign(body,{hsshow_id:dynamicOccId,split_index:splitIndex,expected_updated_at:$("#productForm").dataset.splitUpdatedAt,expected_standard_product_name:$("#productForm").dataset.splitOriginalName,expected_metadata:JSON.parse($("#productForm").dataset.splitExpectedMetadata||"{}")} );}
 
     if(action==="merge_product"){ body.source_standard_product_name=source; body.target_standard_product_name=$("#mergeTarget").value; }
     if(action==="exclude"){ body.scope=source&&!raw?"product":"alias"; }
@@ -2344,7 +2364,7 @@
 
       const rawDisplay=$("#editRawDisplay");
       const rawOccurrenceId=$("#productForm").dataset.rawOccurrenceId||"";
-      if(action!=="save_occurrence" && action!=="save_occurrence_batch" && rawOccurrenceId && rawDisplay && !rawDisplay.disabled && clean(rawDisplay.value)!==clean(raw)){
+      if(!splitIndex && action!=="save_occurrence" && action!=="save_occurrence_batch" && rawOccurrenceId && rawDisplay && !rawDisplay.disabled && clean(rawDisplay.value)!==clean(raw)){
         const rr=await fetch(`${API}/save`,{method:"POST",headers:{"Content-Type":"application/json","X-Admin-Password":state.adminPassword},body:JSON.stringify({action:"save_raw_title_override",hsshow_id:rawOccurrenceId,raw_title_corrected:clean(rawDisplay.value),note:"상품확인 화면 원본명 수동 수정"})});
         const rd=await rr.json(); if(!rr.ok||!rd.ok) throw new Error(rd.error||`원본명 수정 HTTP ${rr.status}`);
         const local=state.rows.find(x=>clean(x.hsshow_id)===clean(rawOccurrenceId));
@@ -2352,7 +2372,10 @@
       }
       // V3.0.1: GitHub/Worker 재조회 없이 방금 저장한 규칙을
       // 현재 화면에 즉시 반영한다. 전체 데이터는 다음 새로고침 때 동기화한다.
-      if(body.action!=="save_occurrence" && body.action!=="save_occurrence_batch" && body.action!=="exclude" && body.action!=="mark_dynamic_title") {
+      if(body.action==="update_split_product"){
+        state.adminMaster.occurrence_splits=(state.adminMaster.occurrence_splits||[]).map(p=>clean(p.hsshow_id)===dynamicOccId && clean(p.split_index)===splitIndex?data.row:p);
+        invalidateDerived();
+      } else if(body.action!=="save_occurrence" && body.action!=="save_occurrence_batch" && body.action!=="exclude" && body.action!=="mark_dynamic_title") {
         state.adminMaster=state.adminMaster||{};
         const optimistic={...body,review_status:"confirmed",enabled:"Y",manual_lock:"Y"};
         const current=Array.isArray(state.adminMaster.admin_rows)?state.adminMaster.admin_rows:[];
@@ -2988,5 +3011,3 @@
   setPerfRange("yesterday");
   loadData();
 })();
-
-
