@@ -1,6 +1,7 @@
 /* Presentation only: retain existing controls, data and responsive behavior. */
 :root{--bg:#f3f4f6;--surface:#fff;--line:#d8e0ec;--text:#152239;--muted:#62748d;--primary:#0755ed;--primary-soft:#edf3ff}
-body{background:var(--bg);font-family:Arial,"Malgun Gothic","Noto Sans KR",sans-serif}
+body{background:var(--bg);font-family:"Pretendard",system-ui,sans-serif}
+button,input,select,textarea{font-family:inherit}
 body .shell{max-width:1420px;padding:0 24px 32px}
 body .topbar{background:#fff;padding:24px 0 20px;margin:0;position:relative;gap:24px;align-items:center}
 body .topbar{box-shadow:0 0 0 100vmax #fff;clip-path:inset(0 -100vmax)}
