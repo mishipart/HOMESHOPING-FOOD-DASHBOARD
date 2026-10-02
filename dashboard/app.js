@@ -85,6 +85,12 @@
     return Number.isFinite(n) ? n : 0;
   };
   const money = v => `${Math.round(num(v) / 10000).toLocaleString("ko-KR")}만원`;
+  function summaryMoney(v){
+    const amount=num(v), size=Math.abs(amount);
+    if(size<1000000) return money(amount);
+    const unit=size>=100000000?100000000:1000000;
+    return `${(amount/unit).toLocaleString("ko-KR",{maximumFractionDigits:2})}${unit===100000000?"억원":"백만원"}`;
+  }
   const cnt = v => Math.round(num(v)).toLocaleString("ko-KR");
   const pad = n => String(n).padStart(2, "0");
   const keyDate = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
@@ -537,11 +543,13 @@
   function renderGlobalKpis(){
     const rows=visibleRows();
     const m=metricsForRows(rows);
+    const totalBroadcasts=metricsForRows(state.rows).broadcasts;
+    const foodRatio=totalBroadcasts?(m.broadcasts/totalBroadcasts*100).toLocaleString("ko-KR",{maximumFractionDigits:1}):"0";
     const pendingCount=getReviewItems("pending").length;
     const manual=rows.filter(r=>/manual/i.test(clean(r.performance_source))).length;
     $("#globalKpis").innerHTML=[
-      ["전체 방송",`${cnt(m.broadcasts)}회`,"식품 방송"],
-      ["확인된 매출",money(m.sales),"매출액 합계"],
+      ["전체방송 (수집 기준)",`${cnt(totalBroadcasts)}건 중`,`식품방송 ${cnt(m.broadcasts)}건 (${foodRatio}%)`],
+      ["확인된 매출",summaryMoney(m.sales),`매출액 합계 · ${money(m.sales)}`],
       ["평균 매출",money(m.avg),"실적 보유 방송 기준"],
       ["상품 확인 필요",`${cnt(pendingCount)}건`,"상품 매칭 검토"],
       ["수동 실적 확인",`${cnt(manual)}건`,"자동수집 예외"]
@@ -963,10 +971,10 @@
     const growth=pm.sales?((m.sales-pm.sales)/pm.sales*100):null;
     $("#autoBrief").innerHTML=`<div class="eyebrow">AUTO BRIEF</div><h3>선택기간 핵심 요약</h3>
       <div>선택기간 식품방송은 <b>${m.broadcasts}회</b>, 실적 확인은 <b>${m.confirmed}회</b>(${m.broadcasts?Math.round(m.confirmed/m.broadcasts*100):0}%)입니다.</div>
-      <div>총매출은 <b>${money(m.sales)}</b>, 방송당 평균매출은 <b>${money(m.avg)}</b>${growth===null?"":`, 직전 동일기간 대비 <b>${growth>=0?"▲":"▼"} ${Math.abs(growth).toFixed(1)}%</b>`}입니다.</div>`;
+      <div>총매출은 <b>${summaryMoney(m.sales)}</b> <small class="muted">(${money(m.sales)})</small>, 방송당 평균매출은 <b>${money(m.avg)}</b>${growth===null?"":`, 직전 동일기간 대비 <b>${growth>=0?"▲":"▼"} ${Math.abs(growth).toFixed(1)}%</b>`}입니다.</div>`;
     $("#perfKpis").innerHTML=[
       ["방송",`${cnt(m.broadcasts)}회`,""],["실적 확인",`${m.broadcasts?Math.round(m.confirmed/m.broadcasts*100):0}%`,`${m.confirmed}/${m.broadcasts}회`],
-      ["총 매출",money(m.sales),""],["평균 매출",money(m.avg),""],["총 판매량",cnt(m.units),""],
+      ["총 매출",summaryMoney(m.sales),money(m.sales)],["평균 매출",money(m.avg),""],["총 판매량",cnt(m.units),""],
       ["HOT 방송",`${rows.filter(r=>isHot(r,rows)).length}건`,""],["NEW 방송",`${rows.filter(r=>isNew(r,firstMap)).length}건`,""],
       ["PGM 방송",`${rows.filter(r=>pgmForRow(r)).length}건`,"특화 편성"],
       ["상품수",`${new Set(rows.map(getProductName)).size}개`,""]
@@ -2130,7 +2138,8 @@
     if(state.adminPassword){
       $("#adminState").textContent=`관리자 모드 · ${state.adminMaster.product_count||0}개 상품`;
       $("#adminState").classList.add("on");
-      $("#adminBtn").textContent="관리자 로그아웃";
+      $("#adminBtn .action-label").textContent="관리자 로그아웃";
+      $("#adminBtn").title="관리자 로그아웃";
       renderMasterDatalist();
     }
   }
@@ -2148,7 +2157,8 @@
     invalidateDerived();
     $("#adminState").textContent="조회 모드";
     $("#adminState").classList.remove("on");
-    $("#adminBtn").textContent="관리자 로그인";
+    $("#adminBtn .action-label").textContent="관리자 로그인";
+    $("#adminBtn").title="관리자 로그인";
     fillCommonFilters();
     renderGlobalKpis();
     renderActiveTab();

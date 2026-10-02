@@ -1,0 +1,80 @@
+/* Presentation only: retain existing controls, data and responsive behavior. */
+:root{--bg:#f3f4f6;--surface:#fff;--line:#d8e0ec;--text:#152239;--muted:#62748d;--primary:#0755ed;--primary-soft:#edf3ff}
+body{background:var(--bg);font-family:Arial,"Malgun Gothic","Noto Sans KR",sans-serif}
+body .shell{max-width:1420px;padding:0 24px 32px}
+body .topbar{background:#fff;padding:24px 0 20px;margin:0;position:relative;gap:24px;align-items:center}
+body .topbar{box-shadow:0 0 0 100vmax #fff;clip-path:inset(0 -100vmax)}
+body h1{font-size:26px;letter-spacing:-1px;margin:0 0 7px;font-weight:800}
+body .eyebrow{display:none}
+body #latestDataAt{font-size:11px}
+body .btn,body .icon-btn{border-radius:6px;box-shadow:none;font-size:12px;font-weight:700}
+body .btn.primary{background:var(--primary);border-color:var(--primary)}
+body .btn.admin{background:#fff;color:var(--text);border:1px solid var(--line)}
+body .tabs{display:flex;background:#fff;border-radius:0;padding:0;margin:0 0 24px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);gap:0;width:100%}
+body .tab{border-radius:0;padding:16px 26px;background:transparent;color:var(--text);border-bottom:2px solid transparent;box-shadow:none}
+body .tab.active{color:var(--primary);background:transparent;border-bottom-color:var(--primary);box-shadow:none}
+body .tab:hover{background:#f5f8ff}
+body #globalKpis{gap:0;background:#fff;border:1px solid var(--line);border-radius:8px;margin:22px 0 18px;overflow:hidden}
+body #globalKpis .kpi{border:0;border-right:1px solid var(--line);border-radius:0;box-shadow:none;padding:18px 22px;background:transparent}
+body #globalKpis .kpi:last-child{border-right:0}
+body #globalKpis .value{font-size:25px;letter-spacing:-.5px;color:#162d50;margin:8px 0 4px;font-variant-numeric:tabular-nums}
+body .kpi,body .card,body .brief-card,body .toolbar,body .review-card{box-shadow:none;border-radius:8px}
+body .section-head{margin:24px 0 16px}
+body h2{font-size:21px;letter-spacing:-.5px}
+body h3{font-size:17px;letter-spacing:-.3px}
+body .toolbar{padding:16px 18px;gap:14px;background:#fff;border-color:var(--line)}
+body .toolbar input:not([type=checkbox]),body .toolbar select{border-radius:5px;background:#fff}
+body .toolbar label{color:#526580}
+body .segmented{border-radius:6px;background:#eaf0f8;padding:3px}
+body .segmented button{border-radius:4px}
+body .segmented button.active{background:var(--primary);color:#fff}
+body .month-board{border-color:var(--line);border-radius:8px;overflow:hidden;background:#fff}
+body .month-head{background:#f8fafc;padding:13px;color:#526580}
+body .month-cell{background:#fff;padding:10px;min-height:128px;border-color:#e4e9f1}
+body .month-cell.other{background:#fafbfc}
+body .month-cell.today{box-shadow:inset 0 0 0 2px var(--primary)}
+body .summary-pill{border-radius:4px}
+body .review-card{padding:16px 18px;margin-bottom:8px;border-color:var(--line)}
+body .review-card h4{font-size:14px;line-height:1.5}
+body .notice{border-radius:6px;box-shadow:none}
+body .dialog-card{border-radius:10px}
+body button:focus-visible,body input:focus-visible,body select:focus-visible{outline:2px solid var(--primary);outline-offset:3px}
+body .topbar .tabs{width:auto;margin:0 0 0 auto;border:0;flex-wrap:nowrap;order:0}
+body .topbar .tab{padding:16px 14px;white-space:nowrap}
+body .topbar .tab{position:relative}
+body .topbar .tab + .tab::before{content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);height:18px;border-left:1px solid var(--line)}
+body .topbar .top-actions{display:flex;flex-wrap:nowrap;gap:8px;width:auto;flex-shrink:0}
+body .top-actions .btn{width:44px;height:44px;min-width:44px;padding:10px;display:grid;place-items:center}
+body .top-actions svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+body .action-label{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+@media(max-width:1100px){
+  body .topbar{flex-wrap:wrap;flex-direction:row}
+  body .topbar .top-actions{margin-left:auto}
+  body .topbar .tabs{order:1;width:100%;margin:0;border-top:1px solid var(--line)}
+  body .topbar .tab{flex:1}
+}
+@media(min-width:981px){
+  body .shell{display:flex;flex-direction:column}
+  body .topbar{order:-3}
+  body .tabs{order:-2;margin-bottom:0}
+  body #globalKpis{order:-1}
+}
+@media(max-width:760px){
+  body .shell{padding:0 12px 24px}
+  body .topbar{align-items:flex-start;padding:18px 0 14px;gap:12px}
+  body h1{font-size:22px}
+  body .tabs{margin:0 0 16px}
+  body .tabs .tab{padding:13px 6px;font-size:12px;min-height:44px}
+  body #globalKpis{overflow-x:auto;margin:12px 0;border-radius:6px}
+  body #globalKpis .kpi{flex:0 0 145px;padding:12px 14px}
+  body #globalKpis .value{font-size:18px;white-space:nowrap;letter-spacing:-.5px}
+  body #globalKpis .kpi:nth-child(2) .sub{display:block;font-size:10px;line-height:1.5}
+  body #globalKpis .kpi:first-child .sub{display:block;font-size:10px;line-height:1.5}
+  body .toolbar{padding:12px;gap:10px}
+  body .toolbar input:not([type=checkbox]),body .toolbar select{font-size:16px}
+  body .section-head{margin:16px 0 12px}
+  body .month-head{padding:10px 2px;font-size:11px}
+  body .month-cell{padding:4px;min-height:72px}
+  body .mobile-broadcast-card{border-radius:6px;box-shadow:none;border-color:var(--line);padding:14px}
+  body .review-card{padding:14px}
+}

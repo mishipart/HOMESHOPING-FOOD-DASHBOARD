@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>홈쇼핑 식품 모니터 V3.1.0</title>
   <link rel="stylesheet" href="./styles.css?v=3.16.0">
+  <link rel="stylesheet" href="./portal.css?v=3.17.0">
 </head>
 <body>
   <main class="shell">
@@ -14,21 +15,20 @@
         <h1>홈쇼핑 식품 모니터</h1>
         <div id="latestDataAt" class="muted">데이터 로드 준비</div>
       </div>
-      <div class="top-actions">
-        <button id="todayBtn" class="btn">오늘</button>
-        <button id="refreshBtn" class="btn primary">데이터 새로고침</button>
-        <button id="adminBtn" class="btn admin">관리자 로그인</button>
-      </div>
-    </header>
-
-    <section id="globalKpis" class="kpi-grid"></section>
-
     <nav class="tabs" aria-label="대시보드 탭">
       <button class="tab active" data-tab="calendar">캘린더</button>
       <button class="tab" data-tab="performance">실적 상세</button>
       <button class="tab" data-tab="review">상품 확인</button>
       <button class="tab" data-tab="watch">관심상품</button>
     </nav>
+      <div class="top-actions">
+        <button id="todayBtn" class="btn" title="오늘"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 11h18"/><path d="M9 15h6v3H9z"/></svg><span class="action-label">오늘</span></button>
+        <button id="refreshBtn" class="btn primary" title="데이터 새로고침"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M6 7a7 7 0 0 1 12-1l2 6M4 12l2 6a7 7 0 0 0 12-1"/></svg><span class="action-label">데이터 새로고침</span></button>
+        <button id="adminBtn" class="btn admin" title="관리자 로그인"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></svg><span class="action-label">관리자 로그인</span></button>
+      </div>
+    </header>
+
+    <section id="globalKpis" class="kpi-grid"></section>
 
     <section id="statusBar" class="status hidden"></section>
 
@@ -352,6 +352,6 @@
   <script src="./config.js?v=3.1.0"></script>
   <script src="./pgm_schedule.js?v=3.1.0"></script>
   <script src="./food_scope.js?v=3.11.0"></script>
-  <script src="./app.js?v=3.16.0"></script>
+  <script src="./app.js?v=3.17.0"></script>
 </body>
 </html>
