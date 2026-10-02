@@ -8,6 +8,11 @@ body .topbar{box-shadow:0 0 0 100vmax #fff;clip-path:inset(0 -100vmax)}
 body h1{font-size:26px;letter-spacing:-1px;margin:0 0 7px;font-weight:800}
 body .eyebrow{display:none}
 body #latestDataAt{font-size:11px}
+body .brand-home{display:flex;flex-direction:column;align-items:center;width:fit-content;color:var(--text);text-decoration:none}
+body .brand-home .brandLogo{display:block;width:210px;max-width:100%;height:auto}
+body .brand-home h1{font-size:13px;line-height:1.4;letter-spacing:0;margin:7px 0 10px;font-weight:700}
+body .brand-home:focus-visible{outline:2px solid var(--primary);outline-offset:4px}
+@media(max-width:760px){body .brand-home .brandLogo{width:185px}}
 body .btn,body .icon-btn{border-radius:6px;box-shadow:none;font-size:12px;font-weight:700}
 body .btn.primary{background:var(--primary);border-color:var(--primary)}
 body .btn.admin{background:#fff;color:var(--text);border:1px solid var(--line)}
