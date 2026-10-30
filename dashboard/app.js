@@ -2069,14 +2069,7 @@
 
     const meta=$("#existingProductMeta");
     if(meta){
-      meta.innerHTML=`
-        <b>기존 표준상품 선택됨</b>
-        <span>표준명: ${esc(product.standard_product_name||"-")}</span>
-        <span>브랜드: ${esc(product.brand||"-")}</span>
-        <span>상품군: ${esc(product.product_group||"-")}</span>
-        <span>주원료: ${esc(product.main_ingredient||"-")}</span>
-        <span>분류: ${esc([product.category_major,product.category_middle,product.category_sub].filter(Boolean).join(" > ")||"-")}</span>
-        <span>연결 원본명: ${Number(product.alias_count||0).toLocaleString()}개</span>`;
+      meta.innerHTML=`<b>기존 표준상품 선택됨</b><span>연결 원본명: ${Number(product.alias_count||0).toLocaleString()}개</span>`;
       meta.classList.remove("hidden");
     }
 
