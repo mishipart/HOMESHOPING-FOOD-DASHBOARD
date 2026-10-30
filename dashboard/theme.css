@@ -7,10 +7,11 @@
   --hot:#ffae91;--hot-soft:#452e29;--new:#91c9ff;--new-soft:#25394e;
   --shadow:none;
 }
-html[data-theme="dark"] body :where(.topbar,.tabs,#globalKpis,.btn,.icon-btn,.toolbar,.card,.brief-card,.review-card,.month-board,.month-cell,.week-board,.day-table,.accordion-head,.summary-chip,.dialog-card,.chip,.suggestion-btn,.history-date-row,.audit-table,.master-search-dropdown,.date-cell,.day-grid-cell.has-events,.mobile-broadcast-card,.mobile-empty) {
+html[data-theme="dark"] body :is(.topbar,.tabs,.quick-range button,.btn,.icon-btn,.toolbar,.card,.brief-card,.review-card,.month-board,.month-cell,.week-board,.day-table,.accordion-head,.summary-chip,.dialog-card,.chip,.suggestion-btn,.history-date-row,.audit-table,.master-search-dropdown,.date-cell,.day-grid-cell.has-events,.mobile-broadcast-card,.mobile-empty) {
   background:var(--surface);color:var(--text);border-color:var(--line);
 }
 html[data-theme="dark"] body .topbar {box-shadow:0 0 0 100vmax var(--surface)}
+html[data-theme="dark"] body #globalKpis {background:var(--surface);color:var(--text);border-color:var(--line)}
 html[data-theme="dark"] body .brandLogo {filter:brightness(0) invert(1)}
 html[data-theme="dark"] body :is(input,select,textarea) {background:var(--bg);color:var(--text);border-color:var(--line)}
 html[data-theme="dark"] body :is(.toolbar input:not([type=checkbox]),.toolbar select) {background:var(--bg)}
