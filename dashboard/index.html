@@ -7,7 +7,7 @@
   <title>홈쇼핑 식품 모니터 V3.1.0</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
   <link rel="stylesheet" href="./styles.css?v=3.16.0">
-  <link rel="stylesheet" href="./portal.css?v=3.17.2">
+  <link rel="stylesheet" href="./portal.css?v=3.18.0">
   <link rel="stylesheet" href="./theme.css?v=2">
 </head>
 <body>
@@ -230,6 +230,18 @@
         <h3 id="productDialogTitle">상품 관리</h3>
         <button value="cancel" class="icon-btn">✕</button>
       </div>
+        <label class="product-action-field">처리 방식
+          <select id="editAction">
+            <option value="save_occurrence" disabled>이 방송만 분류/수정</option>
+            <option value="link_existing">기존 상품으로 연결</option>
+            <option value="create_new">신규 상품 등록</option>
+            <option value="update_product">기존 분류 수정</option>
+            <option value="merge_product">다른 상품과 합치기</option>
+            <option value="mark_dynamic_title">가변형 방송명 · 방송별 분류</option>
+            <option value="exclude">모니터링 제외</option>
+            <option value="restore">제외 복원</option>
+          </select>
+        </label>
       <input id="editRawTitle" type="hidden">
       <input id="editSourceStandard" type="hidden">
       <div id="editBroadcastInfo" class="mini-info"></div>
@@ -266,18 +278,7 @@
           <button type="button" id="unlockMasterMetaBtn" class="btn">정보 수정</button>
           <span class="small">기존 상품 연결 시 마스터 정보는 기본 잠금됩니다.</span>
         </div>
-        <label>처리 방식
-          <select id="editAction">
-            <option value="save_occurrence" disabled>이 방송만 분류/수정</option>
-            <option value="link_existing">기존 상품으로 연결</option>
-            <option value="create_new">신규 상품 등록</option>
-            <option value="update_product">기존 분류 수정</option>
-            <option value="merge_product">다른 상품과 합치기</option>
-            <option value="mark_dynamic_title">가변형 방송명 · 방송별 분류</option>
-            <option value="exclude">모니터링 제외</option>
-            <option value="restore">제외 복원</option>
-          </select>
-        </label>
+
         <label id="mergeTargetWrap" class="full hidden">합칠 대상 기존 상품
           <input id="mergeTarget" list="masterProductNames" placeholder="표준 상품명 검색">
         </label>
@@ -358,7 +359,7 @@
   <script src="./config.js?v=3.1.0"></script>
   <script src="./pgm_schedule.js?v=3.1.0"></script>
   <script src="./food_scope.js?v=3.11.0"></script>
-  <script src="./app.js?v=3.17.0"></script>
+  <script src="./app.js?v=3.18.0"></script>
 </body>
 </html>
 
